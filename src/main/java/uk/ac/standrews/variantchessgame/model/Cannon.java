@@ -12,55 +12,52 @@ public class Cannon extends VariantChessPiece {
         int endX = move.getEndX();
         int endY = move.getEndY();
 
+        // 确保目标位置在棋盘范围内
         if (endX < 0 || endX >= 8 || endY < 0 || endY >= 8) {
             return false;
         }
 
+        // 确保起始位置和目标位置不同
+        if (startX == endX && startY == endY) {
+            return false;
+        }
+
+        // 确保是直线移动
         if (startX != endX && startY != endY) {
             return false;
         }
 
         boolean isCapture = board.getPieceAt(endX, endY) != null;
+        int piecesInBetween = 0;
 
+        // 处理纵向移动
         if (startX == endX) {
             int step = (endY > startY) ? 1 : -1;
-            int y = startY + step;
-            int piecesInBetween = 0;
-            while (y != endY) {
+            for (int y = startY + step; y != endY; y += step) {
                 if (board.getPieceAt(startX, y) != null) {
                     piecesInBetween++;
                 }
-                y += step;
             }
-            if (isCapture) {
-                if (piecesInBetween == 1) {
-                    move.setCapture(true);
-                    return true;
-                }
-            } else {
-                if (piecesInBetween == 0) {
-                    return true;
-                }
-            }
-        } else {
+        }
+        // 处理横向移动
+        else {
             int step = (endX > startX) ? 1 : -1;
-            int x = startX + step;
-            int piecesInBetween = 0;
-            while (x != endX) {
+            for (int x = startX + step; x != endX; x += step) {
                 if (board.getPieceAt(x, startY) != null) {
                     piecesInBetween++;
                 }
-                x += step;
             }
-            if (isCapture) {
-                if (piecesInBetween == 1) {
-                    move.setCapture(true);
-                    return true;
-                }
-            } else {
-                if (piecesInBetween == 0) {
-                    return true;
-                }
+        }
+
+        // 判断是否符合吃子或移动的规则
+        if (isCapture) {
+            if (piecesInBetween == 1) {
+                move.setCapture(true);
+                return true;
+            }
+        } else {
+            if (piecesInBetween == 0) {
+                return true;
             }
         }
 

@@ -2,8 +2,15 @@ package uk.ac.standrews.variantchessgame.model;
 
 import java.util.Random;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class VariantChessBoard {
     private VariantChessPiece[][] board;
+
+    public VariantChessPiece[][] getBoard() {
+        return board;
+    }
 
     public VariantChessBoard() {
         board = new VariantChessPiece[8][8];
@@ -35,15 +42,13 @@ public class VariantChessBoard {
 
     private void placePawnsAndCannons(int row, Color color) {
         Random rand = new Random();
-        int[] positions = {0, 1, 2, 3, 4, 5, 6, 7};
+        int[] positions = {0, 2, 3, 4, 5, 6};  // 固定炮的位置
         shuffleArray(positions, rand);
 
-        for (int i = 0; i < 8; i++) {
-            if (i < 6) {
-                board[row][positions[i]] = new Pawn(color);
-            } else {
-                board[row][positions[i]] = new Cannon(color);
-            }
+        board[row][1] = new Cannon(color);  // 固定炮的位置
+        board[row][6] = new Cannon(color);  // 固定炮的位置
+        for (int i = 0; i < positions.length; i++) {
+            board[row][positions[i]] = new Pawn(color);
         }
     }
 
@@ -59,4 +64,13 @@ public class VariantChessBoard {
     public VariantChessPiece getPieceAt(int x, int y) {
         return board[x][y];
     }
+
+    public void movePiece(VariantChessMove move) {
+        VariantChessPiece piece = board[move.getStartX()][move.getStartY()];
+        if (piece != null) {
+            board[move.getStartX()][move.getStartY()] = null;
+            board[move.getEndX()][move.getEndY()] = piece;
+        }
+    }
+
 }

@@ -1,6 +1,10 @@
 package uk.ac.standrews.variantchessgame.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Pawn extends VariantChessPiece {
+    private static final Logger logger = LoggerFactory.getLogger(Pawn.class);
     private boolean isFirstMove;
 
     public Pawn(Color color) {
@@ -14,37 +18,46 @@ public class Pawn extends VariantChessPiece {
         int startY = move.getStartY();
         int endX = move.getEndX();
         int endY = move.getEndY();
+        logger.info("Validating move for Pawn: startX={}, startY={}, endX={}, endY={}", startX, startY, endX, endY);
 
         // 判断移动是否在棋盘内
         if (endX < 0 || endX >= 8 || endY < 0 || endY >= 8) {
+            logger.warn("Move out of bounds.");
             return false;
         }
 
-        int direction = (this.getColor() == Color.WHITE) ? -1 : 1;
+        int direction = (this.getColor() == Color.WHITE) ? 1 : -1;
 
         // 第一次移动
         if (isFirstMove) {
-            if (endX == startX + direction && startY == endY && board.getPieceAt(endX, endY) == null) {
+            if ((endY == startY + direction || endY == startY + 2 * direction) && startX == endX && board.getPieceAt(endX, endY) == null) {
+                if (endY == startY + 2 * direction && board.getPieceAt(startX, startY + direction) == null) {
+                    isFirstMove = false;
+                }
+                logger.info("First move is valid.");
+                return true;
+            }
+        } else {
+            // 之后的移动：向前
+            if (endY == startY + direction && startX == endX && board.getPieceAt(endX, endY) == null) {
                 isFirstMove = false;
+                logger.info("Move forward is valid.");
                 return true;
             }
-            return false;
-        }
 
-        // 之后的移动
-        if (endX == startX + direction && startY == endY && board.getPieceAt(endX, endY) == null) {
-            return true;
-        }
-
-        // 吃掉敌方棋子
-        if (endX == startX + direction && Math.abs(endY - startY) == 1) {
-            VariantChessPiece targetPiece = board.getPieceAt(endX, endY);
-            if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
-                move.setCapture(true);
-                return true;
+            // 吃掉敌方棋子
+            if (endY == startY + direction && Math.abs(endX - startX) == 1) {
+                VariantChessPiece targetPiece = board.getPieceAt(endX, endY);
+                if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
+                    move.setCapture(true);
+                    isFirstMove = false;
+                    logger.info("Capture move is valid.");
+                    return true;
+                }
             }
         }
 
-        return false; // 如果不符合任何合法移动规则，返回 false
+        logger.warn("Move is invalid.");
+        return false;
     }
 }
