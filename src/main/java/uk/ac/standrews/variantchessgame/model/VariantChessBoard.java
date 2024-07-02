@@ -41,14 +41,15 @@ public class VariantChessBoard {
     }
 
     private void placePawnsAndCannons(int row, Color color) {
-        Random rand = new Random();
-        int[] positions = {0, 2, 3, 4, 5, 6};  // 固定炮的位置
-        shuffleArray(positions, rand);
-
+        // 固定放置炮的位置
         board[row][1] = new Cannon(color);  // 固定炮的位置
         board[row][6] = new Cannon(color);  // 固定炮的位置
-        for (int i = 0; i < positions.length; i++) {
-            board[row][positions[i]] = new Pawn(color);
+
+        // 按固定位置放置兵
+        for (int col = 0; col < 8; col++) {
+            if (col != 1 && col != 6) {
+                board[row][col] = new Pawn(color);
+            }
         }
     }
 

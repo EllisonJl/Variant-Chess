@@ -1,0 +1,45 @@
+2024-06-28T15:02:46.182+01:00 DEBUG 42251 --- [variantchessgame] [SIGHUP handler] java.lang.Runtime                        : Runtime.exit() called with status: 129
+
+java.lang.Throwable: Runtime.exit(129)
+	at java.base/java.lang.Shutdown.logRuntimeExit(Shutdown.java:179) ~[na:na]
+	at java.base/java.lang.Shutdown.exit(Shutdown.java:160) ~[na:na]
+	at java.base/java.lang.Terminator$1.handle(Terminator.java:51) ~[na:na]
+	at java.base/jdk.internal.misc.Signal$1.run(Signal.java:218) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2024-06-28T15:02:46.183+01:00 DEBUG 42251 --- [variantchessgame] [SIGTERM handler] java.lang.Runtime                        : Runtime.exit() called with status: 143
+
+java.lang.Throwable: Runtime.exit(143)
+	at java.base/java.lang.Shutdown.logRuntimeExit(Shutdown.java:179) ~[na:na]
+	at java.base/java.lang.Shutdown.exit(Shutdown.java:160) ~[na:na]
+	at java.base/java.lang.Terminator$1.handle(Terminator.java:51) ~[na:na]
+	at java.base/jdk.internal.misc.Signal$1.run(Signal.java:218) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2024-06-28T15:02:46.182+01:00 DEBUG 42251 --- [variantchessgame] [SIGHUP handler] java.lang.Runtime                        : Runtime.exit() called with status: 129
+
+java.lang.Throwable: Runtime.exit(129)
+	at java.base/java.lang.Shutdown.logRuntimeExit(Shutdown.java:179) ~[na:na]
+	at java.base/java.lang.Shutdown.exit(Shutdown.java:160) ~[na:na]
+	at java.base/java.lang.Terminator$1.handle(Terminator.java:51) ~[na:na]
+	at java.base/jdk.internal.misc.Signal$1.run(Signal.java:218) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2024-06-28T15:02:46.196+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.b.a.ApplicationAvailabilityBean      : Application availability state ReadinessState changed from ACCEPTING_TRAFFIC to REFUSING_TRAFFIC
+2024-06-28T15:02:46.196+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] ConfigServletWebServerApplicationContext : Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@69504ae9, started on Thu Jun 27 11:10:09 BST 2024
+2024-06-28T15:02:46.199+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase 2147483647
+2024-06-28T15:02:46.200+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Bean 'applicationTaskExecutor' completed its stop procedure
+2024-06-28T15:02:46.200+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase 2147483547
+2024-06-28T15:02:46.200+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Bean 'org.springframework.kafka.config.internalKafkaListenerEndpointRegistry' completed its stop procedure
+2024-06-28T15:02:46.200+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase 2147482623
+2024-06-28T15:02:46.200+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Bean 'webServerGracefulShutdown' completed its stop procedure
+2024-06-28T15:02:46.200+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase 2147481599
+2024-06-28T15:02:46.219+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Bean 'webServerStartStop' completed its stop procedure
+2024-06-28T15:02:46.219+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase -2147483647
+2024-06-28T15:02:46.219+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Bean 'springBootLoggingLifecycle' completed its stop procedure
+2024-06-28T15:02:46.219+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase -2147483648
+2024-06-28T15:02:46.220+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.c.support.DefaultLifecycleProcessor  : Bean 'kafkaProducerFactory' completed its stop procedure
+2024-06-28T15:02:46.220+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.b.f.support.DisposableBeanAdapter    : Unknown return value type from custom destroy method 'shutdown' on bean with name 'elasticsearchClient': class co.elastic.clients.elasticsearch.shutdown.ElasticsearchShutdownClient
+2024-06-28T15:02:46.220+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] .n.c.PoolingNHttpClientConnectionManager : Connection manager is shutting down
+2024-06-28T15:02:46.221+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] .n.c.PoolingNHttpClientConnectionManager : Connection manager shut down
+2024-06-28T15:02:46.222+01:00 DEBUG 42251 --- [variantchessgame] [SpringApplicationShutdownHook] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'

@@ -18,11 +18,11 @@ public class GameController {
         this.board = board;
     }
 
-    @PostMapping("/move")
+    @PostMapping("/movePawn")
     public boolean makeMove(@RequestBody VariantChessMove move) {
         logger.info("Received move request: startX={}, startY={}, endX={}, endY={}", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY());
         VariantChessPiece piece = board.getPieceAt(move.getStartX(), move.getStartY());
-
+        System.out.println("你选择的棋子是："+piece);
         if (piece != null && piece instanceof Pawn) {
             logger.info("Piece at start position is a Pawn.");
             if (piece.isValidMove(move, board)) {
