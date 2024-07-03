@@ -51,7 +51,7 @@ public class Cannon extends VariantChessPiece {
 
         // 判断是否符合吃子或移动的规则
         if (isCapture) {
-            if (piecesInBetween == 1) {
+            if (piecesInBetween == 1 && board.getPieceAt(endX, endY).getColor() != this.getColor()) {
                 move.setCapture(true);
                 return true;
             }

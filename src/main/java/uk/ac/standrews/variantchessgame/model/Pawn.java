@@ -35,15 +35,24 @@ public class Pawn extends VariantChessPiece {
                     // 第一次移动两格
                     isFirstMove = false;
                     logger.info("First move registered, isFirstMove set to false.");
-                    System.out.println("第一次移动的状态："+isFirstMove);
                 } else if (endRow == startRow + direction) {
                     // 第一次移动一格
                     isFirstMove = false;
                     logger.info("First move registered, isFirstMove set to false.");
-                    System.out.println("第一次移动的状态："+isFirstMove);
                 }
                 logger.info("First move is valid.");
                 return true;
+            }
+
+            // 吃掉敌方棋子（第一次移动）
+            if (endRow == startRow + direction && Math.abs(endCol - startCol) == 1) {
+                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
+                if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
+                    isFirstMove = false;
+                    move.setCapture(true);
+                    logger.info("First capture move is valid.");
+                    return true;
+                }
             }
         } else {
             // 之后的移动：向前
