@@ -40,4 +40,17 @@ public class King extends VariantChessPiece {
 
         return true;
     }
+
+    // 移动国王的方法
+    public void move(VariantChessMove move, VariantChessBoard board) {
+        if (isValidMove(move, board)) {
+            // 移除捕捉的敌方棋子
+            if (move.isCapture()) {
+                board.getBoard()[move.getEndX()][move.getEndY()] = null;
+            }
+            // 移动国王
+            board.getBoard()[move.getEndX()][move.getEndY()] = this;
+            board.getBoard()[move.getStartX()][move.getStartY()] = null;
+        }
+    }
 }
