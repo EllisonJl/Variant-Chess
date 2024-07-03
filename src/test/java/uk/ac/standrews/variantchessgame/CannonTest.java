@@ -17,14 +17,6 @@ class CannonTest {
         board = new VariantChessBoard();
         whiteCannon = new Cannon(Color.WHITE);
         blackCannon = new Cannon(Color.BLACK);
-
-        // 清空棋盘
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                board.getBoard()[i][j] = null;
-            }
-        }
-        board.getBoard()[2][2] = whiteCannon;
     }
 
     @Test
@@ -119,8 +111,12 @@ class CannonTest {
         VariantChessMove move = new VariantChessMove(2, 2, 2, 6);
         assertFalse(whiteCannon.isValidMove(move, board), "Cannon should not be able to capture its own piece by jumping over exactly one piece.");
     }
+
     @Test
     void testCannonColorAfterMove() {
+        // 放置白炮在 (2, 2)
+        board.getBoard()[2][2] = whiteCannon;
+
         // 移动白炮到 (2, 5)
         VariantChessMove move = new VariantChessMove(2, 2, 2, 5);
         assertTrue(whiteCannon.isValidMove(move, board), "Cannon should be able to move in a straight line to an empty position.");
@@ -131,7 +127,7 @@ class CannonTest {
 
         // 检查移动后的棋子颜色是否仍然是白色
         VariantChessPiece piece = board.getPieceAt(2, 5);
-//        assertNotNull(piece, "There should be a piece at the new position.");
+        assertNotNull(piece, "There should be a piece at the new position.");
         assertTrue(piece instanceof Cannon, "The piece at the new position should be a Cannon.");
         assertEquals(Color.WHITE, piece.getColor(), "The Cannon should remain white after the move.");
     }
