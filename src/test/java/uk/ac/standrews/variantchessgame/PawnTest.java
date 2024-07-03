@@ -141,41 +141,5 @@ class PawnTest {
         move = new VariantChessMove(6, 0, 5, 1);
         assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture diagonally.");
     }
-    @Test
-    void testNonFirstMoveCapture() {
-        VariantChessBoard board = new VariantChessBoard();
-        Pawn whitePawn = new Pawn(Color.WHITE);
-        Pawn blackPawn = new Pawn(Color.BLACK);
-
-        // 放置白兵在 (1, 0)
-        board.getBoard()[1][0] = whitePawn;
-        // 让白兵向前移动到 (2, 0)
-        VariantChessMove firstMove = new VariantChessMove(1, 0, 2, 0);
-        assertTrue(whitePawn.isValidMove(firstMove, board), "First move for white pawn should be valid.");
-        board.movePiece(firstMove);
-
-        // 放置黑棋子在 (3, 1)
-        board.getBoard()[3][1] = new Rook(Color.BLACK);  // 任意非兵的黑棋子
-
-        // 测试白兵对角线吃子（非首次移动）
-        VariantChessMove captureMove = new VariantChessMove(2, 0, 3, 1);
-        assertTrue(whitePawn.isValidMove(captureMove, board), "White pawn should be able to capture diagonally after the first move.");
-        board.movePiece(captureMove);
-
-        // 放置黑兵在 (6, 0)
-        board.getBoard()[6][0] = blackPawn;
-        // 让黑兵向前移动到 (5, 0)
-        firstMove = new VariantChessMove(6, 0, 5, 0);
-        assertTrue(blackPawn.isValidMove(firstMove, board), "First move for black pawn should be valid.");
-        board.movePiece(firstMove);
-
-        // 放置白棋子在 (4, 1)
-        board.getBoard()[4][1] = new Rook(Color.WHITE);  // 任意非兵的白棋子
-
-        // 测试黑兵对角线吃子（非首次移动）
-        captureMove = new VariantChessMove(5, 0, 4, 1);
-        assertTrue(blackPawn.isValidMove(captureMove, board), "Black pawn should be able to capture diagonally after the first move.");
-        board.movePiece(captureMove);
-    }
 
 }

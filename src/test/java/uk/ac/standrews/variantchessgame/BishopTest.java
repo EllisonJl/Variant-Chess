@@ -26,14 +26,14 @@ class BishopTest {
         // 有效的田字形移动到空位 (4, 4)
         VariantChessMove move = new VariantChessMove(2, 2, 4, 4);
         assertTrue(whiteBishop.isValidMove(move, board), "Bishop should be able to move in a田字形 move to an empty position.");
-        whiteBishop.move(move, board);
+        board.movePiece(move);
         assertEquals(whiteBishop, board.getPieceAt(4, 4), "Bishop should be at the new position after move.");
         assertNull(board.getPieceAt(2, 2), "Original position should be empty after move.");
 
-        // 有效的田字形移动到空位 (2, 0)
+        // 有效的田字形移动到空位 (0, 0)
         move = new VariantChessMove(4, 4, 2, 2);
         assertTrue(whiteBishop.isValidMove(move, board), "Bishop should be able to move in a田字形 move to an empty position.");
-        whiteBishop.move(move, board);
+        board.movePiece(move);
         assertEquals(whiteBishop, board.getPieceAt(2, 2), "Bishop should be at the new position after move.");
         assertNull(board.getPieceAt(4, 4), "Original position should be empty after move.");
     }
@@ -61,7 +61,7 @@ class BishopTest {
         VariantChessMove move = new VariantChessMove(2, 2, 4, 4);
         assertTrue(whiteBishop.isValidMove(move, board), "Bishop should be able to capture an enemy piece by moving in a田字形.");
         assertTrue(move.isCapture(), "Move should be marked as a capture.");
-        whiteBishop.move(move, board);
+        board.movePiece(move);
         assertEquals(whiteBishop, board.getPieceAt(4, 4), "Bishop should be at the new position after capture.");
         assertNull(board.getPieceAt(2, 2), "Original position should be empty after capture.");
     }
@@ -84,7 +84,7 @@ class BishopTest {
         // 有效的田字形移动到空位 (4, 4)
         VariantChessMove move = new VariantChessMove(2, 2, 4, 4);
         assertTrue(whiteBishop.isValidMove(move, board), "Bishop should be able to move in a田字形 with a piece in the middle.");
-        whiteBishop.move(move, board);
+        board.movePiece(move);
         assertEquals(whiteBishop, board.getPieceAt(4, 4), "Bishop should be at the new position after move.");
         assertNull(board.getPieceAt(2, 2), "Original position should be empty after move.");
     }
@@ -94,7 +94,7 @@ class BishopTest {
         // 移动白象到 (4, 4)
         VariantChessMove move = new VariantChessMove(2, 2, 4, 4);
         assertTrue(whiteBishop.isValidMove(move, board), "Bishop should be able to move in a田字形 move to an empty position.");
-        whiteBishop.move(move, board);
+        board.movePiece(move);
         assertEquals(whiteBishop, board.getPieceAt(4, 4), "Bishop should be at the new position after move.");
         assertNull(board.getPieceAt(2, 2), "Original position should be empty after move.");
 
@@ -113,7 +113,7 @@ class BishopTest {
         // 有效的田字形移动到空位 (4, 4)
         VariantChessMove move = new VariantChessMove(2, 2, 4, 4);
         assertTrue(whiteBishop.isValidMove(move, board), "Bishop should be able to move in a田字形 with a piece blocking the path.");
-        whiteBishop.move(move, board);
+        board.movePiece(move);
         assertEquals(whiteBishop, board.getPieceAt(4, 4), "Bishop should be at the new position after move.");
         assertNull(board.getPieceAt(2, 2), "Original position should be empty after move.");
     }

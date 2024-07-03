@@ -42,12 +42,4 @@ public class Bishop extends VariantChessPiece {
         move.setCapture(targetPiece != null && targetPiece.getColor() != this.getColor());
         return true;
     }
-
-    // 移动象棋子的方法
-    public void move(VariantChessMove move, VariantChessBoard board) {
-        if (isValidMove(move, board)) {
-            board.getBoard()[move.getEndX()][move.getEndY()] = this;
-            board.getBoard()[move.getStartX()][move.getStartY()] = null;
-        }
-    }
 }

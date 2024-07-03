@@ -1,7 +1,6 @@
 package uk.ac.standrews.variantchessgame.model;
 
 import java.util.Random;
-
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,6 +23,7 @@ public class VariantChessBoard {
         placeMajorPieces(7, Color.BLACK);
         printBoard();
     }
+
     private void printBoard() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -37,7 +37,6 @@ public class VariantChessBoard {
             System.out.println();
         }
     }
-
 
     private void placeMajorPieces(int row, Color color) {
         board[row][0] = new Rook(color);
@@ -53,17 +52,43 @@ public class VariantChessBoard {
         board[row][pieces[3]] = new Bishop(color);
         board[row][pieces[4]] = new Queen(color);
         board[row][pieces[5]] = new King(color);
+
+        // 对称放置黑棋的主要棋子
+        int blackRow = 7 - row;
+        Color oppositeColor = (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
+
+        board[blackRow][0] = new Rook(oppositeColor);
+        board[blackRow][7] = new Rook(oppositeColor);
+        board[blackRow][pieces[0]] = new Knight(oppositeColor);
+        board[blackRow][pieces[1]] = new Knight(oppositeColor);
+        board[blackRow][pieces[2]] = new Bishop(oppositeColor);
+        board[blackRow][pieces[3]] = new Bishop(oppositeColor);
+        board[blackRow][pieces[4]] = new Queen(oppositeColor);
+        board[blackRow][pieces[5]] = new King(oppositeColor);
     }
 
     private void placePawnsAndCannons(int row, Color color) {
         // 固定放置炮的位置
-        board[row][1] = new Cannon(color);  // 固定炮的位置
-        board[row][6] = new Cannon(color);  // 固定炮的位置
+        board[row][1] = new Cannon(color);
+        board[row][6] = new Cannon(color);
 
         // 按固定位置放置兵
         for (int col = 0; col < 8; col++) {
             if (col != 1 && col != 6) {
                 board[row][col] = new Pawn(color);
+            }
+        }
+
+        // 对称放置黑棋的兵和炮
+        int blackRow = 7 - row;
+        Color oppositeColor = (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
+
+        board[blackRow][1] = new Cannon(oppositeColor);
+        board[blackRow][6] = new Cannon(oppositeColor);
+
+        for (int col = 0; col < 8; col++) {
+            if (col != 1 && col != 6) {
+                board[blackRow][col] = new Pawn(oppositeColor);
             }
         }
     }
@@ -83,11 +108,9 @@ public class VariantChessBoard {
 
     public void movePiece(VariantChessMove move) {
         VariantChessPiece piece = board[move.getStartX()][move.getStartY()];
-        if (piece != null) {
+        if (piece != null && piece.isValidMove(move, this)) {
             board[move.getStartX()][move.getStartY()] = null;
             board[move.getEndX()][move.getEndY()] = piece;
         }
     }
-
-
 }

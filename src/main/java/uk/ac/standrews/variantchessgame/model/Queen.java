@@ -56,4 +56,5 @@ public class Queen extends VariantChessPiece {
 
         return true;
     }
+
 }
