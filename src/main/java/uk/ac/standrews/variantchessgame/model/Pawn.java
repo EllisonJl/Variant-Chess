@@ -14,14 +14,14 @@ public class Pawn extends VariantChessPiece {
 
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        int startX = move.getStartX();
-        int startY = move.getStartY();
-        int endX = move.getEndX();
-        int endY = move.getEndY();
-        logger.info("Validating move for Pawn: startX={}, startY={}, endX={}, endY={}", startX, startY, endX, endY);
+        int startRow = move.getStartX();  // x is row
+        int startCol = move.getStartY();  // y is column
+        int endRow = move.getEndX();      // x is row
+        int endCol = move.getEndY();      // y is column
+        logger.info("Validating move for Pawn: startRow={}, startCol={}, endRow={}, endCol={}", startRow, startCol, endRow, endCol);
 
         // 判断移动是否在棋盘内
-        if (endX < 0 || endX >= 8 || endY < 0 || endY >= 8) {
+        if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
             logger.warn("Move out of bounds.");
             return false;
         }
@@ -30,30 +30,42 @@ public class Pawn extends VariantChessPiece {
 
         // 第一次移动
         if (isFirstMove) {
-            if ((endY == startY + direction || endY == startY + 2 * direction) && startX == endX && board.getPieceAt(endX, endY) == null) {
-                if (endY == startY + 2 * direction && board.getPieceAt(startX, startY + direction) == null) {
+            if ((endRow == startRow + direction || endRow == startRow + 2 * direction) && startCol == endCol && board.getPieceAt(endRow, endCol) == null) {
+                if (endRow == startRow + 2 * direction && board.getPieceAt(startRow + direction, startCol) == null) {
+                    // 第一次移动两格
                     isFirstMove = false;
+                    logger.info("First move registered, isFirstMove set to false.");
+                    System.out.println("第一次移动的状态："+isFirstMove);
+                } else if (endRow == startRow + direction) {
+                    // 第一次移动一格
+                    isFirstMove = false;
+                    logger.info("First move registered, isFirstMove set to false.");
+                    System.out.println("第一次移动的状态："+isFirstMove);
                 }
                 logger.info("First move is valid.");
                 return true;
             }
         } else {
             // 之后的移动：向前
-            if (endY == startY + direction && startX == endX && board.getPieceAt(endX, endY) == null) {
-                isFirstMove = false;
+            if (endRow == startRow + direction && startCol == endCol && board.getPieceAt(endRow, endCol) == null) {
                 logger.info("Move forward is valid.");
                 return true;
             }
 
             // 吃掉敌方棋子
-            if (endY == startY + direction && Math.abs(endX - startX) == 1) {
-                VariantChessPiece targetPiece = board.getPieceAt(endX, endY);
+            if (endRow == startRow + direction && Math.abs(endCol - startCol) == 1) {
+                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);
-                    isFirstMove = false;
                     logger.info("Capture move is valid.");
                     return true;
                 }
+            }
+
+            // 横向移动（非吃子）
+            if (endRow == startRow && Math.abs(endCol - startCol) == 1 && board.getPieceAt(endRow, endCol) == null) {
+                logger.info("Sideways move is valid.");
+                return true;
             }
         }
 

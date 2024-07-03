@@ -22,7 +22,22 @@ public class VariantChessBoard {
         placePawnsAndCannons(1, Color.WHITE);
         placePawnsAndCannons(6, Color.BLACK);
         placeMajorPieces(7, Color.BLACK);
+        printBoard();
     }
+    private void printBoard() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                VariantChessPiece piece = board[i][j];
+                if (piece == null) {
+                    System.out.print(". ");
+                } else {
+                    System.out.print(piece.getClass().getSimpleName().charAt(0) + " ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
 
     private void placeMajorPieces(int row, Color color) {
         board[row][0] = new Rook(color);
