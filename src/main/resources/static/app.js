@@ -2,20 +2,21 @@ document.addEventListener("DOMContentLoaded", function() {
     const chessboard = document.getElementById("chessboard");
 
     function initializeBoard() {
-        const board = Array(8).fill(null).map(() => Array(8).fill(""));
+        const board = Array(8).fill(null).map(() => Array(8).fill(null));
 
         const majorPieces = ["Knight", "Knight", "Bishop", "Bishop", "King", "Queen"];
         shuffleArray(majorPieces);
-        board[7] = ["Rook", ...majorPieces.slice(0, 3), ...majorPieces.slice(3), "Rook"];
-        board[0] = board[7].slice();
+        board[0] = ["Rook", ...majorPieces.slice(0, 3), ...majorPieces.slice(3), "Rook"].map(type => ({ type, color: "Black" }));
+        board[7] = board[0].slice().reverse().map(piece => ({ ...piece, color: "White" }));
 
         const pawns = ["Pawn", "Pawn", "Pawn", "Pawn", "Pawn", "Pawn"];
         shuffleArray(pawns);
-        board[6] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]];
-        board[1] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]];
+        board[1] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]].map(type => ({ type, color: "Black" }));
+        board[6] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]].map(type => ({ type, color: "White" }));
 
         return board;
     }
+
 
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -40,12 +41,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (piece) {
                     const img = document.createElement("img");
-                    img.src = `images/${(rowIndex >= 6 ? "White" : "Black") + piece}.png`;
+                    img.src = `images/${piece.color}${piece.type}.png`;
                     img.classList.add("piece");
                     img.draggable = true;
                     img.dataset.row = rowIndex;
                     img.dataset.col = colIndex;
-                    img.dataset.piece = piece;
+                    img.dataset.piece = piece.type;
+                    img.dataset.color = piece.color;
                     square.appendChild(img);
                 }
                 chessboard.appendChild(square);
@@ -54,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         addDragAndDropListeners();
     }
+
 
     function addDragAndDropListeners() {
         const pieces = document.querySelectorAll(".piece");

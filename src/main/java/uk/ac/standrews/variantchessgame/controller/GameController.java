@@ -17,7 +17,11 @@ public class GameController {
     public GameController(VariantChessBoard board) {
         this.board = board;
     }
-
+    @GetMapping("/board")
+    public VariantChessPiece[][] getBoard() {
+        logger.info("Returning current board state.");
+        return board.getBoard();
+    }
     @PostMapping("/movePawn")
     public boolean makeMove(@RequestBody VariantChessMove move) {
         logger.info("Received move request: startX={}, startY={}, endX={}, endY={}", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY());
