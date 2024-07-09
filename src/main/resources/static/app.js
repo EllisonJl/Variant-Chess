@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const chessboard = document.getElementById("chessboard");
+    let isWhiteTurn = true; // 白棋先行
 
     function initializeBoard() {
         const board = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -16,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         return board;
     }
-
 
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -57,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function() {
         addDragAndDropListeners();
     }
 
-
     function addDragAndDropListeners() {
         const pieces = document.querySelectorAll(".piece");
         pieces.forEach(piece => {
@@ -72,11 +71,18 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function handleDragStart(event) {
-        event.dataTransfer.setData("text/plain", JSON.stringify({
-            startX: event.target.dataset.row,
-            startY: event.target.dataset.col,
-            piece: event.target.dataset.piece
-        }));
+        const color = event.target.dataset.color;
+        if ((isWhiteTurn && color === "White") || (!isWhiteTurn && color === "Black")) {
+            event.dataTransfer.setData("text/plain", JSON.stringify({
+                startX: event.target.dataset.row,
+                startY: event.target.dataset.col,
+                piece: event.target.dataset.piece,
+                color: event.target.dataset.color
+            }));
+        } else {
+            event.preventDefault();
+            alert("It's not your turn!");
+        }
     }
 
     function handleDragOver(event) {
@@ -89,43 +95,59 @@ document.addEventListener("DOMContentLoaded", function() {
         const endX = event.target.dataset.row;
         const endY = event.target.dataset.col;
 
-        const move = {
-            startX: parseInt(startData.startX),
-            startY: parseInt(startData.startY),
-            endX: parseInt(endX),
-            endY: parseInt(endY)
-        };
+        if ((isWhiteTurn && startData.color === "White") || (!isWhiteTurn && startData.color === "Black")) {
+            const move = {
+                startX: parseInt(startData.startX),
+                startY: parseInt(startData.startY),
+                endX: parseInt(endX),
+                endY: parseInt(endY)
+            };
 
-        let moveUrl = "/api/game/move";
-        if (startData.piece === "Pawn") {
-            moveUrl = "/api/game/movePawn";
-        } else if (startData.piece === "Cannon") {
-            moveUrl = "/api/game/moveCannon";
+            let moveUrl = "/api/game/move" + startData.piece;
+            moveUrl = moveUrl.charAt(0).toLowerCase() + moveUrl.slice(1);  // Ensure URL starts with a lowercase letter
+
+            fetch(moveUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(move)
+            }).then(response => response.json())
+                .then(result => {
+                    if (result === "VALID_MOVE") {
+                        renderBoard(updateBoardWithMove(initialBoard, move));
+                        isWhiteTurn = !isWhiteTurn; // 切换回合
+                    } else if (result === "BLACK_WINS") {
+                        alert("Black wins!");
+                        const newBoard = initializeBoard();
+                        renderBoard(newBoard);
+                        initialBoard = newBoard; // 重置初始棋盘
+                    } else if (result === "WHITE_WINS") {
+                        alert("White wins!");
+                        const newBoard = initializeBoard();
+                        renderBoard(newBoard);
+                        initialBoard = newBoard; // 重置初始棋盘
+                    } else if (result === "STALEMATE") {
+                        alert("Stalemate!");
+                        const newBoard = initializeBoard();
+                        renderBoard(newBoard);
+                        initialBoard = newBoard; // 重置初始棋盘
+                    } else {
+                        alert("Invalid move");
+                    }
+                });
+        } else {
+            alert("It's not your turn!");
         }
-
-        fetch(moveUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(move)
-        }).then(response => response.json())
-            .then(isValid => {
-                if (isValid) {
-                    renderBoard(updateBoardWithMove(initialBoard, move));
-                } else {
-                    alert("Invalid move");
-                }
-            });
     }
 
     function updateBoardWithMove(board, move) {
         const piece = board[move.startX][move.startY];
-        board[move.startX][move.startY] = "";
+        board[move.startX][move.startY] = null;
         board[move.endX][move.endY] = piece;
         return board;
     }
 
-    const initialBoard = initializeBoard();
+    let initialBoard = initializeBoard();
     renderBoard(initialBoard);
 });

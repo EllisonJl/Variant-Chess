@@ -1,8 +1,13 @@
 package uk.ac.standrews.variantchessgame.model;
 
+import uk.ac.standrews.variantchessgame.model.VariantChessBoard;
+
 public class Cannon extends VariantChessPiece {
+    private int captureCount;
+
     public Cannon(Color color) {
         super(color, "Cannon");
+        this.captureCount = 0;
     }
 
     @Override
@@ -62,5 +67,25 @@ public class Cannon extends VariantChessPiece {
         }
 
         return false;
+    }
+
+    public int getCaptureCount() {
+        return captureCount;
+    }
+
+    public void incrementCaptureCount() {
+        captureCount++;
+    }
+
+    public void explode(VariantChessBoard board, int x, int y) {
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] direction : directions) {
+            int newX = x + direction[0];
+            int newY = y + direction[1];
+            if (board.isInBounds(newX, newY)) {
+                board.setPieceAt(newX, newY, null);
+            }
+        }
+        board.setPieceAt(x, y, null);
     }
 }

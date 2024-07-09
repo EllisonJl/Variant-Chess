@@ -1,5 +1,9 @@
 package uk.ac.standrews.variantchessgame.model;
 
+import uk.ac.standrews.variantchessgame.model.Color;
+import uk.ac.standrews.variantchessgame.model.VariantChessBoard;
+import uk.ac.standrews.variantchessgame.model.VariantChessMove;
+
 public abstract class VariantChessPiece {
     private Color color;
     private String type;
@@ -11,6 +15,10 @@ public abstract class VariantChessPiece {
 
     public Color getColor() {
         return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public String getType() {

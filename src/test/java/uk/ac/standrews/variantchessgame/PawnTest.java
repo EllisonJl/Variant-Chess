@@ -59,10 +59,10 @@ class PawnTest {
 
     @Test
     void testMoveForwardBlockedByPiece() {
-        board.movePiece(new VariantChessMove(1, 0, 2, 0));  // Place a piece in front of the pawn
+        board.getBoard()[2][0] = new Rook(Color.WHITE);  // Place a piece in front of the pawn
 
-        VariantChessMove move = new VariantChessMove(1, 0, 2, 0);
-        assertFalse(whitePawn.isValidMove(move, board), "Pawn should not be able to move forward if blocked by another piece.");
+        VariantChessMove move = new VariantChessMove(1, 0, 3, 0);
+        assertFalse(whitePawn.isValidMove(move, board), "Pawn should not be able to move forward two squares if blocked by another piece.");
     }
 
     @Test
@@ -82,64 +82,39 @@ class PawnTest {
 
     @Test
     void testMoveSidewaysAfterFirstMove() {
-        VariantChessBoard board = new VariantChessBoard();
-        Pawn whitePawn = new Pawn(Color.WHITE);
-        Pawn blackPawn = new Pawn(Color.BLACK);
+        board.movePiece(new VariantChessMove(1, 0, 2, 0));  // First move for white pawn
+        whitePawn.isValidMove(new VariantChessMove(2, 0, 3, 0), board);  // Ensure the first move is registered
 
-        // 放置白兵在 (1, 0)
-        board.getBoard()[1][0] = whitePawn;
-        // 让白兵向前移动到 (2, 0)
-        VariantChessMove firstMove = new VariantChessMove(1, 0, 2, 0);
-        assertTrue(whitePawn.isValidMove(firstMove, board), "First move for white pawn should be valid.");
-        board.movePiece(firstMove);
-
-        // 确保isFirstMove已经更新
-        whitePawn.isValidMove(new VariantChessMove(2, 0, 2, 1), board);
-
-        // 测试白兵向右移动到 (2, 1)
         VariantChessMove move = new VariantChessMove(2, 0, 2, 1);
         assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to move sideways after the first move.");
-        // 执行移动以模拟实际棋局
-        board.movePiece(move);
 
-        // 放置黑兵在 (6, 0)
-        board.getBoard()[6][0] = blackPawn;
-        // 让黑兵向前移动到 (5, 0)
-        firstMove = new VariantChessMove(6, 0, 5, 0);
-        assertTrue(blackPawn.isValidMove(firstMove, board), "First move for black pawn should be valid.");
-        board.movePiece(firstMove);
+        board.movePiece(new VariantChessMove(6, 0, 5, 0));  // First move for black pawn
+        blackPawn.isValidMove(new VariantChessMove(5, 0, 4, 0), board);  // Ensure the first move is registered
 
-        // 确保isFirstMove已经更新
-        blackPawn.isValidMove(new VariantChessMove(5, 0, 5, 1), board);
-
-        // 测试黑兵向左移动到 (5, 1)
         move = new VariantChessMove(5, 0, 5, 1);
         assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to move sideways after the first move.");
-        // 执行移动以模拟实际棋局
-        board.movePiece(move);
     }
 
     @Test
     void testCaptureMove() {
-        VariantChessBoard board = new VariantChessBoard();
-        Pawn whitePawn = new Pawn(Color.WHITE);
-        Pawn blackPawn = new Pawn(Color.BLACK);
-
-        // 放置白兵在 (1, 0) 和黑棋子在 (2, 1)
-        board.getBoard()[1][0] = whitePawn;
-        board.getBoard()[2][1] = new Rook(Color.BLACK);  // 任意非兵的黑棋子
-
-        // 测试白兵对角线吃子
+        board.getBoard()[2][1] = new Rook(Color.BLACK);  // Place a black piece diagonally from the white pawn
         VariantChessMove move = new VariantChessMove(1, 0, 2, 1);
         assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to capture diagonally.");
 
-        // 放置黑兵在 (6, 0) 和白棋子在 (5, 1)
-        board.getBoard()[6][0] = blackPawn;
-        board.getBoard()[5][1] = new Rook(Color.WHITE);  // 任意非兵的白棋子
-
-        // 测试黑兵对角线吃子
+        board.getBoard()[5][1] = new Rook(Color.WHITE);  // Place a white piece diagonally from the black pawn
         move = new VariantChessMove(6, 0, 5, 1);
         assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture diagonally.");
+    }
+
+    @Test
+    void testBlockedMoveStopsBeforeObstacle() {
+        board.getBoard()[2][0] = new Rook(Color.WHITE);  // Place a piece in front of the pawn
+
+        VariantChessMove move = new VariantChessMove(1, 0, 3, 0);
+        assertFalse(whitePawn.isValidMove(move, board), "Pawn should not be able to move two squares if blocked by another piece at one square.");
+
+        move = new VariantChessMove(1, 0, 2, 0);
+        assertFalse(whitePawn.isValidMove(move, board), "Pawn should not be able to move one square if blocked by another piece directly in front.");
     }
 
 }

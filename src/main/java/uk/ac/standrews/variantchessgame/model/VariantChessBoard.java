@@ -53,6 +53,7 @@ public class VariantChessBoard {
         board[row][pieces[4]] = new Queen(color);
         board[row][pieces[5]] = new King(color);
 
+        // 对称放置黑棋的主要棋子
         int blackRow = 7 - row;
         Color oppositeColor = (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
 
@@ -67,15 +68,18 @@ public class VariantChessBoard {
     }
 
     private void placePawnsAndCannons(int row, Color color) {
+        // 固定放置炮的位置
         board[row][1] = new Cannon(color);
         board[row][6] = new Cannon(color);
 
+        // 按固定位置放置兵
         for (int col = 0; col < 8; col++) {
             if (col != 1 && col != 6) {
                 board[row][col] = new Pawn(color);
             }
         }
 
+        // 对称放置黑棋的兵和炮
         int blackRow = 7 - row;
         Color oppositeColor = (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
 
@@ -102,14 +106,19 @@ public class VariantChessBoard {
         return board[x][y];
     }
 
+    public void setPieceAt(int x, int y, VariantChessPiece piece) {
+        board[x][y] = piece;
+    }
+
     public void movePiece(VariantChessMove move) {
         VariantChessPiece piece = board[move.getStartX()][move.getStartY()];
         if (piece != null && piece.isValidMove(move, this)) {
-            if (move.isCapture()) {
-                board[move.getEndX()][move.getEndY()] = null;
-            }
             board[move.getStartX()][move.getStartY()] = null;
             board[move.getEndX()][move.getEndY()] = piece;
         }
+    }
+
+    public boolean isInBounds(int x, int y) {
+        return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 }
