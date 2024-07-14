@@ -35,10 +35,13 @@ class RookTest {
         // 尝试移动到被自己棋子占据的位置
         move = new VariantChessMove(4, 7, 7, 7);
         assertFalse(whiteRook.isValidMove(move, board), "Rook should not be able to move in a straight line to a position occupied by its own piece.");
-        board.movePiece(move);
+        if (whiteRook.isValidMove(move, board)) {
+            board.movePiece(move);
+        }
         assertNotEquals(whiteRook, board.getPieceAt(7, 7), "Rook should not be at the new position after invalid move.");
         assertEquals(whiteRook, board.getPieceAt(4, 7), "Original position should be the same after invalid move.");
     }
+
 
     @Test
     void testInvalidMoveOutOfBoard() {

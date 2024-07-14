@@ -6,6 +6,9 @@ import uk.ac.standrews.variantchessgame.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/game")
 public class GameController {
@@ -22,16 +25,20 @@ public class GameController {
 
     @GetMapping("/board")
     public VariantChessPiece[][] getBoard() {
-        logger.info("Returning current board state.");
+        System.out.println("Returning current board state.");
         return board.getBoard();
     }
 
     private boolean processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
-        logger.info("Received move request: startX={}, startY={}, endX={}, endY={}", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY());
+        System.out.println(String.format("Received move request: startX=%d, startY=%d, endX=%d, endY=%d", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY()));
         VariantChessPiece piece = board.getPieceAt(move.getStartX(), move.getStartY());
-        System.out.println("当前棋子的颜色是："+piece.getColor());
-        System.out.println("当前回合棋子的颜色是："+ gameState.getCurrentTurn());
-        if (piece != null && pieceClass.isInstance(piece) && piece.getColor() == gameState.getCurrentTurn()) {
+        if (piece == null) {
+            System.out.println(String.format("No piece found at position (%d, %d)", move.getStartX(), move.getStartY()));
+            return false;
+        }
+        System.out.println("当前棋子的颜色是：" + piece.getColor());
+        System.out.println("当前回合棋子的颜色是：" + gameState.getCurrentTurn());
+        if (pieceClass.isInstance(piece) && piece.getColor() == gameState.getCurrentTurn()) {
             if (piece.isValidMove(move, board)) {
                 boolean isCapture = board.getPieceAt(move.getEndX(), move.getEndY()) != null;
                 board.movePiece(move);
@@ -44,7 +51,7 @@ public class GameController {
                 }
 
                 gameState.switchTurn();
-                logger.info("Move is valid, piece moved.");
+                System.out.println("Move is valid, piece moved.");
 
                 if (gameState.isWin()) {
                     return gameState.getCurrentTurn() == Color.WHITE;
@@ -56,10 +63,10 @@ public class GameController {
 
                 return true;
             } else {
-                logger.warn("Move is invalid according to isValidMove method.");
+                System.out.println("Move is invalid according to isValidMove method.");
             }
         } else {
-            logger.warn("No piece at start position, piece is not a " + pieceClass.getSimpleName() + ", or it's not the piece's turn.");
+            System.out.println("No piece at start position, piece is not a " + pieceClass.getSimpleName() + ", or it's not the piece's turn.");
         }
 
         return false;
@@ -98,5 +105,66 @@ public class GameController {
     @PostMapping("/moveRook")
     public boolean moveRook(@RequestBody VariantChessMove move) {
         return processMove(move, Rook.class);
+    }
+
+    @PostMapping("/validMoves")
+    public List<VariantChessMove> getValidMoves(@RequestBody ValidMovesRequest request) {
+        int startX = request.getStartX();
+        int startY = request.getStartY();
+        VariantChessPiece piece = board.getPieceAt(startX, startY);
+
+        List<VariantChessMove> validMoves = new ArrayList<>();
+        if (piece != null && piece.getColor() == request.getColor()) {
+            for (int endX = 0; endX < 8; endX++) {
+                for (int endY = 0; endY < 8; endY++) {
+                    VariantChessMove move = new VariantChessMove(startX, startY, endX, endY);
+                    if (piece.isValidMove(move, board)) {
+                        validMoves.add(move);
+                    }
+                }
+            }
+        } else {
+            System.out.println(String.format("No piece at position (%d, %d) or piece color does not match request color.", startX, startY));
+        }
+        return validMoves;
+    }
+
+    public static class ValidMovesRequest {
+        private int startX;
+        private int startY;
+        private String piece;
+        private Color color;
+
+        public int getStartX() {
+            return startX;
+        }
+
+        public void setStartX(int startX) {
+            this.startX = startX;
+        }
+
+        public int getStartY() {
+            return startY;
+        }
+
+        public void setStartY(int startY) {
+            this.startY = startY;
+        }
+
+        public String getPiece() {
+            return piece;
+        }
+
+        public void setPiece(String piece) {
+            this.piece = piece;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+        public void setColor(Color color) {
+            this.color = color;
+        }
     }
 }

@@ -23,16 +23,16 @@ class QueenTest {
 
     @Test
     void testValidMove() {
-        // 有效的直线移动到空位 (4, 7)
-        board.getBoard()[4][7] = null; // 确保目标位置为空
+        // 确保目标位置为空，以进行有效的直线移动 (4, 7)
+        board.getBoard()[4][7] = null;
         VariantChessMove move = new VariantChessMove(4, 4, 4, 7);
         assertTrue(whiteQueen.isValidMove(move, board), "Queen should be able to move in a straight line.");
         board.movePiece(move);
         assertEquals(whiteQueen, board.getPieceAt(4, 7), "Queen should be at the new position after move.");
         assertNull(board.getPieceAt(4, 4), "Original position should be empty after move.");
 
-        // 有效的对角线移动到空位 (6, 6)
-        board.getBoard()[6][6] = null; // 确保目标位置为空
+        // 确保目标位置为空，以进行有效的对角线移动 (6, 5)
+        board.getBoard()[6][5] = null;
         move = new VariantChessMove(4, 7, 6, 5);
         assertTrue(whiteQueen.isValidMove(move, board), "Queen should be able to move diagonally.");
         board.movePiece(move);

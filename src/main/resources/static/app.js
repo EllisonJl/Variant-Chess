@@ -5,13 +5,15 @@ document.addEventListener("DOMContentLoaded", function() {
     function initializeBoard() {
         const board = Array(8).fill(null).map(() => Array(8).fill(null));
 
-        const majorPieces = ["Knight", "Knight", "Bishop", "Bishop", "King", "Queen"];
+        const majorPieces = ["Knight", "Knight", "Bishop", "Bishop", "Queen", "King"];
         shuffleArray(majorPieces);
-        board[0] = ["Rook", ...majorPieces.slice(0, 3), ...majorPieces.slice(3), "Rook"].map(type => ({ type, color: "Black" }));
-        board[7] = board[0].slice().reverse().map(piece => ({ ...piece, color: "White" }));
+
+        board[0] = ["Rook", ...majorPieces, "Rook"].map(type => ({ type, color: "Black" }));
+        board[7] = ["Rook", ...majorPieces, "Rook"].map(type => ({ type, color: "White" }));
 
         const pawns = ["Pawn", "Pawn", "Pawn", "Pawn", "Pawn", "Pawn"];
         shuffleArray(pawns);
+
         board[1] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]].map(type => ({ type, color: "Black" }));
         board[6] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]].map(type => ({ type, color: "White" }));
 
@@ -114,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 body: JSON.stringify(move)
             }).then(response => response.json())
                 .then(result => {
-                    if (result === "VALID_MOVE") {
+                    if (result === true || result === "VALID_MOVE") {
                         renderBoard(updateBoardWithMove(initialBoard, move));
                         isWhiteTurn = !isWhiteTurn; // 切换回合
                     } else if (result === "BLACK_WINS") {

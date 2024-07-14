@@ -17,10 +17,10 @@ public class VariantChessBoard {
     }
 
     public void initializeBoard() {
-        placeMajorPieces(0, Color.WHITE);
-        placePawnsAndCannons(1, Color.WHITE);
-        placePawnsAndCannons(6, Color.BLACK);
-        placeMajorPieces(7, Color.BLACK);
+        placeMajorPieces(0, Color.BLACK);
+        placePawnsAndCannons(1, Color.BLACK);
+        placePawnsAndCannons(6, Color.WHITE);
+        placeMajorPieces(7, Color.WHITE);
         printBoard();
     }
 
@@ -52,43 +52,15 @@ public class VariantChessBoard {
         board[row][pieces[3]] = new Bishop(color);
         board[row][pieces[4]] = new Queen(color);
         board[row][pieces[5]] = new King(color);
-
-        // 对称放置黑棋的主要棋子
-        int blackRow = 7 - row;
-        Color oppositeColor = (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
-
-        board[blackRow][0] = new Rook(oppositeColor);
-        board[blackRow][7] = new Rook(oppositeColor);
-        board[blackRow][pieces[0]] = new Knight(oppositeColor);
-        board[blackRow][pieces[1]] = new Knight(oppositeColor);
-        board[blackRow][pieces[2]] = new Bishop(oppositeColor);
-        board[blackRow][pieces[3]] = new Bishop(oppositeColor);
-        board[blackRow][pieces[4]] = new Queen(oppositeColor);
-        board[blackRow][pieces[5]] = new King(oppositeColor);
     }
 
     private void placePawnsAndCannons(int row, Color color) {
-        // 固定放置炮的位置
         board[row][1] = new Cannon(color);
         board[row][6] = new Cannon(color);
 
-        // 按固定位置放置兵
         for (int col = 0; col < 8; col++) {
             if (col != 1 && col != 6) {
                 board[row][col] = new Pawn(color);
-            }
-        }
-
-        // 对称放置黑棋的兵和炮
-        int blackRow = 7 - row;
-        Color oppositeColor = (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
-
-        board[blackRow][1] = new Cannon(oppositeColor);
-        board[blackRow][6] = new Cannon(oppositeColor);
-
-        for (int col = 0; col < 8; col++) {
-            if (col != 1 && col != 6) {
-                board[blackRow][col] = new Pawn(oppositeColor);
             }
         }
     }
@@ -112,10 +84,20 @@ public class VariantChessBoard {
 
     public void movePiece(VariantChessMove move) {
         VariantChessPiece piece = board[move.getStartX()][move.getStartY()];
-        if (piece != null && piece.isValidMove(move, this)) {
-            board[move.getStartX()][move.getStartY()] = null;
-            board[move.getEndX()][move.getEndY()] = piece;
+        System.out.println("Moving piece: " + piece + " from (" + move.getStartX() + ", " + move.getStartY() + ") to (" + move.getEndX() + ", " + move.getEndY() + ")");
+
+        // 直接执行移动操作，而不再次调用 isValidMove
+        board[move.getStartX()][move.getStartY()] = null; // 清空原始位置
+        board[move.getEndX()][move.getEndY()] = piece; // 移动到新位置
+
+        // 如果是 Pawn，需要更新 isFirstMove 状态
+        if (piece instanceof Pawn) {
+            ((Pawn) piece).setFirstMove(false);
         }
+
+        System.out.println("Piece moved successfully.");
+        System.out.println("Current Board State:");
+        printBoard(); // 打印当前棋盘状态
     }
 
     public boolean isInBounds(int x, int y) {
