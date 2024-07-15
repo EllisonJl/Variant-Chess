@@ -23,11 +23,12 @@ public class GameController {
         this.gameState = new GameState(board); // 初始化 GameState
     }
 
-    @GetMapping("/board")
-    public VariantChessPiece[][] getBoard() {
+    @GetMapping("/initialBoard")
+    public VariantChessPiece[][] getInitialBoard() {
         System.out.println("Returning current board state.");
         return board.getBoard();
     }
+
 
     private boolean processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
         System.out.println(String.format("Received move request: startX=%d, startY=%d, endX=%d, endY=%d", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY()));

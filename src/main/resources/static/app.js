@@ -2,29 +2,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const chessboard = document.getElementById("chessboard");
     let isWhiteTurn = true; // 白棋先行
 
-    function initializeBoard() {
-        const board = Array(8).fill(null).map(() => Array(8).fill(null));
-
-        const majorPieces = ["Knight", "Knight", "Bishop", "Bishop", "Queen", "King"];
-        shuffleArray(majorPieces);
-
-        board[0] = ["Rook", ...majorPieces, "Rook"].map(type => ({ type, color: "Black" }));
-        board[7] = ["Rook", ...majorPieces, "Rook"].map(type => ({ type, color: "White" }));
-
-        const pawns = ["Pawn", "Pawn", "Pawn", "Pawn", "Pawn", "Pawn"];
-        shuffleArray(pawns);
-
-        board[1] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]].map(type => ({ type, color: "Black" }));
-        board[6] = [pawns[0], "Cannon", pawns[1], pawns[2], pawns[3], pawns[4], "Cannon", pawns[5]].map(type => ({ type, color: "White" }));
-
-        return board;
-    }
-
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
+    function fetchInitialBoard() {
+        fetch("/api/game/initialBoard")
+            .then(response => response.json())
+            .then(board => {
+                renderBoard(board);
+            })
+            .catch(error => console.error("Error fetching initial board:", error));
     }
 
     function renderBoard(board) {
@@ -43,13 +27,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (piece) {
                     const img = document.createElement("img");
-                    img.src = `images/${piece.color}${piece.type}.png`;
+                    img.src = `images/${piece.color.toLowerCase()}${piece.type}.png`;
                     img.classList.add("piece");
                     img.draggable = true;
                     img.dataset.row = rowIndex;
                     img.dataset.col = colIndex;
                     img.dataset.piece = piece.type;
-                    img.dataset.color = piece.color;
+                    img.dataset.color = piece.color.toLowerCase();
                     square.appendChild(img);
                 }
                 chessboard.appendChild(square);
@@ -74,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function handleDragStart(event) {
         const color = event.target.dataset.color;
-        if ((isWhiteTurn && color === "White") || (!isWhiteTurn && color === "Black")) {
+        if ((isWhiteTurn && color === "white") || (!isWhiteTurn && color === "black")) {
             event.dataTransfer.setData("text/plain", JSON.stringify({
                 startX: event.target.dataset.row,
                 startY: event.target.dataset.col,
@@ -97,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const endX = event.target.dataset.row;
         const endY = event.target.dataset.col;
 
-        if ((isWhiteTurn && startData.color === "White") || (!isWhiteTurn && startData.color === "Black")) {
+        if ((isWhiteTurn && startData.color === "white") || (!isWhiteTurn && startData.color === "black")) {
             const move = {
                 startX: parseInt(startData.startX),
                 startY: parseInt(startData.startY),
@@ -117,23 +101,17 @@ document.addEventListener("DOMContentLoaded", function() {
             }).then(response => response.json())
                 .then(result => {
                     if (result === true || result === "VALID_MOVE") {
-                        renderBoard(updateBoardWithMove(initialBoard, move));
+                        updateBoardWithMove(move);
                         isWhiteTurn = !isWhiteTurn; // 切换回合
                     } else if (result === "BLACK_WINS") {
                         alert("Black wins!");
-                        const newBoard = initializeBoard();
-                        renderBoard(newBoard);
-                        initialBoard = newBoard; // 重置初始棋盘
+                        fetchInitialBoard(); // 重置初始棋盘
                     } else if (result === "WHITE_WINS") {
                         alert("White wins!");
-                        const newBoard = initializeBoard();
-                        renderBoard(newBoard);
-                        initialBoard = newBoard; // 重置初始棋盘
+                        fetchInitialBoard(); // 重置初始棋盘
                     } else if (result === "STALEMATE") {
                         alert("Stalemate!");
-                        const newBoard = initializeBoard();
-                        renderBoard(newBoard);
-                        initialBoard = newBoard; // 重置初始棋盘
+                        fetchInitialBoard(); // 重置初始棋盘
                     } else {
                         alert("Invalid move");
                     }
@@ -143,13 +121,15 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    function updateBoardWithMove(board, move) {
-        const piece = board[move.startX][move.startY];
-        board[move.startX][move.startY] = null;
-        board[move.endX][move.endY] = piece;
-        return board;
+    function updateBoardWithMove(move) {
+        const piece = document.querySelector(`.piece[data-row="${move.startX}"][data-col="${move.startY}"]`);
+        const targetSquare = document.querySelector(`.square[data-row="${move.endX}"][data-col="${move.endY}"]`);
+        piece.dataset.row = move.endX;
+        piece.dataset.col = move.endY;
+        targetSquare.appendChild(piece);
+        const startSquare = document.querySelector(`.square[data-row="${move.startX}"][data-col="${move.startY}"]`);
+        startSquare.innerHTML = "";
     }
 
-    let initialBoard = initializeBoard();
-    renderBoard(initialBoard);
+    fetchInitialBoard(); // Fetch and render initial board state from the backend
 });
