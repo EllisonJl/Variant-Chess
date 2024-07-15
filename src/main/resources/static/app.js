@@ -122,12 +122,21 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function updateBoardWithMove(move) {
-        const piece = document.querySelector(`.piece[data-row="${move.startX}"][data-col="${move.startY}"]`);
+        const startSquare = document.querySelector(`.square[data-row="${move.startX}"][data-col="${move.startY}"]`);
         const targetSquare = document.querySelector(`.square[data-row="${move.endX}"][data-col="${move.endY}"]`);
+
+        // Remove any existing piece in the target square (to handle captures)
+        if (targetSquare.firstChild) {
+            targetSquare.removeChild(targetSquare.firstChild);
+        }
+
+        // Move the piece to the target square
+        const piece = document.querySelector(`.piece[data-row="${move.startX}"][data-col="${move.startY}"]`);
         piece.dataset.row = move.endX;
         piece.dataset.col = move.endY;
         targetSquare.appendChild(piece);
-        const startSquare = document.querySelector(`.square[data-row="${move.startX}"][data-col="${move.startY}"]`);
+
+        // Clear the start square
         startSquare.innerHTML = "";
     }
 
