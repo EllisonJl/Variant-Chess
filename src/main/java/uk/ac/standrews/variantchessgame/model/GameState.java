@@ -16,7 +16,7 @@ public class GameState {
         this.whiteMoveCount = 0;
         this.blackMoveCount = 0;
         this.movesWithoutCapture = 0;
-        this.selectedRule = selectRandomRule();
+        selectRandomRule(); // 在游戏初始化时选择随机规则
     }
 
     public Color getCurrentTurn() {
@@ -101,18 +101,22 @@ public class GameState {
         return selectedRule;
     }
 
-    private GameRule selectRandomRule() {
+    private void selectRandomRule() {
         Random random = new Random();
-        int ruleIndex = random.nextInt(3);
+        int ruleIndex = random.nextInt(3); // 随机选择0、1或2
         switch (ruleIndex) {
             case 0:
-                return new CannonSpecialRule();
+                this.selectedRule = new CannonSpecialRule();
+                break;
             case 1:
-                return new KingQueenSpecialRule();
+                this.selectedRule = new KingQueenSpecialRule();
+                break;
             case 2:
-                return new PawnPromotionRule();
+                this.selectedRule = new PawnPromotionRule();
+                break;
             default:
-                return null; // This should never happen
+                this.selectedRule = null; // This should never happen
+                break;
         }
     }
 }

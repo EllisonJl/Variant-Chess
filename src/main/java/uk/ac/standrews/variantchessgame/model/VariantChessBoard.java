@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class VariantChessBoard {
     private VariantChessPiece[][] board;
+    private GameState gameState;
 
     public VariantChessPiece[][] getBoard() {
         return board;
@@ -20,6 +21,7 @@ public class VariantChessBoard {
         placeMajorPiecesSymmetrically(0, Color.BLACK, 7, Color.WHITE);
         placePawnsAndCannons(1, Color.BLACK);
         placePawnsAndCannons(6, Color.WHITE);
+        gameState = new GameState(this); // 重新初始化游戏状态，选择新的规则
         printBoard();
     }
 

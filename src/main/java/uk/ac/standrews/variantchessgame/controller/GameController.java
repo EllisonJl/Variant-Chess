@@ -12,12 +12,12 @@ import java.util.List;
 public class GameController {
 
     private final VariantChessBoard board;
-    private final GameState gameState;
+    private GameState gameState;
 
     @Autowired
     public GameController(VariantChessBoard board) {
         this.board = board;
-        this.gameState = new GameState(board); // Initialize GameState
+        this.gameState = new GameState(board);
     }
 
     @GetMapping("/initialBoard")
@@ -29,6 +29,12 @@ public class GameController {
     public VariantChessPiece[][] getBoard() {
         System.out.println("Returning current board state.");
         return board.getBoard();
+    }
+
+    @PostMapping("/restart")
+    public void restartGame() {
+        board.initializeBoard(); // 重新初始化棋盘，选择新的规则
+        this.gameState = new GameState(board); // 重置游戏状态
     }
 
     private String processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
