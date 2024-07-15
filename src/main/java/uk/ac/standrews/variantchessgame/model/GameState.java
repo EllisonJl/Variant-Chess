@@ -1,11 +1,14 @@
 package uk.ac.standrews.variantchessgame.model;
 
+import java.util.Random;
+
 public class GameState {
     private int whiteMoveCount;
     private int blackMoveCount;
     private int movesWithoutCapture;
     private Color currentTurn;
     private final VariantChessBoard board;
+    private GameRule selectedRule;
 
     public GameState(VariantChessBoard board) {
         this.board = board;
@@ -13,6 +16,7 @@ public class GameState {
         this.whiteMoveCount = 0;
         this.blackMoveCount = 0;
         this.movesWithoutCapture = 0;
+        this.selectedRule = selectRandomRule();
     }
 
     public Color getCurrentTurn() {
@@ -91,5 +95,24 @@ public class GameState {
         }
 
         return false;
+    }
+
+    public GameRule getSelectedRule() {
+        return selectedRule;
+    }
+
+    private GameRule selectRandomRule() {
+        Random random = new Random();
+        int ruleIndex = random.nextInt(3);
+        switch (ruleIndex) {
+            case 0:
+                return new CannonSpecialRule();
+            case 1:
+                return new KingQueenSpecialRule();
+            case 2:
+                return new PawnPromotionRule();
+            default:
+                return null; // This should never happen
+        }
     }
 }

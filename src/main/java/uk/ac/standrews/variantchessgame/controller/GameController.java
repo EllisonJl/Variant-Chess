@@ -3,8 +3,6 @@ package uk.ac.standrews.variantchessgame.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.standrews.variantchessgame.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,32 +11,36 @@ import java.util.List;
 @RequestMapping("/api/game")
 public class GameController {
 
-    private static final Logger logger = LoggerFactory.getLogger(GameController.class);
     private final VariantChessBoard board;
     private final GameState gameState;
 
     @Autowired
     public GameController(VariantChessBoard board) {
         this.board = board;
-        this.gameState = new GameState(board); // 初始化 GameState
+        this.gameState = new GameState(board); // Initialize GameState
     }
 
     @GetMapping("/initialBoard")
     public VariantChessPiece[][] getInitialBoard() {
+        return board.getBoard();
+    }
+
+    @GetMapping("/board")
+    public VariantChessPiece[][] getBoard() {
         System.out.println("Returning current board state.");
         return board.getBoard();
     }
 
-
-    private boolean processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
+    private String processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
         System.out.println(String.format("Received move request: startX=%d, startY=%d, endX=%d, endY=%d", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY()));
         VariantChessPiece piece = board.getPieceAt(move.getStartX(), move.getStartY());
         if (piece == null) {
             System.out.println(String.format("No piece found at position (%d, %d)", move.getStartX(), move.getStartY()));
-            return false;
+            return "INVALID_MOVE";
         }
-        System.out.println("当前棋子的颜色是：" + piece.getColor());
-        System.out.println("当前回合棋子的颜色是：" + gameState.getCurrentTurn());
+        System.out.println("Current piece is: " + piece.getClass().getSimpleName());
+        System.out.println("Current piece color is: " + piece.getColor());
+        System.out.println("Current turn is: " + gameState.getCurrentTurn());
         if (pieceClass.isInstance(piece) && piece.getColor() == gameState.getCurrentTurn()) {
             if (piece.isValidMove(move, board)) {
                 boolean isCapture = board.getPieceAt(move.getEndX(), move.getEndY()) != null;
@@ -51,60 +53,63 @@ public class GameController {
                     gameState.incrementMoveWithoutCapture();
                 }
 
+                // Apply the selected game rule
+                gameState.getSelectedRule().applyRule(move, piece, board);
+
                 gameState.switchTurn();
                 System.out.println("Move is valid, piece moved.");
 
                 if (gameState.isWin()) {
-                    return gameState.getCurrentTurn() == Color.WHITE;
+                    return gameState.getCurrentTurn() == Color.WHITE ? "BLACK_WINS" : "WHITE_WINS";
                 }
 
                 if (gameState.isDraw()) {
-                    return false;
+                    return "STALEMATE";
                 }
 
-                return true;
+                return "VALID_MOVE";
             } else {
                 System.out.println("Move is invalid according to isValidMove method.");
+                return "INVALID_MOVE";
             }
         } else {
-            System.out.println("No piece at start position, piece is not a " + pieceClass.getSimpleName() + ", or it's not the piece's turn.");
+            System.out.println("Piece at start position is not a " + pieceClass.getSimpleName() + " or it's not the piece's turn.");
+            return "INVALID_MOVE";
         }
-
-        return false;
     }
 
     @PostMapping("/movePawn")
-    public boolean movePawn(@RequestBody VariantChessMove move) {
+    public String movePawn(@RequestBody VariantChessMove move) {
         return processMove(move, Pawn.class);
     }
 
     @PostMapping("/moveCannon")
-    public boolean moveCannon(@RequestBody VariantChessMove move) {
+    public String moveCannon(@RequestBody VariantChessMove move) {
         return processMove(move, Cannon.class);
     }
 
     @PostMapping("/moveKing")
-    public boolean moveKing(@RequestBody VariantChessMove move) {
+    public String moveKing(@RequestBody VariantChessMove move) {
         return processMove(move, King.class);
     }
 
     @PostMapping("/moveKnight")
-    public boolean moveKnight(@RequestBody VariantChessMove move) {
+    public String moveKnight(@RequestBody VariantChessMove move) {
         return processMove(move, Knight.class);
     }
 
     @PostMapping("/moveBishop")
-    public boolean moveBishop(@RequestBody VariantChessMove move) {
+    public String moveBishop(@RequestBody VariantChessMove move) {
         return processMove(move, Bishop.class);
     }
 
     @PostMapping("/moveQueen")
-    public boolean moveQueen(@RequestBody VariantChessMove move) {
+    public String moveQueen(@RequestBody VariantChessMove move) {
         return processMove(move, Queen.class);
     }
 
     @PostMapping("/moveRook")
-    public boolean moveRook(@RequestBody VariantChessMove move) {
+    public String moveRook(@RequestBody VariantChessMove move) {
         return processMove(move, Rook.class);
     }
 

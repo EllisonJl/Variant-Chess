@@ -98,9 +98,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(move)
-            }).then(response => response.json())
+            }).then(response => response.text()) // Change to text() to handle response strings
                 .then(result => {
-                    if (result === true || result === "VALID_MOVE") {
+                    if (result === "VALID_MOVE") {
                         updateBoardWithMove(move);
                         isWhiteTurn = !isWhiteTurn; // 切换回合
                     } else if (result === "BLACK_WINS") {
@@ -115,7 +115,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     } else {
                         alert("Invalid move");
                     }
-                });
+                })
+                .catch(error => console.error("Error processing move:", error));
         } else {
             alert("It's not your turn!");
         }
