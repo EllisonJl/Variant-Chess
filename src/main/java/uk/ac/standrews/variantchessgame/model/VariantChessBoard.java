@@ -17,10 +17,9 @@ public class VariantChessBoard {
     }
 
     public void initializeBoard() {
-        placeMajorPieces(0, Color.BLACK);
+        placeMajorPiecesSymmetrically(0, Color.BLACK, 7, Color.WHITE);
         placePawnsAndCannons(1, Color.BLACK);
         placePawnsAndCannons(6, Color.WHITE);
-        placeMajorPieces(7, Color.WHITE);
         printBoard();
     }
 
@@ -38,20 +37,30 @@ public class VariantChessBoard {
         }
     }
 
-    private void placeMajorPieces(int row, Color color) {
-        board[row][0] = new Rook(color);
-        board[row][7] = new Rook(color);
+    private void placeMajorPiecesSymmetrically(int blackRow, Color blackColor, int whiteRow, Color whiteColor) {
+        board[blackRow][0] = new Rook(blackColor);
+        board[blackRow][7] = new Rook(blackColor);
+        board[whiteRow][0] = new Rook(whiteColor);
+        board[whiteRow][7] = new Rook(whiteColor);
 
         Random rand = new Random();
         int[] pieces = {1, 2, 3, 4, 5, 6};
         shuffleArray(pieces, rand);
 
-        board[row][pieces[0]] = new Knight(color);
-        board[row][pieces[1]] = new Knight(color);
-        board[row][pieces[2]] = new Bishop(color);
-        board[row][pieces[3]] = new Bishop(color);
-        board[row][pieces[4]] = new Queen(color);
-        board[row][pieces[5]] = new King(color);
+        board[blackRow][pieces[0]] = new Knight(blackColor);
+        board[blackRow][pieces[1]] = new Knight(blackColor);
+        board[blackRow][pieces[2]] = new Bishop(blackColor);
+        board[blackRow][pieces[3]] = new Bishop(blackColor);
+        board[blackRow][pieces[4]] = new Queen(blackColor);
+        board[blackRow][pieces[5]] = new King(blackColor);
+
+        // Place white pieces symmetrically
+        board[whiteRow][pieces[0]] = new Knight(whiteColor);
+        board[whiteRow][pieces[1]] = new Knight(whiteColor);
+        board[whiteRow][pieces[2]] = new Bishop(whiteColor);
+        board[whiteRow][pieces[3]] = new Bishop(whiteColor);
+        board[whiteRow][pieces[4]] = new Queen(whiteColor);
+        board[whiteRow][pieces[5]] = new King(whiteColor);
     }
 
     private void placePawnsAndCannons(int row, Color color) {
