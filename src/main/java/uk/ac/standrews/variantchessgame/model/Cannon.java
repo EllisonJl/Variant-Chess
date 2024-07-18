@@ -1,33 +1,34 @@
 package uk.ac.standrews.variantchessgame.model;
 
-import uk.ac.standrews.variantchessgame.model.VariantChessBoard;
-
 public class Cannon extends VariantChessPiece {
-    private int captureCount;
-
     public Cannon(Color color) {
         super(color, "Cannon");
-        this.captureCount = 0;
+    }
+
+    public Cannon(Color color, boolean promotedFromPawn) {
+        super(color, "Cannon", promotedFromPawn);
     }
 
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
+        if (isImmobile()) return false;  // Check if the piece is immobile
+
         int startX = move.getStartX();
         int startY = move.getStartY();
         int endX = move.getEndX();
         int endY = move.getEndY();
 
-        // 确保目标位置在棋盘范围内
+        // Ensure target position is within the board
         if (endX < 0 || endX >= 8 || endY < 0 || endY >= 8) {
             return false;
         }
 
-        // 确保起始位置和目标位置不同
+        // Ensure the start and end positions are different
         if (startX == endX && startY == endY) {
             return false;
         }
 
-        // 确保是直线移动
+        // Ensure the move is straight
         if (startX != endX && startY != endY) {
             return false;
         }
@@ -35,7 +36,7 @@ public class Cannon extends VariantChessPiece {
         boolean isCapture = board.getPieceAt(endX, endY) != null;
         int piecesInBetween = 0;
 
-        // 处理纵向移动
+        // Handle vertical movement
         if (startX == endX) {
             int step = (endY > startY) ? 1 : -1;
             for (int y = startY + step; y != endY; y += step) {
@@ -43,9 +44,7 @@ public class Cannon extends VariantChessPiece {
                     piecesInBetween++;
                 }
             }
-        }
-        // 处理横向移动
-        else {
+        } else { // Handle horizontal movement
             int step = (endX > startX) ? 1 : -1;
             for (int x = startX + step; x != endX; x += step) {
                 if (board.getPieceAt(x, startY) != null) {
@@ -54,7 +53,7 @@ public class Cannon extends VariantChessPiece {
             }
         }
 
-        // 判断是否符合吃子或移动的规则
+        // Determine if the move is valid
         if (isCapture) {
             if (piecesInBetween == 1 && board.getPieceAt(endX, endY).getColor() != this.getColor()) {
                 move.setCapture(true);
@@ -67,25 +66,5 @@ public class Cannon extends VariantChessPiece {
         }
 
         return false;
-    }
-
-    public int getCaptureCount() {
-        return captureCount;
-    }
-
-    public void incrementCaptureCount() {
-        captureCount++;
-    }
-
-    public void explode(VariantChessBoard board, int x, int y) {
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (int[] direction : directions) {
-            int newX = x + direction[0];
-            int newY = y + direction[1];
-            if (board.isInBounds(newX, newY)) {
-                board.setPieceAt(newX, newY, null);
-            }
-        }
-        board.setPieceAt(x, y, null);
     }
 }

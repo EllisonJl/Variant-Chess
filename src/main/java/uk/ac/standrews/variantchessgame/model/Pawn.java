@@ -1,13 +1,11 @@
 package uk.ac.standrews.variantchessgame.model;
 
 public class Pawn extends VariantChessPiece {
-    private int captureCount;
     private boolean isFirstMove;
     private int direction; // Add direction as a property
 
     public Pawn(Color color) {
         super(color, "Pawn");
-        this.captureCount = 0;
         this.isFirstMove = true;
         this.direction = (color == Color.WHITE) ? -1 : 1; // Set direction based on initial color
     }
@@ -87,14 +85,6 @@ public class Pawn extends VariantChessPiece {
         }
 
         return false;
-    }
-
-    public int getCaptureCount() {
-        return captureCount;
-    }
-
-    public void incrementCaptureCount() {
-        captureCount++;
     }
 
     public boolean isFirstMove() {

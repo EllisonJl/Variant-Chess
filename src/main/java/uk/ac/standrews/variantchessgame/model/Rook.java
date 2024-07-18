@@ -5,6 +5,10 @@ public class Rook extends VariantChessPiece {
         super(color, "Rook");
     }
 
+    public Rook(Color color, boolean promotedFromPawn) {
+        super(color, "Rook", promotedFromPawn);
+    }
+
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
         if (isImmobile()) return false;  // Check if the piece is immobile
@@ -26,19 +30,12 @@ public class Rook extends VariantChessPiece {
             return false;
         }
 
-        int dx = Integer.compare(endX, startX);
-        int dy = Integer.compare(endY, startY);
-
-        int x = startX + dx;
-        int y = startY + dy;
-
-        while (x != endX || y != endY) {
-            VariantChessPiece piece = board.getPieceAt(x, y);
-            if (piece != null) {
+        int stepX = Integer.compare(endX - startX, 0);
+        int stepY = Integer.compare(endY - startY, 0);
+        for (int i = 1; i < Math.max(Math.abs(endX - startX), Math.abs(endY - startY)); i++) {
+            if (board.getPieceAt(startX + i * stepX, startY + i * stepY) != null) {
                 return false;
             }
-            x += dx;
-            y += dy;
         }
 
         VariantChessPiece targetPiece = board.getPieceAt(endX, endY);

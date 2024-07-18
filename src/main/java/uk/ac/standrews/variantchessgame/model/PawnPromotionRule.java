@@ -5,44 +5,38 @@ import java.util.Random;
 public class PawnPromotionRule implements GameRule {
     @Override
     public void applyRule(VariantChessMove move, VariantChessPiece piece, VariantChessBoard board) {
-        if (piece instanceof Pawn) {
-            Pawn pawn = (Pawn) piece;
-            int captureCount = pawn.getCaptureCount();
-            Random random = new Random();
-            VariantChessPiece newPiece = null;
+        if (piece == null || !(piece instanceof Pawn || piece.isPromotedFromPawn())) {
+            return;
+        }
 
-            if (captureCount == 1) {
-                // 随机变身为骑士或主教
-                if (random.nextBoolean()) {
-                    newPiece = new Knight(piece.getColor());
-                } else {
-                    newPiece = new Bishop(piece.getColor());
-                }
-            } else if (captureCount == 2) {
-                // 随机变身为大炮或车
-                if (random.nextBoolean()) {
-                    newPiece = new Cannon(piece.getColor());
-                } else {
-                    newPiece = new Rook(piece.getColor());
-                }
-            } else if (captureCount == 3) {
-                // 变身为后
-                newPiece = new Queen(piece.getColor());
-            } else if (captureCount > 3) {
-                // 捕获次数大于三次，不再升级
-                newPiece = piece;
+        // 增加捕获计数
+        piece.incrementCaptureCount();
+
+        int captureCount = piece.getCaptureCount();
+        System.out.println("棋子的捕获次数为：" + captureCount);
+
+        Random random = new Random();
+        VariantChessPiece newPiece = piece;
+
+        if (captureCount == 1) {
+            if (random.nextBoolean()) {
+                newPiece = new Knight(piece.getColor(), true);
             } else {
-                // 不变身，继续保持为Pawn
-                newPiece = piece;
+                newPiece = new Bishop(piece.getColor(), true);
             }
-
-            if (newPiece != piece) {
-                // 如果进行了变身操作，则更新棋盘上的棋子
-                board.setPieceAt(move.getEndX(), move.getEndY(), newPiece);
+        } else if (captureCount == 2) {
+            if (random.nextBoolean()) {
+                newPiece = new Cannon(piece.getColor(), true);
+            } else {
+                newPiece = new Rook(piece.getColor(), true);
             }
+        } else if (captureCount == 3) {
+            newPiece = new Queen(piece.getColor(), true);
+        }
 
-            // 更新捕获次数
-            pawn.incrementCaptureCount();
+        if (newPiece != piece) {
+            newPiece.setCaptureCount(captureCount);
+            board.setPieceAt(move.getEndX(), move.getEndY(), newPiece);
         }
     }
 }

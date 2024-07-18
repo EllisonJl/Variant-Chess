@@ -5,6 +5,10 @@ public class Queen extends VariantChessPiece {
         super(color, "Queen");
     }
 
+    public Queen(Color color, boolean promotedFromPawn) {
+        super(color, "Queen", promotedFromPawn);
+    }
+
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
         if (isImmobile()) return false;  // Check if the piece is immobile
@@ -22,23 +26,20 @@ public class Queen extends VariantChessPiece {
             return false;
         }
 
-        if (!(startX == endX || startY == endY || Math.abs(startX - endX) == Math.abs(startY - endY))) {
+        // Check for straight or diagonal move
+        boolean isStraight = startX == endX || startY == endY;
+        boolean isDiagonal = Math.abs(endX - startX) == Math.abs(endY - startY);
+
+        if (!isStraight && !isDiagonal) {
             return false;
         }
 
-        int dx = Integer.compare(endX, startX);
-        int dy = Integer.compare(endY, startY);
-
-        int x = startX + dx;
-        int y = startY + dy;
-
-        while (x != endX || y != endY) {
-            VariantChessPiece piece = board.getPieceAt(x, y);
-            if (piece != null) {
+        int stepX = Integer.compare(endX - startX, 0);
+        int stepY = Integer.compare(endY - startY, 0);
+        for (int i = 1; i < Math.max(Math.abs(endX - startX), Math.abs(endY - startY)); i++) {
+            if (board.getPieceAt(startX + i * stepX, startY + i * stepY) != null) {
                 return false;
             }
-            x += dx;
-            y += dy;
         }
 
         VariantChessPiece targetPiece = board.getPieceAt(endX, endY);

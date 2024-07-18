@@ -5,6 +5,10 @@ public class Knight extends VariantChessPiece {
         super(color, "Knight");
     }
 
+    public Knight(Color color, boolean promotedFromPawn) {
+        super(color, "Knight", promotedFromPawn);
+    }
+
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
         if (isImmobile()) return false;  // Check if the piece is immobile
