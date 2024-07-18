@@ -1,16 +1,14 @@
 package uk.ac.standrews.variantchessgame.model;
 
-import uk.ac.standrews.variantchessgame.model.Color;
-import uk.ac.standrews.variantchessgame.model.VariantChessBoard;
-import uk.ac.standrews.variantchessgame.model.VariantChessMove;
-
 public abstract class VariantChessPiece {
     private Color color;
     private String type;
+    private boolean immobile;
 
     public VariantChessPiece(Color color, String type) {
         this.color = color;
         this.type = type;
+        this.immobile = false;
     }
 
     public Color getColor() {
@@ -23,6 +21,14 @@ public abstract class VariantChessPiece {
 
     public String getType() {
         return type;
+    }
+
+    public boolean isImmobile() {
+        return immobile;
+    }
+
+    public void setImmobile(boolean immobile) {
+        this.immobile = immobile;
     }
 
     public abstract boolean isValidMove(VariantChessMove move, VariantChessBoard board);

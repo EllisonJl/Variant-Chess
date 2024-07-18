@@ -1,9 +1,7 @@
 package uk.ac.standrews.variantchessgame.model;
 
 import java.util.Random;
-import org.springframework.stereotype.Component;
 
-@Component
 public class VariantChessBoard {
     private VariantChessPiece[][] board;
     private GameState gameState;
@@ -21,7 +19,7 @@ public class VariantChessBoard {
         placeMajorPiecesSymmetrically(0, Color.BLACK, 7, Color.WHITE);
         placePawnsAndCannons(1, Color.BLACK);
         placePawnsAndCannons(6, Color.WHITE);
-        gameState = new GameState(this); // 重新初始化游戏状态，选择新的规则
+        gameState = new GameState(this); // Reinitialize game state and select new rules
         printBoard();
     }
 
@@ -56,7 +54,6 @@ public class VariantChessBoard {
         board[blackRow][pieces[4]] = new Queen(blackColor);
         board[blackRow][pieces[5]] = new King(blackColor);
 
-        // Place white pieces symmetrically
         board[whiteRow][pieces[0]] = new Knight(whiteColor);
         board[whiteRow][pieces[1]] = new Knight(whiteColor);
         board[whiteRow][pieces[2]] = new Bishop(whiteColor);
@@ -86,29 +83,34 @@ public class VariantChessBoard {
     }
 
     public VariantChessPiece getPieceAt(int x, int y) {
-        return board[x][y];
+        if (isInBounds(x, y)) {
+            return board[x][y];
+        }
+        return null;
     }
 
     public void setPieceAt(int x, int y, VariantChessPiece piece) {
-        board[x][y] = piece;
+        if (isInBounds(x, y)) {
+            board[x][y] = piece;
+        }
     }
 
     public void movePiece(VariantChessMove move) {
-        VariantChessPiece piece = board[move.getStartX()][move.getStartY()];
+        VariantChessPiece piece = getPieceAt(move.getStartX(), move.getStartY());
         System.out.println("Moving piece: " + piece + " from (" + move.getStartX() + ", " + move.getStartY() + ") to (" + move.getEndX() + ", " + move.getEndY() + ")");
 
-        // 直接执行移动操作，而不再次调用 isValidMove
-        board[move.getStartX()][move.getStartY()] = null; // 清空原始位置
-        board[move.getEndX()][move.getEndY()] = piece; // 移动到新位置
+        // Directly perform the move operation without re-validating
+        setPieceAt(move.getEndX(), move.getEndY(), piece); // Move to the new position
+        setPieceAt(move.getStartX(), move.getStartY(), null); // Clear the original position
 
-        // 如果是 Pawn，需要更新 isFirstMove 状态
+        // If it's a Pawn, update the isFirstMove state
         if (piece instanceof Pawn) {
             ((Pawn) piece).setFirstMove(false);
         }
 
         System.out.println("Piece moved successfully.");
         System.out.println("Current Board State:");
-        printBoard(); // 打印当前棋盘状态
+        printBoard(); // Print current board state
     }
 
     public boolean isInBounds(int x, int y) {

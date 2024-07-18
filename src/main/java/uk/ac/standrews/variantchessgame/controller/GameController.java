@@ -31,6 +31,11 @@ public class GameController {
         return board.getBoard();
     }
 
+    @GetMapping("/currentRule")
+    public String getCurrentRule() {
+        return gameState.getSelectedRule().getClass().getSimpleName();
+    }
+
     @PostMapping("/restart")
     public void restartGame() {
         board.initializeBoard(); // 重新初始化棋盘，选择新的规则
@@ -49,18 +54,28 @@ public class GameController {
         System.out.println("Current turn is: " + gameState.getCurrentTurn());
         if (pieceClass.isInstance(piece) && piece.getColor() == gameState.getCurrentTurn()) {
             if (piece.isValidMove(move, board)) {
-                boolean isCapture = board.getPieceAt(move.getEndX(), move.getEndY()) != null;
+                VariantChessPiece targetPiece = board.getPieceAt(move.getEndX(), move.getEndY());
+                boolean isCapture = targetPiece != null;
+
+                if (isCapture) {
+                    if (piece instanceof King || piece instanceof Queen) {
+                        gameState.getSelectedRule().applyRule(move, piece, board);
+                    } else {
+                        board.setPieceAt(move.getEndX(), move.getEndY(), null);
+                    }
+                }
+
                 board.movePiece(move);
                 gameState.incrementMoveCount();
 
                 if (isCapture) {
                     gameState.resetMoveWithoutCapture();
+                    if (piece instanceof Pawn) {
+                        ((Pawn) piece).incrementCaptureCount(); // 增加捕捉次数
+                    }
                 } else {
                     gameState.incrementMoveWithoutCapture();
                 }
-
-                // Apply the selected game rule
-                gameState.getSelectedRule().applyRule(move, piece, board);
 
                 gameState.switchTurn();
                 System.out.println("Move is valid, piece moved.");
