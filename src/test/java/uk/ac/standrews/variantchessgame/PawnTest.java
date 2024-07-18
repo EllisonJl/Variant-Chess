@@ -20,34 +20,33 @@ class PawnTest {
         board.getBoard()[6][0] = whitePawn;  // 白棋兵从第六行开始
         board.getBoard()[1][0] = blackPawn;  // 黑棋兵从第一行开始
     }
-//    @Test
-//    void testCaptureMove() {
-//        // 放置黑棋子在前方一格 (5, 0)
-//        board.getBoard()[5][0] = new Rook(Color.BLACK);
-//        VariantChessMove move = new VariantChessMove(6, 0, 5, 0);
-//        assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to capture forward after first move.");
-//        board.movePiece(move);
-//
-//        // 放置黑棋子在前方两格 (3, 0)，并清空中间位置
-//        board.getBoard()[4][0] = null;
-//        board.getBoard()[3][0] = new Rook(Color.BLACK);
-//        move = new VariantChessMove(5, 0, 3, 0);
-//        assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to capture forward two squares after first move.");
-//        board.movePiece(move);
-//
-//        // 放置白棋子在前方一格 (2, 0)
-//        board.getBoard()[2][0] = new Rook(Color.WHITE);
-//        move = new VariantChessMove(1, 0, 2, 0);
-//        assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture forward after first move.");
-//        board.movePiece(move);
-//
-//        // 放置白棋子在前方两格 (4, 0)，并清空中间位置
-//        board.getBoard()[3][0] = null;
-//        board.getBoard()[4][0] = new Rook(Color.WHITE);
-//        move = new VariantChessMove(2, 0, 4, 0);
-//        assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture forward two squares after first move.");
-//        board.movePiece(move);
-//    }
+    @Test
+    void testCaptureMove() {
+        // 放置黑棋子在前方一格 (5, 0)
+        board.getBoard()[5][0] = new Rook(Color.BLACK);
+        VariantChessMove move = new VariantChessMove(6, 0, 5, 0);
+        assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to capture forward after first move.");
+        board.movePiece(move);
+
+        // 移动白棋兵到 (4, 0)
+        board.getBoard()[4][0] = new Rook(Color.BLACK);
+        move = new VariantChessMove(5, 0, 4, 0);
+        assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to capture forward one square after first move.");
+        board.movePiece(move);
+
+        // 放置白棋子在前方一格 (2, 0)
+        board.getBoard()[2][0] = new Rook(Color.WHITE);
+        move = new VariantChessMove(1, 0, 2, 0);
+        assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture forward after first move.");
+        board.movePiece(move);
+
+        // 移动黑棋兵到 (3, 0)
+        board.getBoard()[3][0] = new Rook(Color.WHITE);
+        move = new VariantChessMove(2, 0, 3, 0);
+        assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture forward one square after first move.");
+        board.movePiece(move);
+    }
+
 
     @Test
     void testCaptureMoveAfterFirstMove() {

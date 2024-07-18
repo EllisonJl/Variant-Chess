@@ -40,8 +40,6 @@ public class Pawn extends VariantChessPiece {
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);
-                    captureCount++;
-                    isFirstMove = false;
                     return true;
                 }
             }
@@ -51,8 +49,6 @@ public class Pawn extends VariantChessPiece {
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (middlePiece == null && targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);
-                    captureCount++;
-                    isFirstMove = false;
                     return true;
                 }
             }
@@ -61,8 +57,6 @@ public class Pawn extends VariantChessPiece {
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);
-                    captureCount++;
-                    isFirstMove = false;
                     return true;
                 }
             }
@@ -75,7 +69,6 @@ public class Pawn extends VariantChessPiece {
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);
-                    captureCount++;
                     return true;
                 }
             }
@@ -84,7 +77,6 @@ public class Pawn extends VariantChessPiece {
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);
-                    captureCount++;
                     return true;
                 }
             }
