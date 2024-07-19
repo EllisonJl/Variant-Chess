@@ -52,6 +52,27 @@ function updateBoardWithMove(move) {
 
     // 清空起始格子
     startSquare.innerHTML = "";
+
+    // 检查炮是否发生爆炸
+    const piece = document.querySelector(`.piece[data-row="${move.endX}"][data-col="${move.endY}"]`);
+    if (piece.dataset.piece === 'Cannon' && parseInt(piece.dataset.captureCount) >= 3) {
+        const directions = [
+            {x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}
+        ];
+        directions.forEach(dir => {
+            const x = move.endX + dir.x;
+            const y = move.endY + dir.y;
+            if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+                const adjacentSquare = document.querySelector(`.square[data-row="${x}"][data-col="${y}"]`);
+                const adjacentPiece = adjacentSquare.firstChild;
+                if (adjacentPiece && adjacentPiece.dataset.color !== piece.dataset.color) {
+                    adjacentSquare.removeChild(adjacentPiece);
+                }
+            }
+        });
+        // 移除自爆的炮
+        targetSquare.removeChild(piece);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -100,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     img.dataset.col = colIndex;
                     img.dataset.piece = piece.type;
                     img.dataset.color = piece.color.toLowerCase();
+                    img.dataset.captureCount = piece.captureCount;  // Add capture count
                     if (piece.immobile) {
                         img.classList.add('immobile');  // Add class for immobile pieces
                     }
@@ -132,7 +154,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 startX: event.target.dataset.row,
                 startY: event.target.dataset.col,
                 piece: event.target.dataset.piece,
-                color: event.target.dataset.color
+                color: event.target.dataset.color,
+                captureCount: event.target.dataset.captureCount  // Include capture count
             }));
         } else {
             event.preventDefault();

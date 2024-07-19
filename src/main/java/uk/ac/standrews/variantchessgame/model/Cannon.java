@@ -67,4 +67,27 @@ public class Cannon extends VariantChessPiece {
 
         return false;
     }
+
+    @Override
+    public void incrementCaptureCount() {
+        super.incrementCaptureCount();
+        if (getCaptureCount() == 3) {
+            setImmobile(true); // The cannon will be immobile until it detonates
+        }
+    }
+
+    public void detonate(VariantChessBoard board, int x, int y) {
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+            if (board.isInBounds(newX, newY)) {
+                VariantChessPiece piece = board.getPieceAt(newX, newY);
+                if (piece != null && piece.getColor() != this.getColor()) {
+                    board.setPieceAt(newX, newY, null);
+                }
+            }
+        }
+        board.setPieceAt(x, y, null); // Remove the cannon itself
+    }
 }

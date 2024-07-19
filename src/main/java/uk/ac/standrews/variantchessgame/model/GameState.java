@@ -16,7 +16,7 @@ public class GameState {
         this.whiteMoveCount = 0;
         this.blackMoveCount = 0;
         this.movesWithoutCapture = 0;
-        selectRandomRule(); // 在游戏初始化时选择随机规则
+        selectRandomRule(); // Select random rule at game initialization
     }
 
     public Color getCurrentTurn() {
@@ -90,11 +90,7 @@ public class GameState {
             }
         }
 
-        if (whiteCount == 1 && blackCount == 1 && whiteHasKing && blackHasKing) {
-            return true;
-        }
-
-        return false;
+        return whiteCount == 1 && blackCount == 1 && whiteHasKing && blackHasKing;
     }
 
     public GameRule getSelectedRule() {
@@ -103,7 +99,7 @@ public class GameState {
 
     private void selectRandomRule() {
         Random random = new Random();
-        int ruleIndex = random.nextInt(3); // 随机选择0、1或2
+        int ruleIndex = random.nextInt(3); // Select randomly between 0, 1, and 2
         switch (ruleIndex) {
             case 0:
                 this.selectedRule = new CannonSpecialRule();

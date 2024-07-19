@@ -72,9 +72,15 @@ public class GameController {
                     gameState.resetMoveWithoutCapture();
                     if (piece instanceof Pawn) {
                         ((Pawn) piece).incrementCaptureCount(); // 增加捕捉次数
+                    } else if (piece instanceof Cannon) {
+                        ((Cannon) piece).incrementCaptureCount(); // 增加捕捉次数
                     }
                 } else {
                     gameState.incrementMoveWithoutCapture();
+                }
+
+                if (piece instanceof Cannon && ((Cannon) piece).getCaptureCount() >= 3) {
+                    ((Cannon) piece).detonate(board, move.getEndX(), move.getEndY());
                 }
 
                 gameState.switchTurn();
