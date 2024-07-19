@@ -21,6 +21,28 @@ class PawnPromotionRuleTest {
     }
 
     @Test
+    void testPawnPromotionFirstCapture() {
+        // 捕获一次
+        board.setPieceAt(5, 0, new Rook(Color.BLACK));
+        VariantChessMove move = new VariantChessMove(6, 0, 5, 0);
+        board.movePiece(move);
+        rule.applyRule(move, board.getPieceAt(5, 0), board);
+
+        VariantChessPiece newPiece = board.getPieceAt(5, 0);
+        assertTrue(newPiece instanceof Knight || newPiece instanceof Bishop, "Pawn should be promoted to Knight or Bishop after first capture.");
+        assertEquals(Color.WHITE, newPiece.getColor(), "New piece should be white.");
+        assertNull(board.getPieceAt(6, 0), "Original position should be empty after move.");
+
+        // 验证新棋子的移动规则
+        if (newPiece instanceof Knight) {
+            move = new VariantChessMove(5, 0, 3, 1); // Knight L形移动
+        } else {
+            move = new VariantChessMove(5, 0, 3, 2); // Bishop 斜向移动
+        }
+        assertTrue(newPiece.isValidMove(move, board), "Promoted piece should be able to move according to its rules.");
+    }
+
+    @Test
     void testPawnPromotionSecondCapture() {
         // 捕获一次
         board.setPieceAt(5, 0, new Rook(Color.BLACK));
@@ -37,10 +59,15 @@ class PawnPromotionRuleTest {
         VariantChessPiece newPiece = board.getPieceAt(4, 0);
         assertTrue(newPiece instanceof Cannon || newPiece instanceof Rook, "Pawn should be promoted to Cannon or Rook after second capture.");
         assertEquals(Color.WHITE, newPiece.getColor(), "New piece should be white.");
+        assertNull(board.getPieceAt(5, 0), "Original position should be empty after move.");
 
         // 验证新棋子的移动规则
-        VariantChessMove cannonMove = new VariantChessMove(4, 0, 4, 7); // Cannon 横向移动
-        assertTrue(newPiece.isValidMove(cannonMove, board), "Cannon/Rook should be able to move according to its rules.");
+        if (newPiece instanceof Cannon) {
+            move = new VariantChessMove(4, 0, 4, 7); // Cannon 横向移动
+        } else {
+            move = new VariantChessMove(4, 0, 4, 7); // Rook 横向移动
+        }
+        assertTrue(newPiece.isValidMove(move, board), "Promoted piece should be able to move according to its rules.");
     }
 
     @Test
@@ -66,6 +93,7 @@ class PawnPromotionRuleTest {
         VariantChessPiece newPiece = board.getPieceAt(3, 0);
         assertTrue(newPiece instanceof Queen, "Pawn should be promoted to Queen after third capture.");
         assertEquals(Color.WHITE, newPiece.getColor(), "New piece should be white.");
+        assertNull(board.getPieceAt(4, 0), "Original position should be empty after move.");
 
         // 验证新棋子的移动规则
         VariantChessMove queenMove = new VariantChessMove(3, 0, 3, 7); // Queen 横向移动
@@ -101,6 +129,7 @@ class PawnPromotionRuleTest {
         VariantChessPiece newPiece = board.getPieceAt(2, 0);
         assertTrue(newPiece instanceof Queen, "Pawn should remain a Queen after fourth capture.");
         assertEquals(Color.WHITE, newPiece.getColor(), "New piece should be white.");
+        assertNull(board.getPieceAt(3, 0), "Original position should be empty after move.");
     }
 
     @Test

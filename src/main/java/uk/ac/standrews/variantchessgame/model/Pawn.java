@@ -95,6 +95,7 @@ public class Pawn extends VariantChessPiece {
         this.isFirstMove = isFirstMove;
     }
 
+
     public void updateDirection(Color newColor) {
         setColor(newColor);
         this.direction = (newColor == Color.WHITE) ? -1 : 1; // Update direction based on new color
