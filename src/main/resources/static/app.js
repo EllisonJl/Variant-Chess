@@ -77,13 +77,15 @@ function updateBoardWithMove(move) {
 
 document.addEventListener("DOMContentLoaded", function() {
     const chessboard = document.getElementById("chessboard");
-    const ruleDisplay = document.getElementById("ruleDisplay"); // 添加一个显示规则的元素
-    let isWhiteTurn = true; // 白棋先行
+    const ruleDisplay = document.getElementById("ruleDisplay");
+    const restartButton = document.getElementById("restartButton");
+    let isWhiteTurn = true;
 
     function fetchInitialBoard() {
         fetch("/api/game/initialBoard")
             .then(response => response.json())
             .then(board => {
+                clearBoard(); // 清空棋盘内容
                 renderBoard(board);
             })
             .catch(error => console.error("Error fetching initial board:", error));
@@ -99,7 +101,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function renderBoard(board) {
-        chessboard.innerHTML = '';
         board.forEach((row, rowIndex) => {
             row.forEach((piece, colIndex) => {
                 const square = document.createElement("div");
@@ -121,9 +122,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     img.dataset.col = colIndex;
                     img.dataset.piece = piece.type;
                     img.dataset.color = piece.color.toLowerCase();
-                    img.dataset.captureCount = piece.captureCount;  // Add capture count
+                    img.dataset.captureCount = piece.captureCount;
                     if (piece.immobile) {
-                        img.classList.add('immobile');  // Add class for immobile pieces
+                        img.classList.add('immobile');
                     }
                     square.appendChild(img);
                 }
@@ -155,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 startY: event.target.dataset.col,
                 piece: event.target.dataset.piece,
                 color: event.target.dataset.color,
-                captureCount: event.target.dataset.captureCount  // Include capture count
+                captureCount: event.target.dataset.captureCount
             }));
         } else {
             event.preventDefault();
@@ -182,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function() {
             };
 
             let moveUrl = "/api/game/move" + startData.piece;
-            moveUrl = moveUrl.charAt(0).toLowerCase() + moveUrl.slice(1);  // Ensure URL starts with a lowercase letter
+            moveUrl = moveUrl.charAt(0).toLowerCase() + moveUrl.slice(1);
 
             fetch(moveUrl, {
                 method: "POST",
@@ -190,23 +191,23 @@ document.addEventListener("DOMContentLoaded", function() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(move)
-            }).then(response => response.text()) // Change to text() to handle response strings
+            }).then(response => response.text())
                 .then(result => {
                     if (result === "VALID_MOVE") {
                         updateBoardWithMove(move);
-                        isWhiteTurn = !isWhiteTurn; // 切换回合
+                        isWhiteTurn = !isWhiteTurn;
                     } else if (result === "BLACK_WINS") {
                         alert("Black wins!");
-                        fetchInitialBoard(); // 重置初始棋盘
-                        fetchCurrentRule(); // 获取并显示当前规则
+                        fetchInitialBoard();
+                        fetchCurrentRule();
                     } else if (result === "WHITE_WINS") {
                         alert("White wins!");
-                        fetchInitialBoard(); // 重置初始棋盘
-                        fetchCurrentRule(); // 获取并显示当前规则
+                        fetchInitialBoard();
+                        fetchCurrentRule();
                     } else if (result === "STALEMATE") {
                         alert("Stalemate!");
-                        fetchInitialBoard(); // 重置初始棋盘
-                        fetchCurrentRule(); // 获取并显示当前规则
+                        fetchInitialBoard();
+                        fetchCurrentRule();
                     } else {
                         alert("Invalid move");
                     }
@@ -217,6 +218,30 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    fetchInitialBoard(); // Fetch and render initial board state from the backend
-    fetchCurrentRule(); // Fetch and display the current rule
+    function clearBoard() {
+        while (chessboard.firstChild) {
+            chessboard.removeChild(chessboard.firstChild);
+        }
+    }
+
+    restartButton.addEventListener("click", function() {
+        fetch("/api/game/restart", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(() => {
+            clearBoard(); // 清除棋盘上的所有棋子
+            fetchInitialBoard(); // Fetch and render initial board state from the backend
+            fetchCurrentRule(); // Fetch and display the current rule
+            isWhiteTurn = true; // 重置为白棋先行
+        }).catch(error => console.error("Error restarting game:", error));
+    });
+
+    fetchInitialBoard();
+    fetchCurrentRule();
 });
+
+
+
+

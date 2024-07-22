@@ -38,9 +38,11 @@ public class GameController {
 
     @PostMapping("/restart")
     public void restartGame() {
-        board.initializeBoard(); // 重新初始化棋盘，选择新的规则
-        this.gameState = new GameState(board); // 重置游戏状态
+        board.initializeBoard(); // 重新初始化棋盘
+        this.gameState = new GameState(board); // 重新初始化游戏状态
+        System.out.println("Game has been restarted.");
     }
+
 
     private String processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
         System.out.println(String.format("Received move request: startX=%d, startY=%d, endX=%d, endY=%d", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY()));
