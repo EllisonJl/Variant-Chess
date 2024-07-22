@@ -5,15 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Variant Chess Game</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
-<h1>Variant Chess Game</h1>
-<button id="restartButton">Restart Game</button> <!-- 添加重启游戏按钮 -->
-<div id="chessboard-container">
-  <div id="ruleDisplay"></div> <!-- 显示当前规则的元素 -->
-  <div id="chessboard"></div>
-  <div id="bottom-space"></div>
-</div>
+<main>
+  <div class="container my-3">
+    <div class="row align-items-center">
+      <!-- 左侧部分 -->
+      <div class="col-md-6">
+        <h1 class="text-align-center">Variant Chess Game</h1>
+        <div id="ruleDisplay" class="my-3">Current Rule: KingQueenSpecialRule</div>
+        <!-- 移动 Restart Game 按钮到 Settings 下面 -->
+        <div id="accordion">
+          <div class="card">
+            <div class="card-header" id="settingsHeading">
+              <h2 class="text-align-center">
+                <button class="btn btn-header no-outline" data-toggle="collapse" data-target="#settings" aria-expanded="false" aria-controls="settings">
+                  Settings
+                </button>
+              </h2>
+            </div>
+            <div id="settings" class="collapse" aria-labelledby="settingsHeading" data-parent="#accordion">
+              <div class="card-body">
+                <button id="restartButton" class="btn btn-primary my-3 btn-block">Restart Game</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="openingPositionsHeading">
+              <h2 class="text-align-center">
+                <button class="btn btn-header no-outline" data-toggle="collapse" data-target="#openingPositions" aria-expanded="false" aria-controls="openingPositions">
+                  Game Rule
+                </button>
+              </h2>
+            </div>
+            <div id="openingPositions" class="collapse" aria-labelledby="openingPositionsHeading" data-parent="#accordion">
+              <div class="card-body">
+                <div class="row my-3 text-align-center">
+                  <div class="col-md-6 my-2">
+                    <button class="btn btn-primary" id="cannonExplodeBtn">Cannon Explode</button>
+                  </div>
+                  <div class="col-md-6 my-2">
+                    <button class="btn btn-primary" id="kingQueenCaptureBtn">King & Queen Capture</button>
+                  </div>
+                </div>
+                <div class="row my-3 text-align-center">
+                  <div class="col-md-6 my-2">
+                    <button class="btn btn-primary" id="pawnPromotionBtn">Pawn Promotion</button>
+                  </div>
+                  <div class="col-md-6 my-2">
+                    <button class="btn btn-primary" id="randomRuleBtn">Random Rule</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="compVsCompHeading">
+              <h2 class="text-align-center">
+                <button class="btn btn-header no-outline" data-toggle="collapse" data-target="#compVsComp" aria-expanded="false" aria-controls="compVsComp">
+                  Computer vs. Computer
+                </button>
+              </h2>
+            </div>
+            <div id="compVsComp" class="collapse" aria-labelledby="compVsCompHeading" data-parent="#accordion">
+              <div class="card-body">
+                <div class="row text-align-center">
+                  <div class="col-md-6 my-2">
+                    <button class="btn btn-success" id="compVsCompBtn">Start Game</button>
+                  </div>
+                  <div class="col-md-6 my-2">
+                    <button class="btn btn-danger" id="resetBtn">Stop and Reset</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row my-3 text-align-center">
+          <div class="col-md-12">
+            <h2>Advantage</h2>
+            <p><span id="advantageColor">Neither side</span> has the advantage
+              (+<span id="advantageNumber">0</span>).</p>
+            <div class="progress">
+              <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
+                   role="progressbar" aria-valuenow="0" style="width: 50%"
+                   aria-valuemin="-2000" aria-valuemax="4000" id='advantageBar'>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row my-3 text-align-center">
+          <div class="col-md-12">
+            <h2>Status</h2>
+            <p><span id="status">No check, checkmate, or draw.</span></p>
+          </div>
+        </div>
+      </div>
+      <!-- 右侧部分 -->
+      <div class="col-md-6">
+        <div id="chessboard-container">
+          <div id="chessboard"></div>
+          <div class="row my-3 text-align-center">
+            <div class="col-md-6 my-2">
+              <button class="btn btn-danger" id="undoButton">Undo</button>
+            </div>
+            <div class="col-md-6 my-2">
+              <button class="btn btn-success" id="redoButton">Redo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
 <script src="app.js"></script>
 </body>
 </html>

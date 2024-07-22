@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch("/api/game/currentRule")
             .then(response => response.text())
             .then(rule => {
-                ruleDisplay.textContent = `当前规则: ${rule}`;
+                ruleDisplay.textContent = `Current Rule: ${rule}`;
             })
             .catch(error => console.error("Error fetching current rule:", error));
     }
