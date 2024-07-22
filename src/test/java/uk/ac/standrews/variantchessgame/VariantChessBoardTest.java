@@ -12,14 +12,17 @@ class VariantChessBoardTest {
 
     @BeforeEach
     void setUp() {
+        // Initialize a new VariantChessBoard before each test case.
         board = new VariantChessBoard();
     }
 
     @Test
     void testInitialBoardSetup() {
+        // Test the initial setup of the chessboard to ensure pieces are placed correctly.
+
         VariantChessPiece[][] initialBoard = board.getBoard();
 
-        // Test fixed positions for Rook, Cannon, and Pawn
+        // Validate positions for Cannon and Pawn on the board.
         for (int i = 0; i < 8; i++) {
             if (i == 1 || i == 6) {
                 assertTrue(initialBoard[1][i] instanceof Cannon && initialBoard[1][i].getColor() == Color.BLACK, "Black Cannon should be at (1," + i + ")");
@@ -30,13 +33,13 @@ class VariantChessBoardTest {
             }
         }
 
-        // Test fixed positions for Rook
+        // Validate fixed positions for Rooks on the board.
         assertTrue(initialBoard[0][0] instanceof Rook && initialBoard[0][0].getColor() == Color.BLACK, "Black Rook should be at (0,0)");
         assertTrue(initialBoard[0][7] instanceof Rook && initialBoard[0][7].getColor() == Color.BLACK, "Black Rook should be at (0,7)");
         assertTrue(initialBoard[7][0] instanceof Rook && initialBoard[7][0].getColor() == Color.WHITE, "White Rook should be at (7,0)");
         assertTrue(initialBoard[7][7] instanceof Rook && initialBoard[7][7].getColor() == Color.WHITE, "White Rook should be at (7,7)");
 
-        // Test random positions for major pieces (Knight, Bishop, King, Queen)
+        // Count and validate the number of major pieces (Knight, Bishop, King, Queen) for both colors.
         int whiteKnights = 0, blackKnights = 0;
         int whiteBishops = 0, blackBishops = 0;
         int whiteQueens = 0, blackQueens = 0;
@@ -56,6 +59,7 @@ class VariantChessBoardTest {
             if (piece instanceof King && piece.getColor() == Color.WHITE) whiteKings++;
         }
 
+        // Assert the expected counts for each type of piece.
         assertEquals(2, whiteKnights, "There should be 2 White Knights");
         assertEquals(2, blackKnights, "There should be 2 Black Knights");
         assertEquals(2, whiteBishops, "There should be 2 White Bishops");
@@ -68,18 +72,22 @@ class VariantChessBoardTest {
 
     @Test
     void testMovePiece() {
+        // Test the functionality of moving a piece on the board.
         VariantChessPiece[][] initialBoard = board.getBoard();
-        Pawn whitePawn = (Pawn) initialBoard[6][0]; // 白棋的兵在第7行（index 6）
-        VariantChessMove move = new VariantChessMove(6, 0, 5, 0); // 从第7行（index 6）移动到第6行（index 5）
+        Pawn whitePawn = (Pawn) initialBoard[6][0]; // White Pawn initially at (6, 0)
+        VariantChessMove move = new VariantChessMove(6, 0, 5, 0); // Move the Pawn from (6, 0) to (5, 0)
 
         board.movePiece(move);
 
+        // Verify that the original position is now empty and the Pawn is at the new position.
         assertNull(board.getPieceAt(6, 0), "The original position should be empty after the move.");
         assertEquals(whitePawn, board.getPieceAt(5, 0), "The pawn should be at the new position after the move.");
     }
 
     @Test
     void testInvalidMoveOutOfBounds() {
+        // Test whether the board correctly identifies positions that are out of bounds.
+
         assertFalse(board.isInBounds(-1, 0), "Position (-1, 0) should be out of bounds.");
         assertFalse(board.isInBounds(8, 0), "Position (8, 0) should be out of bounds.");
         assertFalse(board.isInBounds(0, -1), "Position (0, -1) should be out of bounds.");
@@ -88,14 +96,18 @@ class VariantChessBoardTest {
 
     @Test
     void testSetPieceAt() {
+        // Test the functionality of placing a piece at a specified position on the board.
         VariantChessPiece knight = new Knight(Color.WHITE);
         board.setPieceAt(4, 4, knight);
 
+        // Verify that the piece has been correctly placed at the specified position.
         assertEquals(knight, board.getPieceAt(4, 4), "The knight should be placed at the specified position.");
     }
 
     @Test
     void testIsInBounds() {
+        // Test the functionality of checking whether a position is within the board's boundaries.
+
         assertTrue(board.isInBounds(0, 0), "Position (0, 0) should be in bounds.");
         assertTrue(board.isInBounds(7, 7), "Position (7, 7) should be in bounds.");
         assertFalse(board.isInBounds(8, 8), "Position (8, 8) should be out of bounds.");
