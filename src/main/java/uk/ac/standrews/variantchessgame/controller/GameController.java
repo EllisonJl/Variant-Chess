@@ -164,6 +164,9 @@ public class GameController {
         return validMoves;
     }
 
+
+
+
     public static class ValidMovesRequest {
         private int startX;
         private int startY;
@@ -202,4 +205,6 @@ public class GameController {
             this.color = color;
         }
     }
+
+
 }

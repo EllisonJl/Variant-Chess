@@ -57,16 +57,13 @@ h1 {
     overflow: scroll;
 }
 
-.highlight-white {
-    box-shadow: inset 0 0 3px 3px yellow;
+/* 高亮时的样式 */
+.square.highlight-move {
+    background-color: #808080 !important; /* 深灰色 */
 }
 
-.highlight-black {
-    box-shadow: inset 0 0 3px 3px blue;
-}
-
-.highlight-hint {
-    box-shadow: inset 0 0 3px 3px red;
+.square.highlight-move.even {
+    background-color: #d3d3d3 !important; /* 浅灰色 */
 }
 
 .no-underline {
