@@ -1,3 +1,55 @@
+package uk.ac.standrews.variantchessgame.model;
+
+/**
+ * Represents a Rook piece in the variant chess game.
+ * The Rook can move any number of squares vertically or horizontally.
+ */
+public class Rook extends VariantChessPiece {
+
+    /**
+     * Constructs a Rook with the specified color.
+     *
+     * @param color The color of the Rook (either WHITE or BLACK).
+     */
+    public Rook(Color color) {
+        super(color, "Rook");
+    }
+
+    /**
+     * Constructs a Rook with the specified color and promotion status.
+     *
+     * @param color The color of the Rook (either WHITE or BLACK).
+     * @param promotedFromPawn A flag indicating if this Rook was promoted from a Pawn.
+     */
+    public Rook(Color color, boolean promotedFromPawn) {
+        super(color, "Rook", promotedFromPawn);
+    }
+
+    /**
+     * Checks if the move is valid for a Rook piece.
+     * The Rook can move any number of squares vertically or horizontally.
+     *
+     * @param move The move to be validated, including start and end positions.
+     * @param board The chessboard where the move is being applied.
+     * @return {@code true} if the move is valid for a Rook, {@code false} otherwise.
+     */
+    @Override
+    public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
+        // Check if the piece is immobile
+        if (isImmobile()) return false;
+
+        int startX = move.getStartX();
+        int startY = move.getStartY();
+        int endX = move.getEndX();
+        int endY = move.getEndY();
+
+        // Ensure the end position is within the board's boundaries
+        if (endX < 0 || endX >= 8 || endY < 0 || endY >= 8) {
+            return false;
+        }
+
+        // Ensure the move is not a zero-length move
+        if (startX == endX && startY == endY) {
             return false;
         }
 
