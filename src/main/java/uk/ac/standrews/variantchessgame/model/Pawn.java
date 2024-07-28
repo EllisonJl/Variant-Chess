@@ -26,12 +26,10 @@ public class Pawn extends VariantChessPiece {
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-//        if (isImmobile()) return false;  // Check if the piece is immobile (e.g., due to being blocked or other constraints)
-
-        int startRow = move.getStartX();  // Starting row of the move
-        int startCol = move.getStartY();  // Starting column of the move
-        int endRow = move.getEndX();      // Ending row of the move
-        int endCol = move.getEndY();      // Ending column of the move
+        int startRow = move.getStartX();
+        int startCol = move.getStartY();
+        int endRow = move.getEndX();
+        int endCol = move.getEndY();
 
         // Check if the move is out of board bounds
         if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
@@ -52,26 +50,7 @@ public class Pawn extends VariantChessPiece {
             }
 
             // Pawn captures diagonally
-            if (endRow == startRow + direction && startCol == endCol) {
-                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
-                if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
-                    move.setCapture(true);  // Set capture flag if capturing an opponent's piece
-                    return true;
-                }
-            }
-
-            // Pawn captures diagonally after moving two squares
-            if (endRow == startRow + 2 * direction && startCol == endCol) {
-                VariantChessPiece middlePiece = board.getPieceAt(startRow + direction, startCol);
-                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
-                if (middlePiece == null && targetPiece != null && targetPiece.getColor() != this.getColor()) {
-                    move.setCapture(true);  // Set capture flag if capturing an opponent's piece
-                    return true;
-                }
-            }
-
-            // Pawn captures diagonally when moving one square forward
-            if (endRow == startRow && Math.abs(endCol - startCol) == 1) {
+            if (endRow == startRow + direction && Math.abs(endCol - startCol) == 1) {
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);  // Set capture flag if capturing an opponent's piece
@@ -85,31 +64,18 @@ public class Pawn extends VariantChessPiece {
             }
 
             // Pawn captures diagonally
-            if (endRow == startRow + direction && startCol == endCol) {
+            if (endRow == startRow + direction && Math.abs(endCol - startCol) == 1) {
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);  // Set capture flag if capturing an opponent's piece
                     return true;
                 }
-            }
-
-            // Pawn captures diagonally even after moving
-            if (endRow == startRow && Math.abs(endCol - startCol) == 1) {
-                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
-                if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
-                    move.setCapture(true);  // Set capture flag if capturing an opponent's piece
-                    return true;
-                }
-            }
-
-            // Pawn attempts to move sideways when the destination is empty
-            if (endRow == startRow && Math.abs(endCol - startCol) == 1 && board.getPieceAt(endRow, endCol) == null) {
-                return true;
             }
         }
 
         return false;  // Default case: the move is invalid
     }
+
 
     /**
      * Gets the first move status of the pawn.

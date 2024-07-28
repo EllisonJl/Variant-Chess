@@ -37,8 +37,6 @@ public class Knight extends VariantChessPiece {
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        // Check if the Knight is immobile
-        if (isImmobile()) return false;
 
         // Extract start and end coordinates
         int startX = move.getStartX();

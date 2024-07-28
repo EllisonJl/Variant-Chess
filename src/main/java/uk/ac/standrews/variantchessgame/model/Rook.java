@@ -35,8 +35,6 @@ public class Rook extends VariantChessPiece {
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        // Check if the piece is immobile
-        if (isImmobile()) return false;
 
         int startX = move.getStartX();
         int startY = move.getStartY();

@@ -35,8 +35,6 @@ public class Bishop extends VariantChessPiece {
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        // Check if the Bishop is immobile (cannot move).
-        if (isImmobile()) return false;
 
         int startX = move.getStartX();
         int startY = move.getStartY();

@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", function() {
     const chessboard = document.getElementById("chessboard");
     const ruleDisplay = document.getElementById("ruleDisplay");
@@ -64,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const img = document.createElement("img");
                     img.src = `images/${piece.color.toLowerCase()}${piece.type}.png`;
                     img.classList.add("piece");
-                    img.draggable = true;
+                    img.draggable = true; //设置为可以进行拖动
                     img.dataset.row = rowIndex;
                     img.dataset.col = colIndex;
                     img.dataset.piece = piece.type;
@@ -79,8 +78,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
 
-        addDragAndDropListeners();
-        addHoverListeners();
+        addDragAndDropListeners(); //在棋盘的每个格子上添加监听器，允许用户拖动棋子，并把它放到新的位置上
+        addHoverListeners(); //当用户的鼠标悬停在棋子上时，可以在棋盘上高亮出棋子可以走的路径
     }
 
     function addDragAndDropListeners() {

@@ -30,9 +30,9 @@ public class Queen extends VariantChessPiece {
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        if (isImmobile()) return false;  // Check if the piece is immobile
 
         int startX = move.getStartX();
+
         int startY = move.getStartY();
         int endX = move.getEndX();
         int endY = move.getEndY();
