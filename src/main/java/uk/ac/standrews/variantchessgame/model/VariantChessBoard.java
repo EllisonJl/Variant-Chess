@@ -10,6 +10,8 @@ public class VariantChessBoard {
 
     // 8x8 board grid to hold chess pieces
     private VariantChessPiece[][] board;
+    // Initial state of the board
+    private VariantChessPiece[][] initialBoard;
     // Current state of the game
     private GameState gameState;
 
@@ -19,6 +21,7 @@ public class VariantChessBoard {
      */
     public VariantChessBoard() {
         board = new VariantChessPiece[8][8];
+        initialBoard = new VariantChessPiece[8][8];
         initializeBoard();
     }
 
@@ -32,6 +35,15 @@ public class VariantChessBoard {
     }
 
     /**
+     * Returns the 2D array representing the initial board state.
+     *
+     * @return 2D array of VariantChessPiece representing the initial board state.
+     */
+    public VariantChessPiece[][] getInitialBoard() {
+        return initialBoard;
+    }
+
+    /**
      * Initializes the chessboard by placing major pieces, pawns, and cannons in their starting positions.
      * Also sets up the game state and prints the initial board configuration.
      */
@@ -40,7 +52,20 @@ public class VariantChessBoard {
         placePawnsAndCannons(1, Color.BLACK);
         placePawnsAndCannons(6, Color.WHITE);
         gameState = new GameState(this); // Reinitialize game state and select new rules
+        saveInitialBoardState(); // Save the initial state of the board
+        System.out.println("Board initialized to initial state:");
         printBoard();
+    }
+
+    /**
+     * Saves the current state of the board as the initial state.
+     */
+    private void saveInitialBoardState() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                initialBoard[i][j] = board[i][j];
+            }
+        }
     }
 
     /**

@@ -37,7 +37,7 @@ public class GameController {
      */
     @GetMapping("/initialBoard")
     public VariantChessPiece[][] getInitialBoard() {
-        return board.getBoard();
+        return board.getInitialBoard();
     }
 
     /**
@@ -66,9 +66,9 @@ public class GameController {
      */
     @PostMapping("/restart")
     public void restartGame() {
-        board.initializeBoard(); // Reinitialize the chess board
-        this.gameState = new GameState(board); // Reinitialize the game state
-        System.out.println("Game has been restarted.");
+        board.initializeBoard();
+        this.gameState = new GameState(board);
+        System.out.println("Game restarted and board reinitialized.");
     }
 
     /**

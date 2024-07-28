@@ -26,7 +26,7 @@ public class Pawn extends VariantChessPiece {
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        if (isImmobile()) return false;  // Check if the piece is immobile (e.g., due to being blocked or other constraints)
+//        if (isImmobile()) return false;  // Check if the piece is immobile (e.g., due to being blocked or other constraints)
 
         int startRow = move.getStartX();  // Starting row of the move
         int startCol = move.getStartY();  // Starting column of the move
