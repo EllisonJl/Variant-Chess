@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.json())
             .then(board => {
                 console.log("Fetched initial board:", JSON.stringify(board));
-                clearBoard(); // Ensure board is cleared before rendering
+                clearBoard(); // 确保在渲染前清空棋盘
                 renderBoard(board);
             })
             .catch(error => console.error("Error fetching initial board:", error));
@@ -63,56 +63,57 @@ document.addEventListener("DOMContentLoaded", function() {
                     const img = document.createElement("img");
                     img.src = `images/${piece.color.toLowerCase()}${piece.type}.png`;
                     img.classList.add("piece");
-                    img.draggable = true; //设置为可以进行拖动
+                    img.draggable = true; // 设置为可以进行拖动
                     img.dataset.row = rowIndex;
                     img.dataset.col = colIndex;
                     img.dataset.piece = piece.type;
                     img.dataset.color = piece.color.toLowerCase();
                     img.dataset.captureCount = piece.captureCount || 0;
-                    if (piece.immobile) {
-                        img.classList.add('immobile');
-                    }
+                    img.dataset.isFirstMove = piece.isFirstMove || "true"; // 添加首次移动状态
                     square.appendChild(img);
                 }
                 chessboard.appendChild(square);
+
             });
         });
 
-        addDragAndDropListeners(); //在棋盘的每个格子上添加监听器，允许用户拖动棋子，并把它放到新的位置上
-        addHoverListeners(); //当用户的鼠标悬停在棋子上时，可以在棋盘上高亮出棋子可以走的路径
+        addDragAndDropListeners(); // 在棋盘的每个格子上添加监听器，允许用户拖动棋子，并把它放到新的位置上
+        addHoverListeners(); // 当用户的鼠标悬停在棋子上时，可以在棋盘上高亮出棋子可以走的路径
     }
 
     function addDragAndDropListeners() {
-        const pieces = document.querySelectorAll(".piece");
+        const pieces = document.querySelectorAll(".piece");  // 获取页面上所有带piece类的棋子
         pieces.forEach(piece => {
             piece.addEventListener("dragstart", handleDragStart);
         });
 
         const squares = document.querySelectorAll(".square");
         squares.forEach(square => {
-            square.addEventListener("dragover", handleDragOver);
-            square.addEventListener("drop", handleDrop);
+            square.addEventListener("dragover", handleDragOver); // 当用户拖动棋子的时候会触发handleDragOver函数
+            square.addEventListener("drop", handleDrop); // 当用户将棋子放置在棋盘格子上时会触发handleDrop函数
         });
     }
 
     function addHoverListeners() {
-        chessboard.addEventListener('mouseover', handleMouseOver);
-        chessboard.addEventListener('mouseout', handleMouseOut);
+        chessboard.addEventListener('mouseover', handleMouseOver); // 鼠标放在棋盘上时可以高亮显示出棋子的路径
+        chessboard.addEventListener('mouseout', handleMouseOut); // 鼠标离开棋盘的时候会清除高亮显示
     }
 
     function handleMouseOver(event) {
         const piece = event.target.closest('.piece');
         if (piece) {
-            const startX = parseInt(piece.dataset.row);
-            const startY = parseInt(piece.dataset.col);
-            const color = piece.dataset.color.toUpperCase();
-            const pieceType = piece.dataset.piece;
+            const startX = parseInt(piece.dataset.row); // 获取棋子的行号
+            const startY = parseInt(piece.dataset.col); // 获取棋子的列号
+            const color = piece.dataset.color.toUpperCase(); // 获取棋子的颜色并转化为大写
+            const pieceType = piece.dataset.piece; // 获取棋子的类型
+            const isFirstMove = piece.dataset.isFirstMove === "true"; // 获取首次移动状态
 
             const payload = {
                 startX: startX,
                 startY: startY,
                 piece: pieceType,
-                color: color
+                color: color,
+                isFirstMove: isFirstMove // 添加首次移动状态到payload
             };
 
             fetch("/api/game/validMoves", {
@@ -120,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload) // 将payload转化为json字符串进行发送
             })
                 .then(response => {
                     if (!response.ok) {
@@ -174,7 +175,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 startY: event.target.dataset.col,
                 piece: event.target.dataset.piece,
                 color: event.target.dataset.color,
-                captureCount: event.target.dataset.captureCount
+                captureCount: event.target.dataset.captureCount,
+                isFirstMove: event.target.dataset.isFirstMove === "true" // 添加首次移动状态
             }));
         } else {
             event.preventDefault();
@@ -198,7 +200,8 @@ document.addEventListener("DOMContentLoaded", function() {
             endX: parseInt(target.dataset.row),
             endY: parseInt(target.dataset.col),
             piece: startData.piece,
-            color: startData.color
+            color: startData.color,
+            isFirstMove: startData.isFirstMove
         };
 
         if ((isWhiteTurn && move.color === "white") || (!isWhiteTurn && move.color === "black")) {
@@ -209,6 +212,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function validateAndMovePiece(move) {
+        console.log("Piece being moved:", move.piece);
         let moveUrl = `/api/game/move${move.piece}`;
         moveUrl = moveUrl.charAt(0).toLowerCase() + moveUrl.slice(1);
 
@@ -261,7 +265,6 @@ document.addEventListener("DOMContentLoaded", function() {
             if (pieceType === 'King' || pieceType === 'Queen') {
                 capturedPiece.dataset.color = piece.dataset.color;
                 capturedPiece.src = `images/${capturedPiece.dataset.color}${capturedPiece.dataset.piece}.png`;
-                capturedPiece.classList.add('immobile');
 
                 const deltaX = move.endX - move.startX;
                 const deltaY = move.endY - move.startY;
@@ -269,6 +272,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const newY = move.endY - Math.sign(deltaY);
 
                 const newSquare = document.querySelector(`.square[data-row="${newX}"][data-col="${newY}"]`);
+
                 if (newSquare.firstChild) {
                     newSquare.removeChild(newSquare.firstChild);
                 }
@@ -331,10 +335,10 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }).then(() => {
             console.log("Board cleared and initial state fetched.");
-            clearBoard(); // Clear all pieces from the chessboard
-            fetchInitialBoard(); // Fetch and render initial board state from the backend
-            fetchCurrentRule(); // Fetch and display the current rule
-            isWhiteTurn = true; // Reset to white's turn
+            clearBoard(); // 清空棋盘
+            fetchInitialBoard(); // 获取并渲染初始棋盘状态
+            fetchCurrentRule(); // 获取并显示当前规则
+            isWhiteTurn = true; // 重置为白方回合
         }).catch(error => console.error("Error restarting game:", error));
     });
 

@@ -48,14 +48,26 @@ public class VariantChessBoard {
      * Also sets up the game state and prints the initial board configuration.
      */
     public void initializeBoard() {
+        clearBoard();
         placeMajorPiecesSymmetrically(0, Color.BLACK, 7, Color.WHITE);
         placePawnsAndCannons(1, Color.BLACK);
         placePawnsAndCannons(6, Color.WHITE);
-        gameState = new GameState(this); // Reinitialize game state and select new rules
-        saveInitialBoardState(); // Save the initial state of the board
+        gameState = new GameState(this);
+
+        saveInitialBoardState();
+
         System.out.println("Board initialized to initial state:");
         printBoard();
     }
+
+    private void clearBoard() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                board[i][j] = null;
+            }
+        }
+    }
+
 
     /**
      * Saves the current state of the board as the initial state.
