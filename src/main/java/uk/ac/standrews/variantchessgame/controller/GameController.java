@@ -47,9 +47,11 @@ public class GameController {
      */
     @GetMapping("/board")
     public VariantChessPiece[][] getBoard() {
-        System.out.println("Returning current board state.");
+        System.out.println("Returning current board state:");
+        board.printBoard(); // Add a method in VariantChessBoard to print the board state
         return board.getBoard();
     }
+
 
     /**
      * Endpoint to retrieve the current selected rule for the game.
@@ -80,7 +82,8 @@ public class GameController {
      * @return A string indicating the result of the move ("VALID_MOVE", "INVALID_MOVE", "WHITE_WINS", "BLACK_WINS", or "STALEMATE").
      */
     private String processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
-        System.out.println(String.format("Received move request: startX=%d, startY=%d, endX=%d, endY=%d", move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY()));
+        System.out.println(String.format("Received move request: startX=%d, startY=%d, endX=%d, endY=%d",
+                move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY()));
 
         // Retrieve the piece at the starting position
         VariantChessPiece piece = board.getPieceAt(move.getStartX(), move.getStartY());
@@ -120,14 +123,12 @@ public class GameController {
                         ((Pawn) piece).incrementCaptureCount();
                     } else if (piece instanceof Cannon) {
                         ((Cannon) piece).incrementCaptureCount();
+                        if (((Cannon) piece).getCaptureCount() >= 3) {
+                            ((Cannon) piece).detonate(board, move.getEndX(), move.getEndY());
+                        }
                     }
                 } else {
                     gameState.incrementMoveWithoutCapture();
-                }
-
-                // Handle Cannon-specific logic
-                if (piece instanceof Cannon && ((Cannon) piece).getCaptureCount() >= 3) {
-                    ((Cannon) piece).detonate(board, move.getEndX(), move.getEndY());
                 }
 
                 // Switch turn and check game status
@@ -152,6 +153,7 @@ public class GameController {
             return "INVALID_MOVE";
         }
     }
+
 
     /**
      * Endpoint to move a Pawn piece.

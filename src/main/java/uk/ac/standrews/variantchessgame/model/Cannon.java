@@ -113,18 +113,21 @@ public class Cannon extends VariantChessPiece {
      * @param y The y-coordinate of the Cannon's position.
      */
     public void detonate(VariantChessBoard board, int x, int y) {
-        // Define the directions for detonation (up, down, left, right).
         int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        System.out.println("Detonating cannon at position: (" + x + ", " + y + ")");
         for (int[] dir : directions) {
             int newX = x + dir[0];
             int newY = y + dir[1];
             if (board.isInBounds(newX, newY)) {
                 VariantChessPiece piece = board.getPieceAt(newX, newY);
                 if (piece != null && piece.getColor() != this.getColor()) {
+                    System.out.println("Removing piece at position: (" + newX + ", " + newY + ")");
                     board.setPieceAt(newX, newY, null); // Remove enemy pieces.
                 }
             }
         }
+        System.out.println("Removing cannon at position: (" + x + ", " + y + ")");
         board.setPieceAt(x, y, null); // Remove the Cannon itself.
     }
+
 }

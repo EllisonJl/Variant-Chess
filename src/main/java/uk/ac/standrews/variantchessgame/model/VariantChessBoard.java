@@ -84,7 +84,7 @@ public class VariantChessBoard {
      * Prints the current state of the board to the console.
      * Empty squares are represented by ".", while occupied squares display the first letter of the piece's class name.
      */
-    private void printBoard() {
+    public void printBoard() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 VariantChessPiece piece = board[i][j];

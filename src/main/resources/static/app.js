@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function renderBoard(board) {
         console.log("Rendering board with data:", JSON.stringify(board));
+        clearBoard(); // Ensure the board is cleared before rendering
         board.forEach((row, rowIndex) => {
             row.forEach((piece, colIndex) => {
                 const square = document.createElement("div");
@@ -82,6 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
         addDragAndDropListeners();
         addHoverListeners();
     }
+
 
     function addDragAndDropListeners() {
         const pieces = document.querySelectorAll(".piece");
@@ -271,7 +273,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 targetSquare.innerHTML = "";
                 targetSquare.appendChild(capturedPiece);
-
             } else {
                 targetSquare.removeChild(capturedPiece);
                 piece.dataset.row = move.endX;
@@ -305,7 +306,23 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             targetSquare.removeChild(piece);
         }
+
+        // Fetch the updated board state after handling cannon detonation
+        fetchUpdatedBoard();
     }
+
+    function fetchUpdatedBoard() {
+        fetch("/api/game/board")
+            .then(response => response.json())
+            .then(newBoard => {
+                console.log("Fetched updated board:", JSON.stringify(newBoard));
+                clearBoard();
+                renderBoard(newBoard);
+            })
+            .catch(error => console.error("Error fetching updated board:", error));
+    }
+
+
 
     function clearBoard() {
         console.log("Clearing board elements...");
