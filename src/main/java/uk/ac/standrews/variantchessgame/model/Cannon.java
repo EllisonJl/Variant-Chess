@@ -36,8 +36,6 @@ public class Cannon extends VariantChessPiece {
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        // Check if the Cannon is immobile (cannot move).
-        if (isImmobile()) return false;
 
         int startX = move.getStartX();
         int startY = move.getStartY();
@@ -102,7 +100,7 @@ public class Cannon extends VariantChessPiece {
     public void incrementCaptureCount() {
         super.incrementCaptureCount();
         if (getCaptureCount() == 3) {
-            setImmobile(true); // The cannon becomes immobile.
+            setImmobile(true);
         }
     }
 

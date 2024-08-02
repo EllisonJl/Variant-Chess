@@ -49,14 +49,24 @@ public class Pawn extends VariantChessPiece {
         // 处理第一次移动
         if (isFirstMove) {
             // 检查直线前进一格或两格的情况
-            if (startCol == endCol && (endRow == startRow + direction || endRow == startRow + 2 * direction) && board.getPieceAt(endRow, endCol) == null) {
-                // 如果是前进两格，还需检查中间是否有障碍物
-                if (endRow == startRow + 2 * direction && board.getPieceAt(startRow + direction, startCol) != null) {
-                    System.out.println("Blocked at intermediate position: " + (startRow + direction) + ", " + startCol);
-                    return false; // 如果中间有障碍物，返回false
+            if (startCol == endCol && (endRow == startRow + direction || endRow == startRow + 2 * direction)) {
+                // 检查路径上的障碍物
+                if (board.getPieceAt(endRow, endCol) == null) {
+                    if (endRow == startRow + 2 * direction && board.getPieceAt(startRow + direction, startCol) != null) {
+                        System.out.println("Blocked at intermediate position: " + (startRow + direction) + ", " + startCol);
+                        return false; // 如果中间有障碍物，返回false
+                    }
+                    return true; // 合法移动
                 }
-                return true; // 合法移动
+
+                // 检查捕获逻辑
+                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
+                if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
+                    move.setCapture(true);
+                    return true; // 捕获敌方棋子
+                }
             }
+            return false; // 第一次移动时，不允许向左右空格移动
         } else {
             // 处理第一次移动后的情况：向前移动一格
             if (startCol == endCol && endRow == startRow + direction && board.getPieceAt(endRow, endCol) == null) {
@@ -85,7 +95,7 @@ public class Pawn extends VariantChessPiece {
         }
 
         // 向左右移动（不捕获）
-        if (endRow == startRow && Math.abs(endCol - startCol) == 1 && board.getPieceAt(endRow, endCol) == null) {
+        if (!isFirstMove && endRow == startRow && Math.abs(endCol - startCol) == 1 && board.getPieceAt(endRow, endCol) == null) {
             return true; // 合法移动到空位置
         }
 

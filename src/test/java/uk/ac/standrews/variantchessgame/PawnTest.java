@@ -23,6 +23,26 @@ class PawnTest {
         blackPawn = new Pawn(Color.BLACK);
         board.getBoard()[6][0] = whitePawn;  // White pawn starts from row 6
         board.getBoard()[1][0] = blackPawn;  // Black pawn starts from row 1
+
+    }
+
+    /**
+     * Tests that a pawn cannot move sideways on its first move.
+     * Ensures that pawns can only move forward and not sideways initially.
+     */
+    @Test
+    void testCannotMoveSidewaysOnFirstMove() {
+        VariantChessMove moveLeft = new VariantChessMove(6, 0, 6, 1);  // Attempt to move white pawn to the right
+        assertFalse(whitePawn.isValidMove(moveLeft, board), "White pawn should not be able to move sideways on its first move.");
+
+        VariantChessMove moveRight = new VariantChessMove(6, 0, 6, -1);  // Attempt to move white pawn to the left
+        assertFalse(whitePawn.isValidMove(moveRight, board), "White pawn should not be able to move sideways on its first move.");
+
+        moveLeft = new VariantChessMove(1, 0, 1, 1);  // Attempt to move black pawn to the right
+        assertFalse(blackPawn.isValidMove(moveLeft, board), "Black pawn should not be able to move sideways on its first move.");
+
+        moveRight = new VariantChessMove(1, 0, 1, -1);  // Attempt to move black pawn to the left
+        assertFalse(blackPawn.isValidMove(moveRight, board), "Black pawn should not be able to move sideways on its first move.");
     }
 
     /**
@@ -55,6 +75,7 @@ class PawnTest {
         assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture forward one square after first move.");
         board.movePiece(move);
     }
+
     /**
      * Tests that a pawn cannot move sideways after the first move.
      * Ensures that pawns can only move forward and not sideways.
@@ -73,6 +94,7 @@ class PawnTest {
         move = new VariantChessMove(2, 0, 2, 1);
         assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to move sideways after the first move.");
     }
+
     /**
      * Tests that a pawn can capture an opponent's piece after moving two squares forward on its first move.
      * Ensures that pawns can perform captures after advancing two squares initially.
@@ -98,36 +120,76 @@ class PawnTest {
         assertNull(board.getPieceAt(4, 0), "The original position (4, 0) should be empty after capturing.");
     }
 
-
     /**
-     * Tests that a pawn can capture an opponent's piece to the left or right of its position.
-     * Ensures that pawns can capture diagonally left or right when the opponent's piece is in the adjacent diagonal square.
+     * Tests that a pawn can capture an opponent's piece in the forward, left, or right position
+     * after moving forward. Ensures that after a pawn moves forward, it can capture enemy pieces
+     * located in the forward, left, or right squares.
      */
     @Test
-    void testCaptureMoveLeftRight() {
+    void testCaptureMoveLeftRightForwardAfterMove() {
+        // Move the white pawn forward by one square
+        VariantChessMove moveForward = new VariantChessMove(6, 0, 5, 0);
+        assertTrue(whitePawn.isValidMove(moveForward, board), "White pawn should be able to move forward one square.");
+        board.movePiece(moveForward);
+        whitePawn.setFirstMove(false);
+
+        // Place a black rook directly in front of the white pawn
+        board.getBoard()[4][0] = new Rook(Color.BLACK);
+        VariantChessMove moveCaptureForward = new VariantChessMove(5, 0, 4, 0);
+        assertTrue(whitePawn.isValidMove(moveCaptureForward, board), "White pawn should be able to capture forward.");
+        board.movePiece(moveCaptureForward);
+
+        // Reset white pawn position for sideways capture testing
+        board.getBoard()[5][0] = whitePawn;
+        board.getBoard()[4][0] = null;
+
         // Place a black rook to the right of the white pawn
-        board.getBoard()[6][1] = new Rook(Color.BLACK);
-        VariantChessMove move = new VariantChessMove(6, 0, 6, 1);
-        assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to capture right after first move.");
-        board.movePiece(move);
+        board.getBoard()[5][1] = new Rook(Color.BLACK);
+        VariantChessMove moveCaptureRight = new VariantChessMove(5, 0, 5, 1);
+        assertTrue(whitePawn.isValidMove(moveCaptureRight, board), "White pawn should be able to capture right.");
+        board.movePiece(moveCaptureRight);
+
+        // Reset white pawn position for left capture testing
+        board.getBoard()[5][0] = whitePawn;
+        board.getBoard()[5][1] = null;
 
         // Place a black rook to the left of the white pawn
-        board.getBoard()[6][1] = new Rook(Color.BLACK);
-        move = new VariantChessMove(6, 0, 6, 1);
-        assertTrue(whitePawn.isValidMove(move, board), "White pawn should be able to capture right after first move.");
-        board.movePiece(move);
+        board.getBoard()[5][1] = new Rook(Color.BLACK);
+        VariantChessMove moveCaptureLeft = new VariantChessMove(5, 0, 5, 1);
+        assertTrue(whitePawn.isValidMove(moveCaptureLeft, board), "White pawn should be able to capture left.");
+        board.movePiece(moveCaptureLeft);
+
+        // Move the black pawn forward by one square
+        moveForward = new VariantChessMove(1, 0, 2, 0);
+        assertTrue(blackPawn.isValidMove(moveForward, board), "Black pawn should be able to move forward one square.");
+        board.movePiece(moveForward);
+        blackPawn.setFirstMove(false);
+
+        // Place a white rook directly in front of the black pawn
+        board.getBoard()[3][0] = new Rook(Color.WHITE);
+        moveCaptureForward = new VariantChessMove(2, 0, 3, 0);
+        assertTrue(blackPawn.isValidMove(moveCaptureForward, board), "Black pawn should be able to capture forward.");
+        board.movePiece(moveCaptureForward);
+
+        // Reset black pawn position for sideways capture testing
+        board.getBoard()[2][0] = blackPawn;
+        board.getBoard()[3][0] = null;
 
         // Place a white rook to the right of the black pawn
-        board.getBoard()[1][1] = new Rook(Color.WHITE);
-        move = new VariantChessMove(1, 0, 1, 1);
-        assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture right after first move.");
-        board.movePiece(move);
+        board.getBoard()[2][1] = new Rook(Color.WHITE);
+        moveCaptureRight = new VariantChessMove(2, 0, 2, 1);
+        assertTrue(blackPawn.isValidMove(moveCaptureRight, board), "Black pawn should be able to capture right.");
+        board.movePiece(moveCaptureRight);
+
+        // Reset black pawn position for left capture testing
+        board.getBoard()[2][0] = blackPawn;
+        board.getBoard()[2][1] = null;
 
         // Place a white rook to the left of the black pawn
-        board.getBoard()[1][1] = new Rook(Color.WHITE);
-        move = new VariantChessMove(1, 0, 1, 1);
-        assertTrue(blackPawn.isValidMove(move, board), "Black pawn should be able to capture right after first move.");
-        board.movePiece(move);
+        board.getBoard()[2][1] = new Rook(Color.WHITE);
+        moveCaptureLeft = new VariantChessMove(2, 0, 2, 1);
+        assertTrue(blackPawn.isValidMove(moveCaptureLeft, board), "Black pawn should be able to capture left.");
+        board.movePiece(moveCaptureLeft);
     }
 
     /**
