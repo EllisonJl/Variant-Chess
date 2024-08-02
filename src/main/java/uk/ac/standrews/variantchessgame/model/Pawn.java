@@ -34,46 +34,59 @@ public class Pawn extends VariantChessPiece {
         int endRow = move.getEndX();      // 获取目标行号
         int endCol = move.getEndY();      // 获取目标列号
 
+        System.out.println("Checking valid move for Pawn...");
+        System.out.println("StartRow: " + startRow + ", StartCol: " + startCol);
+        System.out.println("EndRow: " + endRow + ", EndCol: " + endCol);
+        System.out.println("Direction: " + direction);
+        System.out.println("Piece isFirstMove: " + isFirstMove);
+
         // 判断目标位置是否在棋盘内
         if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
+            System.out.println("Move out of bounds");
             return false; // 如果目标位置超出棋盘范围，返回false
         }
 
         // 处理第一次移动
         if (isFirstMove) {
             // 检查直线前进一格或两格的情况
-            if (startCol == endCol) {
-                if ((endRow == startRow + direction || endRow == startRow + 2 * direction) && board.getPieceAt(endRow, endCol) == null) {
-                    // 如果是前进两格，还需检查中间是否有障碍物
-                    if (endRow == startRow + 2 * direction && board.getPieceAt(startRow + direction, startCol) != null) {
-                        return false; // 如果中间有障碍物，返回false
-                    }
-                    return true; // 合法移动
+            if (startCol == endCol && (endRow == startRow + direction || endRow == startRow + 2 * direction) && board.getPieceAt(endRow, endCol) == null) {
+                // 如果是前进两格，还需检查中间是否有障碍物
+                if (endRow == startRow + 2 * direction && board.getPieceAt(startRow + direction, startCol) != null) {
+                    System.out.println("Blocked at intermediate position: " + (startRow + direction) + ", " + startCol);
+                    return false; // 如果中间有障碍物，返回false
                 }
-            }
-
-            // 吃掉敌方棋子（前方一格）
-            if (endRow == startRow + direction && Math.abs(endCol - startCol) == 1) {
-                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
-                if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
-                    move.setCapture(true);
-                    return true; // 合法吃子
-                }
+                return true; // 合法移动
             }
         } else {
             // 处理第一次移动后的情况：向前移动一格
             if (startCol == endCol && endRow == startRow + direction && board.getPieceAt(endRow, endCol) == null) {
                 return true; // 合法移动
             }
+        }
 
-            // 吃掉敌方棋子（前方一格）
-            if (endRow == startRow + direction && Math.abs(endCol - startCol) == 1) {
-                VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
-                if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
-                    move.setCapture(true); // 设置为吃子移动
-                    return true; // 合法吃子
-                }
+        // 向前捕获
+        if (endRow == startRow + direction && startCol == endCol) {
+            VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
+            // 如果目标位置有棋子且是敌方棋子，则捕获
+            if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
+                move.setCapture(true);
+                return true;
             }
+        }
+
+        // 向左右捕获
+        if (endRow == startRow && Math.abs(endCol - startCol) == 1) {
+            VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
+            // 如果目标位置有棋子且是敌方棋子，则捕获
+            if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
+                move.setCapture(true);
+                return true;
+            }
+        }
+
+        // 向左右移动（不捕获）
+        if (endRow == startRow && Math.abs(endCol - startCol) == 1 && board.getPieceAt(endRow, endCol) == null) {
+            return true; // 合法移动到空位置
         }
 
         return false; // 非法移动

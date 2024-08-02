@@ -202,19 +202,18 @@ public class VariantChessBoard {
         VariantChessPiece piece = getPieceAt(move.getStartX(), move.getStartY());
         System.out.println("Moving piece: " + piece + " from (" + move.getStartX() + ", " + move.getStartY() + ") to (" + move.getEndX() + ", " + move.getEndY() + ")");
 
-        // Directly perform the move operation without re-validating
-        setPieceAt(move.getEndX(), move.getEndY(), piece); // Move to the new position
-        setPieceAt(move.getStartX(), move.getStartY(), null); // Clear the original position
+        setPieceAt(move.getEndX(), move.getEndY(), piece);
+        setPieceAt(move.getStartX(), move.getStartY(), null);
 
-        // If it's a Pawn, update the isFirstMove state
         if (piece instanceof Pawn) {
-            ((Pawn) piece).setFirstMove(false);
+            ((Pawn) piece).setFirstMove(false); // 移动成功后更新 isFirstMove 状态
         }
 
         System.out.println("Piece moved successfully.");
         System.out.println("Current Board State:");
-        printBoard(); // Print current board state
+        printBoard();
     }
+
 
     /**
      * Checks if the specified coordinates are within the bounds of the board.
