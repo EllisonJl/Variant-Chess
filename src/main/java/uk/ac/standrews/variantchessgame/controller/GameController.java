@@ -105,30 +105,28 @@ public class GameController {
 
                 // Handle piece capture if applicable
                 if (isCapture) {
-                    if (piece instanceof King || piece instanceof Queen) {
-                        gameState.getSelectedRule().applyRule(move, piece, board);
-                    } else {
-                        board.setPieceAt(move.getEndX(), move.getEndY(), null);
-                    }
+                    board.setPieceAt(move.getEndX(), move.getEndY(), null);
+                    gameState.resetMoveWithoutCapture();
+                } else {
+                    gameState.incrementMoveWithoutCapture();
                 }
 
                 // Move the piece
                 board.movePiece(move);
                 gameState.incrementMoveCount();
 
-                // Update game state based on capture
-                if (isCapture) {
-                    gameState.resetMoveWithoutCapture();
-                    if (piece instanceof Pawn) {
-                        ((Pawn) piece).incrementCaptureCount();
-                    } else if (piece instanceof Cannon) {
-                        ((Cannon) piece).incrementCaptureCount();
-                        if (((Cannon) piece).getCaptureCount() >= 3) {
-                            ((Cannon) piece).detonate(board, move.getEndX(), move.getEndY());
-                        }
+                // Apply promotion or special rules
+                if (piece instanceof Pawn && isCapture) {
+                    gameState.getSelectedRule().applyRule(move, piece, board);
+                } else if (piece instanceof Cannon && isCapture) {
+                    ((Cannon) piece).incrementCaptureCount();
+                    if (((Cannon) piece).getCaptureCount() >= 3) {
+                        ((Cannon) piece).detonate(board, move.getEndX(), move.getEndY());
                     }
-                } else {
-                    gameState.incrementMoveWithoutCapture();
+                } else if (piece instanceof King || piece instanceof Queen) {
+                    if (isCapture) {
+                        gameState.getSelectedRule().applyRule(move, piece, board);
+                    }
                 }
 
                 // Switch turn and check game status

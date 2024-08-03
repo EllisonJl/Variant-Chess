@@ -34,7 +34,7 @@ public class KingQueenSpecialRule implements GameRule {
                     // King stays in the same position
                     newX = move.getStartX();
                     newY = move.getStartY();
-                } else { // For Queen
+                } else {
                     // Queen moves to one step back in the direction of the move
                     newX = move.getEndX() - Integer.signum(deltaX);
                     newY = move.getEndY() - Integer.signum(deltaY);

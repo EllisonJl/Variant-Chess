@@ -289,9 +289,11 @@ document.addEventListener("DOMContentLoaded", function() {
         startSquare.innerHTML = "";
 
         const piece = document.querySelector(`.piece[data-row="${move.endX}"][data-col="${move.endY}"]`);
+
+        // Handle Cannon detonation logic
         if (piece.dataset.piece === 'Cannon' && parseInt(piece.dataset.captureCount) >= 3) {
             const directions = [
-                {x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}
+                { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
             ];
             directions.forEach(dir => {
                 const x = move.endX + dir.x;
@@ -307,9 +309,30 @@ document.addEventListener("DOMContentLoaded", function() {
             targetSquare.removeChild(piece);
         }
 
-        // Fetch the updated board state after handling cannon detonation
+        // Handle Pawn promotion logic
+        if (piece.dataset.piece === 'Pawn' && isCapture) {
+            const captureCount = parseInt(piece.dataset.captureCount) + 1; // Increment capture count after a capture
+            piece.dataset.captureCount = captureCount;
+            let promotedType = null;
+
+            if (captureCount === 1) {
+                promotedType = Math.random() < 0.5 ? 'Knight' : 'Bishop';
+            } else if (captureCount === 2) {
+                promotedType = Math.random() < 0.5 ? 'Cannon' : 'Rook';
+            } else if (captureCount >= 3) {
+                promotedType = 'Queen';
+            }
+
+            if (promotedType) {
+                piece.dataset.piece = promotedType;
+                piece.src = `images/${piece.dataset.color}${promotedType}.png`;
+            }
+        }
+
+        // Fetch the updated board state after handling pawn promotion
         fetchUpdatedBoard();
     }
+
 
     function fetchUpdatedBoard() {
         fetch("/api/game/board")
@@ -321,8 +344,6 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => console.error("Error fetching updated board:", error));
     }
-
-
 
     function clearBoard() {
         console.log("Clearing board elements...");
