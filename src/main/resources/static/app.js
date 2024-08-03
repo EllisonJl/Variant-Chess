@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const piece = document.querySelector(`.piece[data-row="${move.endX}"][data-col="${move.endY}"]`);
 
-        // Handle Cannon detonation logic
+        // 处理Cannon的爆炸逻辑
         if (piece.dataset.piece === 'Cannon' && parseInt(piece.dataset.captureCount) >= 3) {
             const directions = [
                 { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
@@ -309,30 +309,29 @@ document.addEventListener("DOMContentLoaded", function() {
             targetSquare.removeChild(piece);
         }
 
-        // Handle Pawn promotion logic
-        if (piece.dataset.piece === 'Pawn' && isCapture) {
-            const captureCount = parseInt(piece.dataset.captureCount) + 1; // Increment capture count after a capture
-            piece.dataset.captureCount = captureCount;
+        // 处理Pawn升级逻辑
+        if ((piece.dataset.piece === 'Pawn' || piece.dataset.promotedFromPawn === "true") && isCapture) {
+            const captureCount = parseInt(piece.dataset.captureCount);
             let promotedType = null;
 
             if (captureCount === 1) {
                 promotedType = Math.random() < 0.5 ? 'Knight' : 'Bishop';
             } else if (captureCount === 2) {
                 promotedType = Math.random() < 0.5 ? 'Cannon' : 'Rook';
-            } else if (captureCount >= 3) {
+            } else if (captureCount === 3) {
                 promotedType = 'Queen';
             }
 
             if (promotedType) {
                 piece.dataset.piece = promotedType;
+                piece.dataset.promotedFromPawn = "true"; // 确保前端也更新promotedFromPawn状态
                 piece.src = `images/${piece.dataset.color}${promotedType}.png`;
             }
         }
 
-        // Fetch the updated board state after handling pawn promotion
+        // 捕获升级后获取更新的棋盘状态
         fetchUpdatedBoard();
     }
-
 
     function fetchUpdatedBoard() {
         fetch("/api/game/board")
@@ -340,10 +339,11 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(newBoard => {
                 console.log("Fetched updated board:", JSON.stringify(newBoard));
                 clearBoard();
-                renderBoard(newBoard);
+                renderBoard(newBoard); // Ensure this re-renders the board correctly
             })
             .catch(error => console.error("Error fetching updated board:", error));
     }
+
 
     function clearBoard() {
         console.log("Clearing board elements...");

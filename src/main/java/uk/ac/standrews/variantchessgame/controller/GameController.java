@@ -92,7 +92,6 @@ public class GameController {
             return "INVALID_MOVE";
         }
 
-        // Check if the piece is of the correct type and color
         System.out.println("Current piece is: " + piece.getClass().getSimpleName());
         System.out.println("Current piece color is: " + piece.getColor());
         System.out.println("Current turn is: " + gameState.getCurrentTurn());
@@ -105,6 +104,7 @@ public class GameController {
 
                 // Handle piece capture if applicable
                 if (isCapture) {
+                    System.out.println("Capture occurred.");
                     board.setPieceAt(move.getEndX(), move.getEndY(), null);
                     gameState.resetMoveWithoutCapture();
                 } else {
@@ -116,8 +116,11 @@ public class GameController {
                 gameState.incrementMoveCount();
 
                 // Apply promotion or special rules
-                if (piece instanceof Pawn && isCapture) {
+                if ((piece instanceof Pawn || piece.isPromotedFromPawn()) && isCapture) {
+                    System.out.println("Applying promotion rule...");
                     gameState.getSelectedRule().applyRule(move, piece, board);
+                    VariantChessPiece newPiece = board.getPieceAt(move.getEndX(), move.getEndY());
+                    System.out.println("New piece type after promotion: " + newPiece.getClass().getSimpleName());
                 } else if (piece instanceof Cannon && isCapture) {
                     ((Cannon) piece).incrementCaptureCount();
                     if (((Cannon) piece).getCaptureCount() >= 3) {
@@ -151,6 +154,7 @@ public class GameController {
             return "INVALID_MOVE";
         }
     }
+
 
 
     /**
