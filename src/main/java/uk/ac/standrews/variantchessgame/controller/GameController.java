@@ -18,6 +18,8 @@ public class GameController {
     private final VariantChessBoard board; // The chess board instance
     private GameState gameState; // The current state of the game
 
+    private final ChessAI chessAI;
+
     /**
      * Constructor to initialize the GameController with the chess board.
      * Initializes the game state with the given board.
@@ -28,6 +30,7 @@ public class GameController {
     public GameController(VariantChessBoard board) {
         this.board = board;
         this.gameState = new GameState(board);
+        this.chessAI = new ChessAI(); // 初始化AI
     }
 
     /**
@@ -153,7 +156,34 @@ public class GameController {
             return "INVALID_MOVE";
         }
     }
+    /**
+     * Endpoint to move any piece, processing the move and returning the result.
+     * Handles AI move for black pieces automatically.
+     *
+     * @param move The move request for the piece.
+     * @return The result of the move ("VALID_MOVE", "INVALID_MOVE", "WHITE_WINS", "BLACK_WINS", or "STALEMATE").
+     */
+    @PostMapping("/movePiece")
+    public String movePiece(@RequestBody VariantChessMove move) {
+        // Process player's move
+        String moveResult = processMove(move, board.getPieceAt(move.getStartX(), move.getStartY()).getClass());
 
+        if ("VALID_MOVE".equals(moveResult)) {
+            // If player's move is valid, switch turn
+            gameState.switchTurn();
+
+            // AI's turn
+            if (gameState.getCurrentTurn() == Color.BLACK) {
+                VariantChessMove aiMove = chessAI.calculateBestMove(board, Color.BLACK);
+                if (aiMove != null) {
+                    processMove(aiMove, board.getPieceAt(aiMove.getStartX(), aiMove.getStartY()).getClass());
+                    gameState.switchTurn(); // Switch back to player's turn
+                }
+            }
+        }
+
+        return moveResult;
+    }
 
 
     /**

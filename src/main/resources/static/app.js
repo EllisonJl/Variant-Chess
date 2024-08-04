@@ -215,8 +215,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function validateAndMovePiece(move) {
         console.log("Validating move:", move);
-        let moveUrl = `/api/game/move${move.piece}`;
-        moveUrl = moveUrl.charAt(0).toLowerCase() + moveUrl.slice(1);
+        let moveUrl = `/api/game/movePiece`; // 更新URL以使用通用移动端点
 
         fetch(moveUrl, {
             method: "POST",
@@ -234,14 +233,19 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(result => {
                 console.log("Move result:", result);
                 if (result === "VALID_MOVE") {
-                    updateBoardWithMove(move);
-                    isWhiteTurn = !isWhiteTurn;
+                    fetchUpdatedBoard(); // 更新棋盘状态
+                    isWhiteTurn = !isWhiteTurn; // 切换到AI
+                } else if (result === "WHITE_WINS" || result === "BLACK_WINS") {
+                    alert(`Game Over: ${result}`);
+                } else if (result === "STALEMATE") {
+                    alert("Game Drawn: Stalemate");
                 } else {
                     alert("Invalid move");
                 }
             })
             .catch(error => console.error("Error processing move:", error));
     }
+
 
     function updateBoardWithMove(move) {
         const startSquare = document.querySelector(`.square[data-row="${move.startX}"][data-col="${move.startY}"]`);
