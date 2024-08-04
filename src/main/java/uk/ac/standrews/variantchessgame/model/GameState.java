@@ -48,6 +48,7 @@ public class GameState {
      */
     public void switchTurn() {
         currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+        System.out.println("回合切换到：" + currentTurn);
     }
 
     /**
@@ -181,4 +182,6 @@ public class GameState {
                 break;
         }
     }
+
+
 }

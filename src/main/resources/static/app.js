@@ -173,20 +173,17 @@ document.addEventListener("DOMContentLoaded", function() {
         if ((isWhiteTurn && color === "white") || (!isWhiteTurn && color === "black")) {
             console.log("Drag start:", event.target.dataset);
             event.dataTransfer.setData("text/plain", JSON.stringify({
-                startX: event.target.dataset.row,
-                startY: event.target.dataset.col,
+                startX: parseInt(event.target.dataset.row),  // 确保是整数
+                startY: parseInt(event.target.dataset.col),  // 确保是整数
+                endX: null, // 在拖动开始时没有结束位置
+                endY: null, // 在拖动开始时没有结束位置
                 piece: event.target.dataset.piece,
-                color: event.target.dataset.color,
-                isFirstMove: event.target.dataset.isFirstMove === "true" // 确保正确转换为布尔值
+                color: event.target.dataset.color
             }));
         } else {
             event.preventDefault();
             alert("It's not your turn!");
         }
-    }
-
-    function handleDragOver(event) {
-        event.preventDefault();
     }
 
     function handleDrop(event) {
@@ -198,10 +195,10 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!target) return;
 
         const move = {
-            startX: parseInt(startData.startX),
-            startY: parseInt(startData.startY),
-            endX: parseInt(target.dataset.row),
-            endY: parseInt(target.dataset.col),
+            startX: startData.startX,
+            startY: startData.startY,
+            endX: parseInt(target.dataset.row),  // 确保是整数
+            endY: parseInt(target.dataset.col),  // 确保是整数
             piece: startData.piece,
             color: startData.color
         };
@@ -213,11 +210,15 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+
+
+    function handleDragOver(event) {
+        event.preventDefault();
+    }
+
     function validateAndMovePiece(move) {
         console.log("Validating move:", move);
-        let moveUrl = `/api/game/movePiece`; // 更新URL以使用通用移动端点
-
-        fetch(moveUrl, {
+        fetch("/api/game/movePiece", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -231,19 +232,40 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.text();
             })
             .then(result => {
-                console.log("Move result:", result);
-                if (result === "VALID_MOVE") {
+                console.log("Move result from server:", result);
+
+                const [moveResult, currentTurnInfo] = result.split(';');
+
+                if (moveResult === "VALID_MOVE") {
                     fetchUpdatedBoard(); // 更新棋盘状态
-                    isWhiteTurn = !isWhiteTurn; // 切换到AI
-                } else if (result === "WHITE_WINS" || result === "BLACK_WINS") {
-                    alert(`Game Over: ${result}`);
-                } else if (result === "STALEMATE") {
+                }
+
+                if (currentTurnInfo.startsWith("CURRENT_TURN=")) {
+                    const turn = currentTurnInfo.split('=')[1];
+                    isWhiteTurn = (turn === "WHITE");
+                    console.log("Updated current turn:", turn);
+                }
+
+                if (moveResult === "WHITE_WINS" || moveResult === "BLACK_WINS") {
+                    alert(`Game Over: ${moveResult}`);
+                } else if (moveResult === "STALEMATE") {
                     alert("Game Drawn: Stalemate");
-                } else {
+                } else if (moveResult === "INVALID_MOVE") {
                     alert("Invalid move");
                 }
             })
             .catch(error => console.error("Error processing move:", error));
+    }
+
+
+    function fetchCurrentTurn() {
+        fetch("/api/game/currentTurn")
+            .then(response => response.text())
+            .then(turn => {
+                isWhiteTurn = (turn === "WHITE");
+                console.log("Current turn:", turn);
+            })
+            .catch(error => console.error("Error fetching current turn:", error));
     }
 
 
@@ -375,7 +397,16 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(newBoard => {
                 console.log("Fetched updated board:", JSON.stringify(newBoard));
                 clearBoard();
-                renderBoard(newBoard); // Ensure this re-renders the board correctly
+                renderBoard(newBoard);
+
+                // 请求当前回合状态，并更新isWhiteTurn变量
+                fetch("/api/game/currentTurn")
+                    .then(response => response.text())
+                    .then(turn => {
+                        isWhiteTurn = (turn === "WHITE");
+                        console.log("Current turn:", turn);
+                    })
+                    .catch(error => console.error("Error fetching current turn:", error));
             })
             .catch(error => console.error("Error fetching updated board:", error));
     }

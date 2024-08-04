@@ -85,45 +85,39 @@ public class GameController {
      * @return A string indicating the result of the move ("VALID_MOVE", "INVALID_MOVE", "WHITE_WINS", "BLACK_WINS", or "STALEMATE").
      */
     private String processMove(VariantChessMove move, Class<? extends VariantChessPiece> pieceClass) {
-        System.out.println(String.format("Received move request: startX=%d, startY=%d, endX=%d, endY=%d",
-                move.getStartX(), move.getStartY(), move.getEndX(), move.getEndY()));
+        System.out.println("尝试移动棋子从 (" + move.getStartX() + ", " + move.getStartY() + ") 到 (" + move.getEndX() + ", " + move.getEndY() + ")");
 
-        // Retrieve the piece at the starting position
         VariantChessPiece piece = board.getPieceAt(move.getStartX(), move.getStartY());
         if (piece == null) {
-            System.out.println(String.format("No piece found at position (%d, %d)", move.getStartX(), move.getStartY()));
+            System.out.println("位置 (" + move.getStartX() + ", " + move.getStartY() + ") 没有棋子");
             return "INVALID_MOVE";
         }
 
-        System.out.println("Current piece is: " + piece.getClass().getSimpleName());
-        System.out.println("Current piece color is: " + piece.getColor());
-        System.out.println("Current turn is: " + gameState.getCurrentTurn());
+        System.out.println("当前棋子是: " + piece.getClass().getSimpleName());
+        System.out.println("当前棋子颜色是: " + piece.getColor());
+        System.out.println("当前回合是: " + gameState.getCurrentTurn());
 
         if (pieceClass.isInstance(piece) && piece.getColor() == gameState.getCurrentTurn()) {
-            // Validate the move
             if (piece.isValidMove(move, board)) {
                 VariantChessPiece targetPiece = board.getPieceAt(move.getEndX(), move.getEndY());
                 boolean isCapture = targetPiece != null;
 
-                // Handle piece capture if applicable
                 if (isCapture) {
-                    System.out.println("Capture occurred.");
+                    System.out.println("捕获发生。");
                     board.setPieceAt(move.getEndX(), move.getEndY(), null);
                     gameState.resetMoveWithoutCapture();
                 } else {
                     gameState.incrementMoveWithoutCapture();
                 }
 
-                // Move the piece
                 board.movePiece(move);
                 gameState.incrementMoveCount();
 
-                // Apply promotion or special rules
                 if ((piece instanceof Pawn || piece.isPromotedFromPawn()) && isCapture) {
-                    System.out.println("Applying promotion rule...");
+                    System.out.println("应用升变规则...");
                     gameState.getSelectedRule().applyRule(move, piece, board);
                     VariantChessPiece newPiece = board.getPieceAt(move.getEndX(), move.getEndY());
-                    System.out.println("New piece type after promotion: " + newPiece.getClass().getSimpleName());
+                    System.out.println("升变后新棋子类型: " + newPiece.getClass().getSimpleName());
                 } else if (piece instanceof Cannon && isCapture) {
                     ((Cannon) piece).incrementCaptureCount();
                     if (((Cannon) piece).getCaptureCount() >= 3) {
@@ -134,9 +128,9 @@ public class GameController {
                         gameState.getSelectedRule().applyRule(move, piece, board);
                     }
                 }
-                // Switch turn and check game status
+
                 gameState.switchTurn();
-                System.out.println("Move is valid, piece moved.");
+                System.out.println("移动合法，棋子已移动。");
 
                 if (gameState.isWin()) {
                     return gameState.getCurrentTurn() == Color.WHITE ? "BLACK_WINS" : "WHITE_WINS";
@@ -148,14 +142,15 @@ public class GameController {
 
                 return "VALID_MOVE";
             } else {
-                System.out.println("Move is invalid according to isValidMove method.");
+                System.out.println("根据 isValidMove 方法，移动无效。");
                 return "INVALID_MOVE";
             }
         } else {
-            System.out.println("Piece at start position is not a " + pieceClass.getSimpleName() + " or it's not the piece's turn.");
+            System.out.println("起始位置的棋子不是 " + pieceClass.getSimpleName() + " 或不该此棋子移动。");
             return "INVALID_MOVE";
         }
     }
+
     /**
      * Endpoint to move any piece, processing the move and returning the result.
      * Handles AI move for black pieces automatically.
@@ -165,27 +160,38 @@ public class GameController {
      */
     @PostMapping("/movePiece")
     public String movePiece(@RequestBody VariantChessMove move) {
-        // Process player's move
+        // 处理玩家的移动
         String moveResult = processMove(move, board.getPieceAt(move.getStartX(), move.getStartY()).getClass());
 
         if ("VALID_MOVE".equals(moveResult)) {
-            // If player's move is valid, switch turn
-            gameState.switchTurn();
-
-            // AI's turn
+            // 如果玩家的移动有效，AI进行移动
             if (gameState.getCurrentTurn() == Color.BLACK) {
+                System.out.println("AI's turn.");
                 VariantChessMove aiMove = chessAI.calculateBestMove(board, Color.BLACK);
                 if (aiMove != null) {
-                    processMove(aiMove, board.getPieceAt(aiMove.getStartX(), aiMove.getStartY()).getClass());
-                    gameState.switchTurn(); // Switch back to player's turn
+                    System.out.println("AI moves from (" + aiMove.getStartX() + ", " + aiMove.getStartY() + ") to (" + aiMove.getEndX() + ", " + aiMove.getEndY() + ")");
+                    String aiMoveResult = processMove(aiMove, board.getPieceAt(aiMove.getStartX(), aiMove.getStartY()).getClass());
+
+                    if ("VALID_MOVE".equals(aiMoveResult)) {
+                        // AI 移动后不需要切换回合，因为在 processMove 中已经完成切换
+                        System.out.println("AI move complete, switching back to white.");
+                    }
+                } else {
+                    System.out.println("AI has no valid moves.");
                 }
             }
         }
 
-        return moveResult;
+        // 返回移动结果和当前回合状态
+        return moveResult + ";CURRENT_TURN=" + gameState.getCurrentTurn().toString();
     }
 
 
+
+    @GetMapping("/currentTurn")
+    public String getCurrentTurn() {
+        return gameState.getCurrentTurn().toString();
+    }
     /**
      * Endpoint to move a Pawn piece.
      *
