@@ -247,23 +247,48 @@ document.addEventListener("DOMContentLoaded", function() {
         const startSquare = document.querySelector(`.square[data-row="${move.startX}"][data-col="${move.startY}"]`);
         const targetSquare = document.querySelector(`.square[data-row="${move.endX}"][data-col="${move.endY}"]`);
 
+        // Ensure both startSquare and targetSquare are valid
+        if (!startSquare || !targetSquare) {
+            console.error("Invalid start or target square");
+            return;
+        }
+
+        console.log(`Move from (${move.startX}, ${move.startY}) to (${move.endX}, ${move.endY})`);
+
+        const piece = document.querySelector(`.piece[data-row="${move.startX}"][data-col="${move.startY}"]`);
+        if (!piece) {
+            console.error("No piece found at the start position");
+            return;
+        }
+
+        console.log(`Piece: ${piece.dataset.piece}, Color: ${piece.dataset.color}`);
+
         const isCapture = targetSquare.firstChild !== null;
 
         if (isCapture) {
             const capturedPiece = targetSquare.firstChild;
-            const piece = document.querySelector(`.piece[data-row="${move.startX}"][data-col="${move.startY}"]`);
-            const pieceType = piece.dataset.piece;
+            console.log(`Captured Piece: ${capturedPiece.dataset.piece}, Color: ${capturedPiece.dataset.color}`);
 
-            if (pieceType === 'King' || pieceType === 'Queen') {
+            if (piece.dataset.piece === 'King' || piece.dataset.piece === 'Queen') {
+                console.log("Applying special capture logic for King/Queen");
+                // Special logic for King or Queen capturing
                 capturedPiece.dataset.color = piece.dataset.color;
                 capturedPiece.src = `images/${capturedPiece.dataset.color}${capturedPiece.dataset.piece}.png`;
+
                 const deltaX = move.endX - move.startX;
                 const deltaY = move.endY - move.startY;
                 const newX = move.endX - Math.sign(deltaX);
                 const newY = move.endY - Math.sign(deltaY);
 
-                const newSquare = document.querySelector(`.square[data-row="${newX}"][data-col="${newY}"]`);
+                console.log(`New Position for King/Queen: (${newX}, ${newY})`);
 
+                const newSquare = document.querySelector(`.square[data-row="${newX}"][data-col="${newY}"]`);
+                if (!newSquare) {
+                    console.error("Invalid new square position");
+                    return;
+                }
+
+                // Move the piece to the new square
                 if (newSquare.firstChild) {
                     newSquare.removeChild(newSquare.firstChild);
                 }
@@ -271,27 +296,29 @@ document.addEventListener("DOMContentLoaded", function() {
                 piece.dataset.col = newY;
                 newSquare.appendChild(piece);
 
+                // Update the target square with the captured piece
                 targetSquare.innerHTML = "";
                 targetSquare.appendChild(capturedPiece);
             } else {
+                // Normal capture logic
                 targetSquare.removeChild(capturedPiece);
                 piece.dataset.row = move.endX;
                 piece.dataset.col = move.endY;
                 targetSquare.appendChild(piece);
             }
         } else {
-            const piece = document.querySelector(`.piece[data-row="${move.startX}"][data-col="${move.startY}"]`);
+            // Normal move
             piece.dataset.row = move.endX;
             piece.dataset.col = move.endY;
             targetSquare.appendChild(piece);
         }
 
+        // Clear the start square
         startSquare.innerHTML = "";
 
-        const piece = document.querySelector(`.piece[data-row="${move.endX}"][data-col="${move.endY}"]`);
-
-        // 处理Cannon的爆炸逻辑
+        // Handle Cannon explosion logic
         if (piece.dataset.piece === 'Cannon' && parseInt(piece.dataset.captureCount) >= 3) {
+            console.log("Cannon is exploding!");
             const directions = [
                 { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
             ];
@@ -300,16 +327,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 const y = move.endY + dir.y;
                 if (x >= 0 && x < 8 && y >= 0 && y < 8) {
                     const adjacentSquare = document.querySelector(`.square[data-row="${x}"][data-col="${y}"]`);
-                    const adjacentPiece = adjacentSquare.firstChild;
-                    if (adjacentPiece && adjacentPiece.dataset.color !== piece.dataset.color) {
-                        adjacentSquare.removeChild(adjacentPiece);
+                    if (adjacentSquare) {
+                        const adjacentPiece = adjacentSquare.firstChild;
+                        if (adjacentPiece && adjacentPiece.dataset.color !== piece.dataset.color) {
+                            console.log(`Removing adjacent piece at (${x}, ${y})`);
+                            adjacentSquare.removeChild(adjacentPiece);
+                        }
                     }
                 }
             });
             targetSquare.removeChild(piece);
         }
 
-        // 处理Pawn升级逻辑
+        // Handle Pawn promotion logic
         if ((piece.dataset.piece === 'Pawn' || piece.dataset.promotedFromPawn === "true") && isCapture) {
             const captureCount = parseInt(piece.dataset.captureCount);
             let promotedType = null;
@@ -323,15 +353,17 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             if (promotedType) {
+                console.log(`Pawn promoted to ${promotedType}`);
                 piece.dataset.piece = promotedType;
-                piece.dataset.promotedFromPawn = "true"; // 确保前端也更新promotedFromPawn状态
+                piece.dataset.promotedFromPawn = "true"; // Ensure the promotion flag is set
                 piece.src = `images/${piece.dataset.color}${promotedType}.png`;
             }
         }
 
-        // 捕获升级后获取更新的棋盘状态
+        // Fetch updated board state after changes
         fetchUpdatedBoard();
     }
+
 
     function fetchUpdatedBoard() {
         fetch("/api/game/board")
@@ -343,7 +375,6 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => console.error("Error fetching updated board:", error));
     }
-
 
     function clearBoard() {
         console.log("Clearing board elements...");

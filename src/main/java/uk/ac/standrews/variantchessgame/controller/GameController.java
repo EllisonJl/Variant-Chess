@@ -131,7 +131,6 @@ public class GameController {
                         gameState.getSelectedRule().applyRule(move, piece, board);
                     }
                 }
-
                 // Switch turn and check game status
                 gameState.switchTurn();
                 System.out.println("Move is valid, piece moved.");
