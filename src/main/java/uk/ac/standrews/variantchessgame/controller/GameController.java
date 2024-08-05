@@ -17,6 +17,7 @@ public class GameController {
 
     private final VariantChessBoard board; // The chess board instance
     private GameState gameState; // The current state of the game
+    private final MoveHistory moveHistory; // MoveHistory instance
 
     private final ChessAI chessAI;
 
@@ -30,7 +31,47 @@ public class GameController {
     public GameController(VariantChessBoard board) {
         this.board = board;
         this.gameState = new GameState(board);
-        this.chessAI = new ChessAI(); // 初始化AI
+        this.chessAI = new ChessAI();
+        this.moveHistory = new MoveHistory(); // Initialize MoveHistory
+
+    }
+    @PostMapping("/undo")
+    public String undoLastMove() {
+        List<VariantChessMove> lastFullMove = moveHistory.undo();
+        if (lastFullMove != null) {
+            for (int i = lastFullMove.size() - 1; i >= 0; i--) { // Undo in reverse order
+                VariantChessMove move = lastFullMove.get(i);
+                board.movePiece(new VariantChessMove(move.getEndX(), move.getEndY(), move.getStartX(), move.getStartY())); // Undo the move
+                if (move.isCapture() && move.getCapturedPiece() != null) {
+                    board.setPieceAt(move.getEndX(), move.getEndY(), move.getCapturedPiece()); // Restore the captured piece
+                }
+
+                // Restore first move status for pawns
+                VariantChessPiece piece = board.getPieceAt(move.getStartX(), move.getStartY());
+                if (piece instanceof Pawn) {
+                    ((Pawn) piece).setFirstMove(move.wasFirstMove());
+                }
+
+                gameState.switchTurn(); // Switch back the turn
+            }
+            return "UNDO_SUCCESS";
+        }
+        return "UNDO_FAIL";
+    }
+    @PostMapping("/redo")
+    public String redoLastMove() {
+        List<VariantChessMove> nextFullMove = moveHistory.redo();
+        if (nextFullMove != null) {
+            for (VariantChessMove move : nextFullMove) {
+                board.movePiece(move); // Redo the move
+                if (move.isCapture() && move.getCapturedPiece() != null) {
+                    board.setPieceAt(move.getEndX(), move.getEndY(), null); // Re-capture the piece
+                }
+                gameState.switchTurn(); // Switch the turn
+            }
+            return "REDO_SUCCESS";
+        }
+        return "REDO_FAIL";
     }
 
     /**
@@ -91,12 +132,19 @@ public class GameController {
             return "INVALID_MOVE";
         }
 
+        // Save the first move status for pawns
+        if (piece instanceof Pawn) {
+            move.setWasFirstMove(((Pawn) piece).isFirstMove());
+        }
+
         if (piece.isValidMove(move, board)) {
             VariantChessPiece targetPiece = board.getPieceAt(move.getEndX(), move.getEndY());
             boolean isCapture = targetPiece != null;
 
             if (isCapture) {
                 System.out.println("Capture occurred.");
+                move.setCapture(true); // Mark the move as a capture
+                move.setCapturedPiece(targetPiece); // Track the captured piece
                 board.setPieceAt(move.getEndX(), move.getEndY(), null);
                 gameState.resetMoveWithoutCapture();
             } else {
@@ -127,6 +175,11 @@ public class GameController {
                 }
             }
 
+            // Update the first move status for the pawn
+            if (piece instanceof Pawn) {
+                ((Pawn) piece).setFirstMove(false); // Mark the pawn's first move as done
+            }
+
             gameState.switchTurn();
             System.out.println("Move is valid, piece moved.");
 
@@ -145,7 +198,6 @@ public class GameController {
         }
     }
 
-
     /**
      * Endpoint to move any piece, processing the move and returning the result.
      * Handles AI move for black pieces automatically.
@@ -157,7 +209,11 @@ public class GameController {
     public String movePiece(@RequestBody VariantChessMove move) {
         String moveResult = processMove(move, board.getPieceAt(move.getStartX(), move.getStartY()).getClass());
 
+        List<VariantChessMove> fullMove = new ArrayList<>(); // Track both player and AI moves
+
         if ("VALID_MOVE".equals(moveResult)) {
+            fullMove.add(move); // Add player move to the full move list
+
             if (gameState.getCurrentTurn() == Color.BLACK) {
                 System.out.println("AI's turn.");
                 GameRule currentRule = gameState.getSelectedRule(); // Get the current rule
@@ -168,17 +224,18 @@ public class GameController {
 
                     if ("VALID_MOVE".equals(aiMoveResult)) {
                         System.out.println("AI move complete, switching back to white.");
+                        fullMove.add(aiMove); // Add AI move to the full move list
                     }
                 } else {
                     System.out.println("AI has no valid moves.");
                 }
             }
+
+            moveHistory.addFullMove(fullMove); // Record the full move in history
         }
 
         return moveResult + ";CURRENT_TURN=" + gameState.getCurrentTurn().toString();
     }
-
-
 
 
     @GetMapping("/currentTurn")

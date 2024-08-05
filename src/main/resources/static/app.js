@@ -4,7 +4,46 @@ document.addEventListener("DOMContentLoaded", function() {
     const specificRuleDisplay = document.getElementById("specificRuleDisplay");
     const restartButton = document.getElementById("restartButton");
     let isWhiteTurn = true;
+    const undoButton = document.getElementById("undoButton");
+    const redoButton = document.getElementById("redoButton");
 
+    // Function to handle undo button click
+    undoButton.addEventListener("click", function() {
+        fetch("/api/game/undo", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(result => {
+                if (result === "UNDO_SUCCESS") {
+                    fetchUpdatedBoard(); // Refresh the board
+                } else {
+                    alert("No move to undo!");
+                }
+            })
+            .catch(error => console.error("Error undoing move:", error));
+    });
+
+    // Function to handle redo button click
+    redoButton.addEventListener("click", function() {
+        fetch("/api/game/redo", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(result => {
+                if (result === "REDO_SUCCESS") {
+                    fetchUpdatedBoard(); // Refresh the board
+                } else {
+                    alert("No move to redo!");
+                }
+            })
+            .catch(error => console.error("Error redoing move:", error));
+    });
     function fetchInitialBoard() {
         fetch("/api/game/initialBoard")
             .then(response => response.json())

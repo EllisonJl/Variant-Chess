@@ -10,6 +10,9 @@ public class VariantChessMove {
     private int endX;    // The row index of the ending position
     private int endY;    // The column index of the ending position
     private boolean isCapture; // Indicates if the move involves capturing an opponent's piece
+    private VariantChessPiece capturedPiece; // The piece captured during this move
+    private boolean wasFirstMove; // Store the first move status of the piece
+
 
     /**
      * Constructs a new VariantChessMove with the specified starting and ending positions.
@@ -25,9 +28,24 @@ public class VariantChessMove {
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
-        this.isCapture = false; // Default to no capture
+        this.isCapture = false;
+        this.capturedPiece = null;
+        this.wasFirstMove = false;
+    }
+    public boolean wasFirstMove() {
+        return wasFirstMove;
     }
 
+    public void setWasFirstMove(boolean wasFirstMove) {
+        this.wasFirstMove = wasFirstMove;
+    }
+    public VariantChessPiece getCapturedPiece() {
+        return capturedPiece;
+    }
+
+    public void setCapturedPiece(VariantChessPiece capturedPiece) {
+        this.capturedPiece = capturedPiece;
+    }
     /**
      * Gets the row index of the starting position.
      *

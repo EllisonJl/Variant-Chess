@@ -1,4 +1,6 @@
 package uk.ac.standrews.variantchessgame;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ class VariantChessBoardTest {
     void setUp() {
         // Initialize a new VariantChessBoard before each test case.
         board = new VariantChessBoard();
+        board.initializeBoard();
     }
 
     @Test
@@ -113,4 +116,5 @@ class VariantChessBoardTest {
         assertFalse(board.isInBounds(8, 8), "Position (8, 8) should be out of bounds.");
         assertFalse(board.isInBounds(-1, -1), "Position (-1, -1) should be out of bounds.");
     }
+
 }
