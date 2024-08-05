@@ -12,8 +12,17 @@ public class GameState {
 
     private int whiteMoveCount;          // Counter for the number of moves made by the white player.
     private int blackMoveCount;          // Counter for the number of moves made by the black player.
-    private int movesWithoutCapture;     // Counter for the number of moves made without capturing an opponent's piece.
+    public int movesWithoutCapture;     // Counter for the number of moves made without capturing an opponent's piece.
     private Color currentTurn;           // The color of the player whose turn it is.
+
+    public int getWhiteMoveCount() {
+        return whiteMoveCount;
+    }
+
+    public int getBlackMoveCount() {
+        return blackMoveCount;
+    }
+
     private final VariantChessBoard board; // The chess board representing the current game state.
     private GameRule selectedRule;       // The game rule currently in effect for special game conditions.
 

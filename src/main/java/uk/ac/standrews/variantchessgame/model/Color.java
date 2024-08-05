@@ -15,5 +15,14 @@ public enum Color {
      * Represents the color BLACK for chess pieces.
      * Typically, the player with BLACK pieces moves second.
      */
-    BLACK
+    BLACK;
+
+    /**
+     * Returns the opposite color.
+     *
+     * @return The opposite color.
+     */
+    public Color opposite() {
+        return this == WHITE ? BLACK : WHITE;
+    }
 }
