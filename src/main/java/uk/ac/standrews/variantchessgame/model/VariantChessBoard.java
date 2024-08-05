@@ -202,7 +202,6 @@ public class VariantChessBoard {
      */
     public void movePiece(VariantChessMove move) {
         VariantChessPiece piece = getPieceAt(move.getStartX(), move.getStartY());
-        System.out.println("Moving piece: " + piece + " from (" + move.getStartX() + ", " + move.getStartY() + ") to (" + move.getEndX() + ", " + move.getEndY() + ")");
 
         setPieceAt(move.getEndX(), move.getEndY(), piece);
         setPieceAt(move.getStartX(), move.getStartY(), null);

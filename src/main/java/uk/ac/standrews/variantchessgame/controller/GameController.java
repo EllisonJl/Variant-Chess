@@ -160,7 +160,8 @@ public class GameController {
         if ("VALID_MOVE".equals(moveResult)) {
             if (gameState.getCurrentTurn() == Color.BLACK) {
                 System.out.println("AI's turn.");
-                VariantChessMove aiMove = chessAI.calculateBestMove(board, Color.BLACK);
+                GameRule currentRule = gameState.getSelectedRule(); // Get the current rule
+                VariantChessMove aiMove = chessAI.calculateBestMove(board, Color.BLACK, currentRule); // Pass rule to AI
                 if (aiMove != null) {
                     System.out.println("AI moves from (" + aiMove.getStartX() + ", " + aiMove.getStartY() + ") to (" + aiMove.getEndX() + ", " + aiMove.getEndY() + ")");
                     String aiMoveResult = processMove(aiMove, board.getPieceAt(aiMove.getStartX(), aiMove.getStartY()).getClass());
@@ -176,6 +177,7 @@ public class GameController {
 
         return moveResult + ";CURRENT_TURN=" + gameState.getCurrentTurn().toString();
     }
+
 
 
 

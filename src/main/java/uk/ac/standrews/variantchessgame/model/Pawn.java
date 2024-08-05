@@ -34,15 +34,13 @@ public class Pawn extends VariantChessPiece {
         int endRow = move.getEndX();      // 获取目标行号
         int endCol = move.getEndY();      // 获取目标列号
 
-        System.out.println("Checking valid move for Pawn...");
-        System.out.println("StartRow: " + startRow + ", StartCol: " + startCol);
-        System.out.println("EndRow: " + endRow + ", EndCol: " + endCol);
+        System.out.println("Pawn开始位置:(" + startRow +","+startCol+")" );
+        System.out.println("Pawn结束位置:(" + endRow +","+endCol+")" );
         System.out.println("Direction: " + direction);
         System.out.println("Piece isFirstMove: " + isFirstMove);
 
         // 判断目标位置是否在棋盘内
         if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
-            System.out.println("Move out of bounds");
             return false; // 如果目标位置超出棋盘范围，返回false
         }
 
@@ -53,7 +51,6 @@ public class Pawn extends VariantChessPiece {
                 // 检查路径上的障碍物
                 if (board.getPieceAt(endRow, endCol) == null) {
                     if (endRow == startRow + 2 * direction && board.getPieceAt(startRow + direction, startCol) != null) {
-                        System.out.println("Blocked at intermediate position: " + (startRow + direction) + ", " + startCol);
                         return false; // 如果中间有障碍物，返回false
                     }
                     return true; // 合法移动
