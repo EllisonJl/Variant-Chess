@@ -84,7 +84,6 @@ document.addEventListener("DOMContentLoaded", function() {
         addHoverListeners();
     }
 
-
     function addDragAndDropListeners() {
         const pieces = document.querySelectorAll(".piece");
         pieces.forEach(piece => {
@@ -173,10 +172,10 @@ document.addEventListener("DOMContentLoaded", function() {
         if ((isWhiteTurn && color === "white") || (!isWhiteTurn && color === "black")) {
             console.log("Drag start:", event.target.dataset);
             event.dataTransfer.setData("text/plain", JSON.stringify({
-                startX: parseInt(event.target.dataset.row),  // 确保是整数
-                startY: parseInt(event.target.dataset.col),  // 确保是整数
-                endX: null, // 在拖动开始时没有结束位置
-                endY: null, // 在拖动开始时没有结束位置
+                startX: parseInt(event.target.dataset.row),  // Ensure it's an integer
+                startY: parseInt(event.target.dataset.col),  // Ensure it's an integer
+                endX: null, // No end position when drag starts
+                endY: null, // No end position when drag starts
                 piece: event.target.dataset.piece,
                 color: event.target.dataset.color
             }));
@@ -197,8 +196,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const move = {
             startX: startData.startX,
             startY: startData.startY,
-            endX: parseInt(target.dataset.row),  // 确保是整数
-            endY: parseInt(target.dataset.col),  // 确保是整数
+            endX: parseInt(target.dataset.row),  // Ensure it's an integer
+            endY: parseInt(target.dataset.col),  // Ensure it's an integer
             piece: startData.piece,
             color: startData.color
         };
@@ -209,8 +208,6 @@ document.addEventListener("DOMContentLoaded", function() {
             alert("It's not your turn!");
         }
     }
-
-
 
     function handleDragOver(event) {
         event.preventDefault();
@@ -237,7 +234,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 const [moveResult, currentTurnInfo] = result.split(';');
 
                 if (moveResult === "VALID_MOVE") {
-                    fetchUpdatedBoard(); // 更新棋盘状态
+                    updateBoardWithMove(move); // Update the board with the move
+                    fetchUpdatedBoard(); // Fetch the updated board state
                 }
 
                 if (currentTurnInfo.startsWith("CURRENT_TURN=")) {
@@ -267,7 +265,6 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => console.error("Error fetching current turn:", error));
     }
-
 
     function updateBoardWithMove(move) {
         const startSquare = document.querySelector(`.square[data-row="${move.startX}"][data-col="${move.startY}"]`);
@@ -390,7 +387,6 @@ document.addEventListener("DOMContentLoaded", function() {
         fetchUpdatedBoard();
     }
 
-
     function fetchUpdatedBoard() {
         fetch("/api/game/board")
             .then(response => response.json())
@@ -399,14 +395,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 clearBoard();
                 renderBoard(newBoard);
 
-                // 请求当前回合状态，并更新isWhiteTurn变量
-                fetch("/api/game/currentTurn")
-                    .then(response => response.text())
-                    .then(turn => {
-                        isWhiteTurn = (turn === "WHITE");
-                        console.log("Current turn:", turn);
-                    })
-                    .catch(error => console.error("Error fetching current turn:", error));
+                // Fetch current turn and update isWhiteTurn variable
+                fetchCurrentTurn();
             })
             .catch(error => console.error("Error fetching updated board:", error));
     }
