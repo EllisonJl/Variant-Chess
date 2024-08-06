@@ -9,73 +9,96 @@ import static org.mockito.Mockito.*;
 
 class ChessAITest {
 
-    private ChessAI chessAI;
-    private VariantChessBoard board;
-    private CannonSpecialRule cannonSpecialRuleMock;
-    private GameRule mockRule;
+    private ChessAI chessAI; // Instance of ChessAI to test
+    private VariantChessBoard board; // Instance of VariantChessBoard for setting up test scenarios
+    private CannonSpecialRule cannonSpecialRuleMock; // Mock of CannonSpecialRule for specific testing
+    private GameRule mockRule; // Mock of GameRule for general testing
 
+    /**
+     * Sets up the testing environment before each test.
+     */
     @BeforeEach
     void setUp() {
-        chessAI = new ChessAI();
-        board = new VariantChessBoard();
-        cannonSpecialRuleMock = mock(CannonSpecialRule.class); // Mocking the CannonSpecialRule class
-        mockRule = mock(GameRule.class); // Mocking the GameRule interface for specific tests
+        chessAI = new ChessAI(); // Initialize ChessAI instance
+        board = new VariantChessBoard(); // Initialize VariantChessBoard instance
+        cannonSpecialRuleMock = mock(CannonSpecialRule.class); // Mock CannonSpecialRule for testing
+        mockRule = mock(GameRule.class); // Mock GameRule for testing
     }
 
+    /**
+     * Tests the evaluation of different piece values.
+     */
     @Test
     void testEvaluatePieceValue() {
-        // Testing different piece values
-        assertEquals(1, callEvaluatePieceValue(new Pawn(Color.WHITE), mockRule));
-        assertEquals(3, callEvaluatePieceValue(new Knight(Color.WHITE), mockRule));
-        assertEquals(3, callEvaluatePieceValue(new Bishop(Color.WHITE), mockRule));
-        assertEquals(5, callEvaluatePieceValue(new Rook(Color.WHITE), mockRule));
-        assertEquals(50, callEvaluatePieceValue(new Queen(Color.WHITE), mockRule));
-        assertEquals(4, callEvaluatePieceValue(new King(Color.WHITE), mockRule));
+        // Testing the value of different pieces
+        assertEquals(1, callEvaluatePieceValue(new Pawn(Color.WHITE), mockRule)); // Pawn value
+        assertEquals(3, callEvaluatePieceValue(new Knight(Color.WHITE), mockRule)); // Knight value
+        assertEquals(3, callEvaluatePieceValue(new Bishop(Color.WHITE), mockRule)); // Bishop value
+        assertEquals(5, callEvaluatePieceValue(new Rook(Color.WHITE), mockRule)); // Rook value
+        assertEquals(50, callEvaluatePieceValue(new Queen(Color.WHITE), mockRule)); // Queen value
+        assertEquals(4, callEvaluatePieceValue(new King(Color.WHITE), mockRule)); // King value
 
         // Test Cannon value without capture
         Cannon cannon = new Cannon(Color.WHITE);
-        assertEquals(5, callEvaluatePieceValue(cannon, mockRule));
+        assertEquals(5, callEvaluatePieceValue(cannon, mockRule)); // Cannon base value
 
         // Test Cannon value with special rule
-        cannon.incrementCaptureCount();
-        cannon.incrementCaptureCount();
-        cannon.incrementCaptureCount();
-        assertEquals(15, callEvaluatePieceValue(cannon, cannonSpecialRuleMock)); // Base + explosion bonus
+        cannon.incrementCaptureCount(); // Increase capture count
+        cannon.incrementCaptureCount(); // Increase capture count
+        cannon.incrementCaptureCount(); // Increase capture count
+        assertEquals(15, callEvaluatePieceValue(cannon, cannonSpecialRuleMock)); // Base + bonus for explosion
     }
 
-
+    /**
+     * Tests the calculation of the best move under pressure.
+     */
     @Test
     void testCalculateBestMoveUnderPressure() {
-        // Setup scenario where AI must defend or capture
-        board.setPieceAt(0, 0, new King(Color.WHITE));
-        board.setPieceAt(1, 1, new Queen(Color.BLACK)); // Threatening the white King
+        // Setup a scenario where the AI must either defend or capture
+        board.setPieceAt(0, 0, new King(Color.WHITE)); // Place White King on the board
+        board.setPieceAt(1, 1, new Queen(Color.BLACK)); // Place Black Queen threatening the White King
 
-        VariantChessMove bestMoveWhite = chessAI.calculateBestMove(board, Color.WHITE, mockRule);
+        VariantChessMove bestMoveWhite = chessAI.calculateBestMove(board, Color.WHITE, mockRule); // Calculate best move for White
 
-        // Expect the best move to move the King to safety or capture the threat
-        assertNotNull(bestMoveWhite, "White should have a valid defensive move");
+        // Ensure the best move is a defensive move or captures the threat
+        assertNotNull(bestMoveWhite, "White should have a valid defensive move"); // Check if a move is found
         assertTrue((bestMoveWhite.getEndX() == 1 && bestMoveWhite.getEndY() == 1) ||
                 (bestMoveWhite.getEndX() == 1 && bestMoveWhite.getEndY() == 0) ||
                 (bestMoveWhite.getEndX() == 0 && bestMoveWhite.getEndY() == 1));
     }
 
+    /**
+     * Calls the private evaluatePieceValue method of ChessAI using reflection.
+     *
+     * @param piece The piece to evaluate.
+     * @param rule  The game rule to use for evaluation.
+     * @return The evaluated value of the piece.
+     */
     private int callEvaluatePieceValue(VariantChessPiece piece, GameRule rule) {
         try {
             var method = ChessAI.class.getDeclaredMethod("evaluatePieceValue", VariantChessPiece.class, GameRule.class);
             method.setAccessible(true);
-            return (int) method.invoke(chessAI, piece, rule);
+            return (int) method.invoke(chessAI, piece, rule); // Invoke the private method
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // Handle potential exceptions
         }
     }
 
+    /**
+     * Calls the private evaluateBoard method of ChessAI using reflection.
+     *
+     * @param board      The chessboard to evaluate.
+     * @param aiColor    The color of the AI player.
+     * @param rule       The game rule to use for evaluation.
+     * @return The evaluated score of the board.
+     */
     private int callEvaluateBoard(VariantChessBoard board, Color aiColor, GameRule rule) {
         try {
             var method = ChessAI.class.getDeclaredMethod("evaluateBoard", VariantChessBoard.class, Color.class, GameRule.class);
             method.setAccessible(true);
-            return (int) method.invoke(chessAI, board, aiColor, rule);
+            return (int) method.invoke(chessAI, board, aiColor, rule); // Invoke the private method
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // Handle potential exceptions
         }
     }
 }

@@ -8,23 +8,18 @@ document.addEventListener("DOMContentLoaded", function() {
     const redoButton = document.getElementById("redoButton");
 
     document.getElementById("cannonExplodeBtn").addEventListener("click", function() {
-        console.log("CannonSpecialRule button clicked"); // Debugging line
+        console.log("CannonSpecialRule button clicked");
         setGameRule("CannonSpecialRule");
     });
 
     document.getElementById("kingQueenCaptureBtn").addEventListener("click", function() {
-        console.log("KingQueenSpecialRule button clicked"); // Debugging line
+        console.log("KingQueenSpecialRule button clicked");
         setGameRule("KingQueenSpecialRule");
     });
 
     document.getElementById("pawnPromotionBtn").addEventListener("click", function() {
-        console.log("PawnPromotionRule button clicked"); // Debugging line
+        console.log("PawnPromotionRule button clicked");
         setGameRule("PawnPromotionRule");
-    });
-
-    document.getElementById("randomRuleBtn").addEventListener("click", function() {
-        console.log("RandomRule button clicked"); // Debugging line
-        setGameRule("RandomRule");
     });
 
     function setGameRule(rule) {

@@ -1,145 +1,146 @@
 package uk.ac.standrews.variantchessgame.model;
 
 /**
- * Pawn类，表示国际象棋游戏中的一个兵。
+ * The Pawn class represents a pawn piece in a chess game.
  */
 public class Pawn extends VariantChessPiece {
-    private int captureCount; // 记录此兵吃子的次数
-    private boolean isFirstMove; // 标记此兵是否是第一次移动
-    private int direction; // 标记此兵的移动方向
+    private int captureCount; // Number of captures made by this pawn
+    private boolean isFirstMove; // Indicates if this is the pawn's first move
+    private int direction; // Direction of movement for this pawn (1 for black, -1 for white)
 
     /**
-     * 构造函数，初始化指定颜色的兵。
+     * Constructs a Pawn with a specified color.
      *
-     * @param color 兵的颜色（白色或黑色）。
+     * @param color The color of the pawn (either white or black).
      */
     public Pawn(Color color) {
-        super(color, "Pawn"); // 调用父类构造函数，设置颜色和类型为“Pawn”
-        this.captureCount = 0; // 初始化吃子次数为0
-        this.isFirstMove = true; // 标记此兵尚未移动
-        this.direction = (color == Color.WHITE) ? -1 : 1; // 根据颜色设置方向，白色为-1，黑色为1
+        super(color, "Pawn"); // Calls the superclass constructor to set the color and type to "Pawn"
+        this.captureCount = 0; // Initializes the capture count to 0
+        this.isFirstMove = true; // Marks the pawn as having not moved yet
+        this.direction = (color == Color.WHITE) ? -1 : 1; // Sets the direction based on the color (white moves up, black moves down)
     }
 
     /**
-     * 判断兵的移动是否合法。
+     * Determines if the pawn's move is valid.
      *
-     * @param move 移动信息，包括起始位置和目标位置。
-     * @param board 棋盘对象，包含当前棋盘状态。
-     * @return 如果移动合法，返回true；否则返回false。
+     * @param move The move information, including start and end positions.
+     * @param board The chessboard object containing the current state of the board.
+     * @return True if the move is valid; otherwise, false.
      */
     @Override
     public boolean isValidMove(VariantChessMove move, VariantChessBoard board) {
-        int startRow = move.getStartX();  // 获取起始行号
-        int startCol = move.getStartY();  // 获取起始列号
-        int endRow = move.getEndX();      // 获取目标行号
-        int endCol = move.getEndY();      // 获取目标列号
+        int startRow = move.getStartX();  // Gets the starting row
+        int startCol = move.getStartY();  // Gets the starting column
+        int endRow = move.getEndX();      // Gets the ending row
+        int endCol = move.getEndY();      // Gets the ending column
 
-        System.out.println("Pawn开始位置:(" + startRow +","+startCol+")" );
-        System.out.println("Pawn结束位置:(" + endRow +","+endCol+")" );
+        // Print debug information
+        System.out.println("Pawn start position:(" + startRow + "," + startCol + ")");
+        System.out.println("Pawn end position:(" + endRow + "," + endCol + ")");
         System.out.println("Direction: " + direction);
         System.out.println("Piece isFirstMove: " + isFirstMove);
 
-        // 判断目标位置是否在棋盘内
+        // Check if the destination is within the board boundaries
         if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
-            return false; // 如果目标位置超出棋盘范围，返回false
+            return false; // If the destination is out of board bounds, return false
         }
 
-        // 处理第一次移动
+        // Handle the first move case
         if (isFirstMove) {
-            // 检查直线前进一格或两格的情况
+            // Check for moving one or two squares forward
             if (startCol == endCol && (endRow == startRow + direction || endRow == startRow + 2 * direction)) {
-                // 检查路径上的障碍物
+                // Check for obstacles in the path
                 if (board.getPieceAt(endRow, endCol) == null) {
                     if (endRow == startRow + 2 * direction && board.getPieceAt(startRow + direction, startCol) != null) {
-                        return false; // 如果中间有障碍物，返回false
+                        return false; // If there is an obstacle in the path, return false
                     }
-                    return true; // 合法移动
+                    return true; // Valid move
                 }
 
-                // 检查捕获逻辑
+                // Check for capture logic
                 VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
                 if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                     move.setCapture(true);
-                    return true; // 捕获敌方棋子
+                    return true; // Capture an opponent's piece
                 }
             }
-            return false; // 第一次移动时，不允许向左右空格移动
+            return false; // First move does not allow side-to-side movement
         } else {
-            // 处理第一次移动后的情况：向前移动一格
+            // Handle the case after the first move: moving one square forward
             if (startCol == endCol && endRow == startRow + direction && board.getPieceAt(endRow, endCol) == null) {
-                return true; // 合法移动
+                return true; // Valid move
             }
         }
 
-        // 向前捕获
+        // Check for forward capture
         if (endRow == startRow + direction && startCol == endCol) {
             VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
-            // 如果目标位置有棋子且是敌方棋子，则捕获
+            // Capture if there is an opponent's piece at the destination
             if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                 move.setCapture(true);
                 return true;
             }
         }
 
-        // 向左右捕获
+        // Check for diagonal capture
         if (endRow == startRow && Math.abs(endCol - startCol) == 1) {
             VariantChessPiece targetPiece = board.getPieceAt(endRow, endCol);
-            // 如果目标位置有棋子且是敌方棋子，则捕获
+            // Capture if there is an opponent's piece at the destination
             if (targetPiece != null && targetPiece.getColor() != this.getColor()) {
                 move.setCapture(true);
                 return true;
             }
         }
 
-        // 向左右移动（不捕获）
+        // Check for side-to-side movement (without capture)
         if (!isFirstMove && endRow == startRow && Math.abs(endCol - startCol) == 1 && board.getPieceAt(endRow, endCol) == null) {
-            return true; // 合法移动到空位置
+            return true; // Valid move to an empty square
         }
 
-        return false; // 非法移动
+        return false; // Invalid move
     }
 
     /**
-     * 获取此兵的吃子次数。
+     * Gets the number of captures made by this pawn.
      *
-     * @return 吃子次数。
+     * @return The capture count.
      */
     public int getCaptureCount() {
         return captureCount;
     }
 
     /**
-     * 增加此兵的吃子次数。
+     * Increments the capture count of this pawn.
      */
     public void incrementCaptureCount() {
         captureCount++;
     }
 
     /**
-     * 获取此兵是否是第一次移动的状态。
+     * Gets whether this pawn has moved before.
      *
-     * @return 是否是第一次移动。
+     * @return True if this is the pawn's first move; otherwise, false.
      */
     public boolean isFirstMove() {
         return isFirstMove;
     }
 
     /**
-     * 设置此兵是否是第一次移动。
+     * Sets whether this pawn is making its first move.
      *
-     * @param isFirstMove 是否是第一次移动。
+     * @param isFirstMove True if this is the pawn's first move; otherwise, false.
      */
     public void setFirstMove(boolean isFirstMove) {
         this.isFirstMove = isFirstMove;
     }
 
     /**
-     * 更新兵的移动方向。
+     * Updates the pawn's movement direction based on its new color.
      *
-     * @param newColor 新颜色
+     * @param newColor The new color of the pawn.
      */
     public void updateDirection(Color newColor) {
         setColor(newColor);
-        this.direction = (newColor == Color.WHITE) ? -1 : 1; // 根据新的颜色更新方向
+        this.direction = (newColor == Color.WHITE) ? -1 : 1; // Updates the direction based on the new color
     }
 }

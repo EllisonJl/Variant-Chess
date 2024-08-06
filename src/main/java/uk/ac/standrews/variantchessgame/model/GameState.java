@@ -51,9 +51,11 @@ public class GameState {
     public Color getCurrentTurn() {
         return currentTurn;
     }
+
     public void setSelectedRule(GameRule selectedRule) {
         this.selectedRule = selectedRule;
     }
+
     /**
      * Switches the turn to the other player.
      * Changes the current turn from WHITE to BLACK or vice versa.
@@ -192,6 +194,30 @@ public class GameState {
             default:
                 this.selectedRule = null;
                 break;
+        }
+    }
+
+    /**
+     * Selects a specific game rule based on the provided index.
+     *
+     * @param ruleIndex The index of the rule to be applied.
+     *                  0 for CannonSpecialRule,
+     *                  1 for KingQueenSpecialRule,
+     *                  2 for PawnPromotionRule.
+     */
+    public void selectRuleByIndex(int ruleIndex) {
+        switch (ruleIndex) {
+            case 0:
+                this.selectedRule = new CannonSpecialRule();
+                break;
+            case 1:
+                this.selectedRule = new KingQueenSpecialRule();
+                break;
+            case 2:
+                this.selectedRule = new PawnPromotionRule();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid rule index: " + ruleIndex);
         }
     }
 }

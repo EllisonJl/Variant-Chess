@@ -45,24 +45,21 @@ public class GameController {
         System.out.println("Received rule to set: " + rule); // Debugging line
         switch (rule) {
             case "CannonSpecialRule":
-                gameState.setSelectedRule(new CannonSpecialRule());
+                gameState.selectRuleByIndex(0);
                 break;
             case "KingQueenSpecialRule":
-                gameState.setSelectedRule(new KingQueenSpecialRule());
+                gameState.selectRuleByIndex(1);
                 break;
             case "PawnPromotionRule":
-                gameState.setSelectedRule(new PawnPromotionRule());
-                break;
-            case "RandomRule":
-                gameState.selectRandomRule();
+                gameState.selectRuleByIndex(2);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid rule: " + rule);
         }
         board.initializeBoard(); // Restart the game with the new rule
-        this.gameState = new GameState(board);
         System.out.println("Game rule set and board reinitialized."); // Debugging line
     }
+
 
     @PostMapping("/undo")
     public String undoLastMove() {
