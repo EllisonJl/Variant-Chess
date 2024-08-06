@@ -7,6 +7,42 @@ document.addEventListener("DOMContentLoaded", function() {
     const undoButton = document.getElementById("undoButton");
     const redoButton = document.getElementById("redoButton");
 
+    document.getElementById("cannonExplodeBtn").addEventListener("click", function() {
+        console.log("CannonSpecialRule button clicked"); // Debugging line
+        setGameRule("CannonSpecialRule");
+    });
+
+    document.getElementById("kingQueenCaptureBtn").addEventListener("click", function() {
+        console.log("KingQueenSpecialRule button clicked"); // Debugging line
+        setGameRule("KingQueenSpecialRule");
+    });
+
+    document.getElementById("pawnPromotionBtn").addEventListener("click", function() {
+        console.log("PawnPromotionRule button clicked"); // Debugging line
+        setGameRule("PawnPromotionRule");
+    });
+
+    document.getElementById("randomRuleBtn").addEventListener("click", function() {
+        console.log("RandomRule button clicked"); // Debugging line
+        setGameRule("RandomRule");
+    });
+
+    function setGameRule(rule) {
+        console.log(`Setting game rule to: ${rule}`); // Debugging line
+        fetch(`/api/game/setRule/${rule}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(() => {
+            console.log("Game rule set successfully, resetting board."); // Debugging line
+            clearBoard();
+            fetchInitialBoard();
+            fetchCurrentRule();
+            isWhiteTurn = true;
+        }).catch(error => console.error("Error setting game rule:", error));
+    }
+
     // Function to handle undo button click
     undoButton.addEventListener("click", function() {
         fetch("/api/game/undo", {
@@ -274,7 +310,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (moveResult === "VALID_MOVE") {
                     updateBoardWithMove(move); // Update the board with the move
-                    fetchUpdatedBoard(); // Fetch the updated board state
                 }
 
                 if (currentTurnInfo.startsWith("CURRENT_TURN=")) {
@@ -293,6 +328,7 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => console.error("Error processing move:", error));
     }
+
 
 
     function fetchCurrentTurn() {
@@ -327,104 +363,139 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const isCapture = targetSquare.firstChild !== null;
 
-        if (isCapture) {
-            const capturedPiece = targetSquare.firstChild;
-            console.log(`Captured Piece: ${capturedPiece.dataset.piece}, Color: ${capturedPiece.dataset.color}`);
+        // Define animation durations
+        const aiMoveDelay = 1;
+        const blackMoveDuration = 10;
 
-            if (piece.dataset.piece === 'King' || piece.dataset.piece === 'Queen') {
-                console.log("Applying special capture logic for King/Queen");
-                // Special logic for King or Queen capturing
-                capturedPiece.dataset.color = piece.dataset.color;
-                capturedPiece.src = `images/${capturedPiece.dataset.color}${capturedPiece.dataset.piece}.png`;
+        // Function to handle piece animation and movement
+        function animateMove() {
+            const startRect = startSquare.getBoundingClientRect();
+            const targetRect = targetSquare.getBoundingClientRect();
+            const moveX = targetRect.left - startRect.left;
+            const moveY = targetRect.top - startRect.top;
 
-                const deltaX = move.endX - move.startX;
-                const deltaY = move.endY - move.startY;
-                const newX = move.endX - Math.sign(deltaX);
-                const newY = move.endY - Math.sign(deltaY);
+            // Apply transition only to black pieces
+            if (piece.dataset.color === 'black') {
+                setTimeout(() => {
+                    piece.style.transition = `transform ${blackMoveDuration}ms ease`;
+                    piece.style.transform = `translate(${moveX}px, ${moveY}px)`;
 
-                console.log(`New Position for King/Queen: (${newX}, ${newY})`);
-
-                const newSquare = document.querySelector(`.square[data-row="${newX}"][data-col="${newY}"]`);
-                if (!newSquare) {
-                    console.error("Invalid new square position");
-                    return;
-                }
-
-                // Move the piece to the new square
-                if (newSquare.firstChild) {
-                    newSquare.removeChild(newSquare.firstChild);
-                }
-                piece.dataset.row = newX;
-                piece.dataset.col = newY;
-                newSquare.appendChild(piece);
-
-                // Update the target square with the captured piece
-                targetSquare.innerHTML = "";
-                targetSquare.appendChild(capturedPiece);
+                    piece.addEventListener("transitionend", finalizeMove, { once: true });
+                }, aiMoveDelay);
             } else {
-                // Normal capture logic
-                targetSquare.removeChild(capturedPiece);
+                piece.style.transition = "";
+                piece.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                finalizeMove();
+            }
+        }
+
+        // Function to finalize move after animation
+        function finalizeMove() {
+            piece.style.transition = "";
+            piece.style.transform = "";
+
+            if (isCapture) {
+                const capturedPiece = targetSquare.firstChild;
+                console.log(`Captured Piece: ${capturedPiece.dataset.piece}, Color: ${capturedPiece.dataset.color}`);
+
+                if (piece.dataset.piece === 'King' || piece.dataset.piece === 'Queen') {
+                    console.log("Applying special capture logic for King/Queen");
+                    // Special logic for King or Queen capturing
+                    capturedPiece.dataset.color = piece.dataset.color;
+                    capturedPiece.src = `images/${capturedPiece.dataset.color}${capturedPiece.dataset.piece}.png`;
+
+                    const deltaX = move.endX - move.startX;
+                    const deltaY = move.endY - move.startY;
+                    const newX = move.endX - Math.sign(deltaX);
+                    const newY = move.endY - Math.sign(deltaY);
+
+                    console.log(`New Position for King/Queen: (${newX}, ${newY})`);
+
+                    const newSquare = document.querySelector(`.square[data-row="${newX}"][data-col="${newY}"]`);
+                    if (!newSquare) {
+                        console.error("Invalid new square position");
+                        return;
+                    }
+
+                    // Move the piece to the new square
+                    if (newSquare.firstChild) {
+                        newSquare.removeChild(newSquare.firstChild);
+                    }
+                    piece.dataset.row = newX;
+                    piece.dataset.col = newY;
+                    newSquare.appendChild(piece);
+
+                    // Update the target square with the captured piece
+                    targetSquare.innerHTML = "";
+                    targetSquare.appendChild(capturedPiece);
+                } else {
+                    // Normal capture logic
+                    targetSquare.removeChild(capturedPiece);
+                    piece.dataset.row = move.endX;
+                    piece.dataset.col = move.endY;
+                    targetSquare.appendChild(piece);
+                }
+            } else {
+                // Normal move
                 piece.dataset.row = move.endX;
                 piece.dataset.col = move.endY;
                 targetSquare.appendChild(piece);
             }
-        } else {
-            // Normal move
-            piece.dataset.row = move.endX;
-            piece.dataset.col = move.endY;
-            targetSquare.appendChild(piece);
-        }
 
-        // Clear the start square
-        startSquare.innerHTML = "";
+            // Clear the start square
+            startSquare.innerHTML = "";
 
-        // Handle Cannon explosion logic
-        if (piece.dataset.piece === 'Cannon' && parseInt(piece.dataset.captureCount) >= 3) {
-            console.log("Cannon is exploding!");
-            const directions = [
-                { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
-            ];
-            directions.forEach(dir => {
-                const x = move.endX + dir.x;
-                const y = move.endY + dir.y;
-                if (x >= 0 && x < 8 && y >= 0 && y < 8) {
-                    const adjacentSquare = document.querySelector(`.square[data-row="${x}"][data-col="${y}"]`);
-                    if (adjacentSquare) {
-                        const adjacentPiece = adjacentSquare.firstChild;
-                        if (adjacentPiece && adjacentPiece.dataset.color !== piece.dataset.color) {
-                            console.log(`Removing adjacent piece at (${x}, ${y})`);
-                            adjacentSquare.removeChild(adjacentPiece);
+            // Handle Cannon explosion logic
+            if (piece.dataset.piece === 'Cannon' && parseInt(piece.dataset.captureCount) >= 3) {
+                console.log("Cannon is exploding!");
+                const directions = [
+                    { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
+                ];
+                directions.forEach(dir => {
+                    const x = move.endX + dir.x;
+                    const y = move.endY + dir.y;
+                    if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+                        const adjacentSquare = document.querySelector(`.square[data-row="${x}"][data-col="${y}"]`);
+                        if (adjacentSquare) {
+                            const adjacentPiece = adjacentSquare.firstChild;
+                            if (adjacentPiece && adjacentPiece.dataset.color !== piece.dataset.color) {
+                                console.log(`Removing adjacent piece at (${x}, ${y})`);
+                                adjacentSquare.removeChild(adjacentPiece);
+                            }
                         }
                     }
+                });
+                targetSquare.removeChild(piece);
+            }
+
+            // Handle Pawn promotion logic
+            if ((piece.dataset.piece === 'Pawn' || piece.dataset.promotedFromPawn === "true") && isCapture) {
+                const captureCount = parseInt(piece.dataset.captureCount);
+                let promotedType = null;
+
+                if (captureCount === 1) {
+                    promotedType = Math.random() < 0.5 ? 'Knight' : 'Bishop';
+                } else if (captureCount === 2) {
+                    promotedType = Math.random() < 0.5 ? 'Cannon' : 'Rook';
+                } else if (captureCount === 3) {
+                    promotedType = 'Queen';
                 }
-            });
-            targetSquare.removeChild(piece);
-        }
 
-        // Handle Pawn promotion logic
-        if ((piece.dataset.piece === 'Pawn' || piece.dataset.promotedFromPawn === "true") && isCapture) {
-            const captureCount = parseInt(piece.dataset.captureCount);
-            let promotedType = null;
-
-            if (captureCount === 1) {
-                promotedType = Math.random() < 0.5 ? 'Knight' : 'Bishop';
-            } else if (captureCount === 2) {
-                promotedType = Math.random() < 0.5 ? 'Cannon' : 'Rook';
-            } else if (captureCount === 3) {
-                promotedType = 'Queen';
+                if (promotedType) {
+                    console.log(`Pawn promoted to ${promotedType}`);
+                    piece.dataset.piece = promotedType;
+                    piece.dataset.promotedFromPawn = "true"; // Ensure the promotion flag is set
+                    piece.src = `images/${piece.dataset.color}${promotedType}.png`;
+                }
             }
 
-            if (promotedType) {
-                console.log(`Pawn promoted to ${promotedType}`);
-                piece.dataset.piece = promotedType;
-                piece.dataset.promotedFromPawn = "true"; // Ensure the promotion flag is set
-                piece.src = `images/${piece.dataset.color}${promotedType}.png`;
-            }
+            // Fetch updated board state after changes
+            fetchUpdatedBoard();
         }
 
-        // Fetch updated board state after changes
-        fetchUpdatedBoard();
+        animateMove();
     }
+
 
     function fetchUpdatedBoard() {
         fetch("/api/game/board")
@@ -464,7 +535,56 @@ document.addEventListener("DOMContentLoaded", function() {
             isWhiteTurn = true;
         }).catch(error => console.error("Error restarting game:", error));
     });
+    function movePieceWithAnimation(piece, startSquare, targetSquare) {
+        // Calculate the translation values
+        const startRect = startSquare.getBoundingClientRect();
+        const targetRect = targetSquare.getBoundingClientRect();
+        const moveX = targetRect.left - startRect.left;
+        const moveY = targetRect.top - startRect.top;
 
+        // Set CSS variables for animation
+        piece.style.setProperty('--move-x', `${moveX}px`);
+        piece.style.setProperty('--move-y', `${moveY}px`);
+
+        // Add animation class
+        piece.classList.add('animate-move');
+
+        // After the animation ends, reset position and update board
+        piece.addEventListener('animationend', () => {
+            piece.classList.remove('animate-move');
+            piece.style.removeProperty('--move-x');
+            piece.style.removeProperty('--move-y');
+            updateBoardAfterMove(piece, targetSquare); // Ensure board reflects final state
+        }, { once: true });
+    }
+    function updateBoardAfterMove(piece, targetSquare) {
+        // Update piece's new data attributes
+        piece.dataset.row = targetSquare.dataset.row;
+        piece.dataset.col = targetSquare.dataset.col;
+
+        // Append the piece to the new square
+        targetSquare.appendChild(piece);
+
+        // Clear the old square
+        const startSquare = document.querySelector(`.square[data-row="${piece.dataset.row}"][data-col="${piece.dataset.col}"]`);
+        if (startSquare) {
+            startSquare.innerHTML = "";
+        }
+
+        fetchUpdatedBoard();
+    }
+    function aiMove() {
+        setTimeout(() => {
+            // Fetch AI move and then animate it
+            fetch("/api/game/aiMove") // Ensure this endpoint returns the AI move
+                .then(response => response.json())
+                .then(aiMove => {
+                    console.log("AI move received:", aiMove);
+                    updateBoardWithMove(aiMove); // Animate AI's move
+                })
+                .catch(error => console.error("Error fetching AI move:", error));
+        }, 1000); // Delay AI move by 1000ms (1 second) for better visibility
+    }
     fetchInitialBoard();
     fetchCurrentRule();
 });

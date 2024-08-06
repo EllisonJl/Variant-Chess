@@ -9,6 +9,22 @@ public class MoveHistory {
     private Stack<List<VariantChessMove>> moveStack; // Stack for full moves
     private Stack<List<VariantChessMove>> redoStack; // Stack for undone full moves
 
+    public Stack<List<VariantChessMove>> getMoveStack() {
+        return moveStack;
+    }
+
+    public void setMoveStack(Stack<List<VariantChessMove>> moveStack) {
+        this.moveStack = moveStack;
+    }
+
+    public Stack<List<VariantChessMove>> getRedoStack() {
+        return redoStack;
+    }
+
+    public void setRedoStack(Stack<List<VariantChessMove>> redoStack) {
+        this.redoStack = redoStack;
+    }
+
     public MoveHistory() {
         this.moveStack = new Stack<>();
         this.redoStack = new Stack<>();
@@ -40,13 +56,4 @@ public class MoveHistory {
         return null;
     }
 
-    // Checks if undo operation is possible
-    public boolean canUndo() {
-        return !moveStack.isEmpty();
-    }
-
-    // Checks if redo operation is possible
-    public boolean canRedo() {
-        return !redoStack.isEmpty();
-    }
 }

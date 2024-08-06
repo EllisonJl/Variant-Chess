@@ -14,6 +14,9 @@ public class GameState {
     private int blackMoveCount;          // Counter for the number of moves made by the black player.
     public int movesWithoutCapture;     // Counter for the number of moves made without capturing an opponent's piece.
     private Color currentTurn;           // The color of the player whose turn it is.
+    private GameRule selectedRule;
+
+    private final VariantChessBoard board; // The chess board representing the current game state.
 
     public int getWhiteMoveCount() {
         return whiteMoveCount;
@@ -23,8 +26,6 @@ public class GameState {
         return blackMoveCount;
     }
 
-    private final VariantChessBoard board; // The chess board representing the current game state.
-    private GameRule selectedRule;       // The game rule currently in effect for special game conditions.
 
     /**
      * Constructs a new GameState object with the specified chess board.
@@ -50,7 +51,9 @@ public class GameState {
     public Color getCurrentTurn() {
         return currentTurn;
     }
-
+    public void setSelectedRule(GameRule selectedRule) {
+        this.selectedRule = selectedRule;
+    }
     /**
      * Switches the turn to the other player.
      * Changes the current turn from WHITE to BLACK or vice versa.
@@ -173,24 +176,22 @@ public class GameState {
      * This method initializes the `selectedRule` field with a randomly chosen rule.
      * The rules available are CannonSpecialRule, KingQueenSpecialRule, and PawnPromotionRule.
      */
-    private void selectRandomRule() {
+    public void selectRandomRule() {
         Random random = new Random();
-        int ruleIndex = random.nextInt(3); // Randomly select an index between 0 and 2.
+        int ruleIndex = random.nextInt(3);
         switch (ruleIndex) {
             case 0:
-                this.selectedRule = new CannonSpecialRule(); // Assign CannonSpecialRule if index is 0.
+                this.selectedRule = new CannonSpecialRule();
                 break;
             case 1:
-                this.selectedRule = new KingQueenSpecialRule(); // Assign KingQueenSpecialRule if index is 1.
+                this.selectedRule = new KingQueenSpecialRule();
                 break;
             case 2:
-                this.selectedRule = new PawnPromotionRule(); // Assign PawnPromotionRule if index is 2.
+                this.selectedRule = new PawnPromotionRule();
                 break;
             default:
-                this.selectedRule = null; // Default case; should never occur.
+                this.selectedRule = null;
                 break;
         }
     }
-
-
 }

@@ -35,6 +35,35 @@ public class GameController {
         this.moveHistory = new MoveHistory(); // Initialize MoveHistory
 
     }
+    /**
+     * Endpoint to set a specific game rule and restart the game.
+     *
+     * @param rule The name of the rule to set ("CannonSpecialRule", "KingQueenSpecialRule", "PawnPromotionRule", "RandomRule").
+     */
+    @PostMapping("/setRule/{rule}")
+    public void setGameRule(@PathVariable String rule) {
+        System.out.println("Received rule to set: " + rule); // Debugging line
+        switch (rule) {
+            case "CannonSpecialRule":
+                gameState.setSelectedRule(new CannonSpecialRule());
+                break;
+            case "KingQueenSpecialRule":
+                gameState.setSelectedRule(new KingQueenSpecialRule());
+                break;
+            case "PawnPromotionRule":
+                gameState.setSelectedRule(new PawnPromotionRule());
+                break;
+            case "RandomRule":
+                gameState.selectRandomRule();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid rule: " + rule);
+        }
+        board.initializeBoard(); // Restart the game with the new rule
+        this.gameState = new GameState(board);
+        System.out.println("Game rule set and board reinitialized."); // Debugging line
+    }
+
     @PostMapping("/undo")
     public String undoLastMove() {
         List<VariantChessMove> lastFullMove = moveHistory.undo();
@@ -95,7 +124,6 @@ public class GameController {
         board.printBoard(); // Add a method in VariantChessBoard to print the board state
         return board.getBoard();
     }
-
 
     /**
      * Endpoint to retrieve the current selected rule for the game.

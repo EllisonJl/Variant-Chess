@@ -41,8 +41,30 @@ body {
     width: 97%;
     height: 97%;
     position: absolute;
-    transition: transform 0.5s ease; /* Add transition for smooth movement */
+    transition: transform 0.5s ease, opacity 0.5s ease; /* 添加淡入淡出效果 */
 }
+
+@keyframes movePiece {
+    0% {
+        transform: scale(1); /* 开始时棋子正常大小 */
+        opacity: 1; /* 完全不透明 */
+    }
+    50% {
+        transform: scale(1.1); /* 移动中棋子放大 */
+        opacity: 0.5; /* 透明度降低以给予幽灵效果 */
+    }
+    100% {
+        transform: scale(1) translate(var(--move-x), var(--move-y)); /* 移动到最终位置并恢复大小 */
+        opacity: 1; /* 恢复不透明 */
+    }
+}
+
+.animate-move {
+    animation: movePiece 0.5s ease forwards; /* 应用自定义关键帧动画 */
+}
+
+
+
 
 h1 {
     color: black;
