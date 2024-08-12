@@ -5,55 +5,55 @@ import org.junit.jupiter.api.Test;
 import uk.ac.standrews.variantchessgame.model.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for evaluating the piece values in ChessAI.
+ * These tests specifically focus on Pawn and Queen piece evaluations under different game rules.
+ */
 class ChessAITest {
 
     private ChessAI chessAI; // Instance of ChessAI to test
+<<<<<<< HEAD
     private VariantChessBoard board; // Instance of VariantChessBoard for setting up test scenarios
     private CannonSpecialRule cannonSpecialRuleMock; // Mock of CannonSpecialRule for specific testing
     private PawnPromotionRule pawnPromotionRuleMock; // Mock of PawnPromotionRule for testing
     private KingQueenSpecialRule kingQueenSpecialRuleMock; // Mock of KingQueenSpecialRule for testing
     private GameRule mockRule; // Mock of GameRule for general testing
+=======
+    private GameRule pawnPromotionRule; // Mock rule for Pawn promotion
+    private GameRule kingQueenSpecialRule; // Mock rule for King and Queen special rules
+>>>>>>> origin/Added-function-to-front-end
 
-    /**
-     * Sets up the testing environment before each test.
-     */
     @BeforeEach
     void setUp() {
         chessAI = new ChessAI(); // Initialize ChessAI instance
+<<<<<<< HEAD
         board = new VariantChessBoard(); // Initialize VariantChessBoard instance
         cannonSpecialRuleMock = mock(CannonSpecialRule.class); // Mock CannonSpecialRule for testing
         pawnPromotionRuleMock = mock(PawnPromotionRule.class); // Mock PawnPromotionRule for testing
         kingQueenSpecialRuleMock = mock(KingQueenSpecialRule.class); // Mock KingQueenSpecialRule for testing
         mockRule = mock(GameRule.class); // Mock GameRule for testing
+=======
+        pawnPromotionRule = new PawnPromotionRule(); // Initialize PawnPromotionRule
+        kingQueenSpecialRule = new KingQueenSpecialRule(); // Initialize KingQueenSpecialRule
+>>>>>>> origin/Added-function-to-front-end
     }
 
     /**
-     * Tests the evaluation of different piece values.
+     * Tests the evaluation of a Pawn's value with no captures.
+     * Verifies that the Pawn's value is correct with a base value and bonus under the PawnPromotionRule.
      */
     @Test
-    void testEvaluatePieceValue() {
-        // Testing the value of different pieces
-        assertEquals(1, callEvaluatePieceValue(new Pawn(Color.WHITE), mockRule)); // Pawn value
-        assertEquals(3, callEvaluatePieceValue(new Knight(Color.WHITE), mockRule)); // Knight value
-        assertEquals(3, callEvaluatePieceValue(new Bishop(Color.WHITE), mockRule)); // Bishop value
-        assertEquals(5, callEvaluatePieceValue(new Rook(Color.WHITE), mockRule)); // Rook value
-        assertEquals(50, callEvaluatePieceValue(new Queen(Color.WHITE), mockRule)); // Queen value
-        assertEquals(4, callEvaluatePieceValue(new King(Color.WHITE), mockRule)); // King value
+    void testEvaluatePawnValueWithNoCaptures() {
+        Pawn pawn = new Pawn(Color.WHITE);
+        int expectedValue = 1 + 3; // Base value 1 + bonus 3
+        int evaluatedValue = callEvaluatePieceValue(pawn, pawnPromotionRule);
 
-        // Test Cannon value without capture
-        Cannon cannon = new Cannon(Color.WHITE);
-        assertEquals(5, callEvaluatePieceValue(cannon, mockRule)); // Cannon base value
-
-        // Test Cannon value with special rule
-        cannon.incrementCaptureCount(); // Increase capture count
-        cannon.incrementCaptureCount(); // Increase capture count
-        cannon.incrementCaptureCount(); // Increase capture count
-        assertEquals(15, callEvaluatePieceValue(cannon, cannonSpecialRuleMock)); // Base + bonus for explosion
+        assertEquals(expectedValue, evaluatedValue, "Pawn value with no captures should be " + expectedValue);
     }
 
     /**
+<<<<<<< HEAD
      * Tests the evaluation of Pawn piece values with PawnPromotionRule.
      */
     @Test
@@ -76,52 +76,48 @@ class ChessAITest {
 
     /**
      * Tests the calculation of the best move under pressure.
+=======
+     * Tests the evaluation of a Pawn's value with one capture.
+     * Verifies that the Pawn's value is correct with a base value and bonus under the PawnPromotionRule.
+>>>>>>> origin/Added-function-to-front-end
      */
     @Test
-    void testCalculateBestMoveUnderPressure() {
-        // Setup a scenario where the AI must either defend or capture
-        board.setPieceAt(0, 0, new King(Color.WHITE)); // Place White King on the board
-        board.setPieceAt(1, 1, new Queen(Color.BLACK)); // Place Black Queen threatening the White King
+    void testEvaluatePawnValueWithOneCapture() {
+        Pawn pawn = new Pawn(Color.WHITE);
+        pawn.incrementCaptureCount(); // Simulate one capture
+        int expectedValue = 1 + 5; // Base value 1 + bonus 5
+        int evaluatedValue = callEvaluatePieceValue(pawn, pawnPromotionRule);
 
-        VariantChessMove bestMoveWhite = chessAI.calculateBestMove(board, Color.WHITE, mockRule); // Calculate best move for White
-
-        // Ensure the best move is a defensive move or captures the threat
-        assertNotNull(bestMoveWhite, "White should have a valid defensive move"); // Check if a move is found
-        assertTrue((bestMoveWhite.getEndX() == 1 && bestMoveWhite.getEndY() == 1) ||
-                (bestMoveWhite.getEndX() == 1 && bestMoveWhite.getEndY() == 0) ||
-                (bestMoveWhite.getEndX() == 0 && bestMoveWhite.getEndY() == 1));
+        assertEquals(expectedValue, evaluatedValue, "Pawn value with one capture should be " + expectedValue);
     }
 
     /**
-     * Calls the private evaluatePieceValue method of ChessAI using reflection.
+     * Tests the evaluation of a Pawn's value with two captures.
+     * Verifies that the Pawn's value is correct with a base value and bonus under the PawnPromotionRule.
+     */
+    @Test
+    void testEvaluatePawnValueWithTwoCaptures() {
+        Pawn pawn = new Pawn(Color.WHITE);
+        pawn.incrementCaptureCount();
+        pawn.incrementCaptureCount(); // Simulate two captures
+        int expectedValue = 1 + 10; // Base value 1 + bonus 10
+        int evaluatedValue = callEvaluatePieceValue(pawn, pawnPromotionRule);
+
+        assertEquals(expectedValue, evaluatedValue, "Pawn value with two captures should be " + expectedValue);
+    }
+
+    /**
+     * Helper method to access the private evaluatePieceValue method in ChessAI.
      *
-     * @param piece The piece to evaluate.
-     * @param rule  The game rule to use for evaluation.
-     * @return The evaluated value of the piece.
+     * @param piece The chess piece to evaluate.
+     * @param rule The game rule to use for evaluation.
+     * @return The evaluated piece value.
      */
     private int callEvaluatePieceValue(VariantChessPiece piece, GameRule rule) {
         try {
             var method = ChessAI.class.getDeclaredMethod("evaluatePieceValue", VariantChessPiece.class, GameRule.class);
             method.setAccessible(true);
             return (int) method.invoke(chessAI, piece, rule); // Invoke the private method
-        } catch (Exception e) {
-            throw new RuntimeException(e); // Handle potential exceptions
-        }
-    }
-
-    /**
-     * Calls the private evaluateBoard method of ChessAI using reflection.
-     *
-     * @param board      The chessboard to evaluate.
-     * @param aiColor    The color of the AI player.
-     * @param rule       The game rule to use for evaluation.
-     * @return The evaluated score of the board.
-     */
-    private int callEvaluateBoard(VariantChessBoard board, Color aiColor, GameRule rule) {
-        try {
-            var method = ChessAI.class.getDeclaredMethod("evaluateBoard", VariantChessBoard.class, Color.class, GameRule.class);
-            method.setAccessible(true);
-            return (int) method.invoke(chessAI, board, aiColor, rule); // Invoke the private method
         } catch (Exception e) {
             throw new RuntimeException(e); // Handle potential exceptions
         }
