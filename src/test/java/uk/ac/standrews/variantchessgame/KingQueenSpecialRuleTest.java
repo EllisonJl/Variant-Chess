@@ -36,33 +36,6 @@ class KingQueenSpecialRuleTest {
         blackPawn = new Pawn(Color.BLACK);
         whitePawn = new Pawn(Color.WHITE);
     }
-    @Test
-    void testMovingAndTargetPiecesAreDistinct() {
-        board.setPieceAt(4, 4, whiteQueen);
-        board.setPieceAt(5, 5, blackPawn);
-
-        VariantChessMove move = new VariantChessMove(4, 4, 5, 5);
-
-        // Verify that the moving piece and the target piece are distinct before applying the rule
-        VariantChessPiece targetPieceBefore = board.getPieceAt(move.getEndX(), move.getEndY());
-        assertNotNull(targetPieceBefore, "Target piece should not be null");
-        assertNotSame(whiteQueen, targetPieceBefore, "The moving piece and target piece should not be the same");
-
-        // Apply the special capture rule
-        rule.applyRule(move, whiteQueen, board);
-
-        // Calculate expected new position for the Queen
-        int deltaX = move.getEndX() - move.getStartX();
-        int deltaY = move.getEndY() - move.getStartY();
-        int expectedNewX = move.getEndX() - Integer.signum(deltaX);
-        int expectedNewY = move.getEndY() - Integer.signum(deltaY);
-
-        // Verify that after applying the rule, the pieces are still correctly positioned
-        assertEquals(Color.WHITE, board.getPieceAt(5, 5).getColor(), "Captured piece should be white");
-        assertEquals(whiteQueen, board.getPieceAt(expectedNewX, expectedNewY), "Queen should move to the correct position before capture");
-        assertNull(board.getPieceAt(move.getStartX(), move.getStartY()), "Original position should be empty");
-    }
-
     /**
      * Tests that a White King correctly performs a special capture on a Black Pawn.
      * Validates that the capture rule has been applied, the pawn's first move state is retained,

@@ -161,6 +161,35 @@ class GameStateTest {
     }
 
     /**
+     * Tests the selectRuleByIndex method.
+     * Verifies that selecting a rule by index sets the correct rule.
+     */
+    @Test
+    void testSelectRuleByIndex() {
+        // Test selecting CannonSpecialRule
+        gameState.selectRuleByIndex(0);
+        assertTrue(gameState.getSelectedRule() instanceof CannonSpecialRule, "Selected rule should be CannonSpecialRule.");
+
+        // Test selecting KingQueenSpecialRule
+        gameState.selectRuleByIndex(1);
+        assertTrue(gameState.getSelectedRule() instanceof KingQueenSpecialRule, "Selected rule should be KingQueenSpecialRule.");
+
+        // Test selecting PawnPromotionRule
+        gameState.selectRuleByIndex(2);
+        assertTrue(gameState.getSelectedRule() instanceof PawnPromotionRule, "Selected rule should be PawnPromotionRule.");
+    }
+
+    /**
+     * Tests the selectRuleByIndex method for invalid index.
+     * Verifies that an exception is thrown for an invalid index.
+     */
+    @Test
+    void testSelectRuleByInvalidIndex() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> gameState.selectRuleByIndex(3));
+        assertEquals("Invalid rule index: 3", exception.getMessage(), "Exception message should match expected message for invalid index.");
+    }
+
+    /**
      * Tests the win condition with a mix of pieces.
      * Verifies that the game correctly identifies a win when all pieces of a color are eliminated.
      */

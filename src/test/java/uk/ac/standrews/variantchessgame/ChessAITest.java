@@ -12,6 +12,8 @@ class ChessAITest {
     private ChessAI chessAI; // Instance of ChessAI to test
     private VariantChessBoard board; // Instance of VariantChessBoard for setting up test scenarios
     private CannonSpecialRule cannonSpecialRuleMock; // Mock of CannonSpecialRule for specific testing
+    private PawnPromotionRule pawnPromotionRuleMock; // Mock of PawnPromotionRule for testing
+    private KingQueenSpecialRule kingQueenSpecialRuleMock; // Mock of KingQueenSpecialRule for testing
     private GameRule mockRule; // Mock of GameRule for general testing
 
     /**
@@ -22,6 +24,8 @@ class ChessAITest {
         chessAI = new ChessAI(); // Initialize ChessAI instance
         board = new VariantChessBoard(); // Initialize VariantChessBoard instance
         cannonSpecialRuleMock = mock(CannonSpecialRule.class); // Mock CannonSpecialRule for testing
+        pawnPromotionRuleMock = mock(PawnPromotionRule.class); // Mock PawnPromotionRule for testing
+        kingQueenSpecialRuleMock = mock(KingQueenSpecialRule.class); // Mock KingQueenSpecialRule for testing
         mockRule = mock(GameRule.class); // Mock GameRule for testing
     }
 
@@ -48,6 +52,27 @@ class ChessAITest {
         cannon.incrementCaptureCount(); // Increase capture count
         assertEquals(15, callEvaluatePieceValue(cannon, cannonSpecialRuleMock)); // Base + bonus for explosion
     }
+
+    /**
+     * Tests the evaluation of Pawn piece values with PawnPromotionRule.
+     */
+    @Test
+    void testEvaluatePawnWithPawnPromotionRule() {
+        // Testing Pawn with different capture counts under PawnPromotionRule
+        Pawn pawn = new Pawn(Color.WHITE);
+
+        // No captures
+        assertEquals(4, callEvaluatePieceValue(pawn, pawnPromotionRuleMock)); // 1 base + 3 bonus
+
+        // One capture
+        pawn.incrementCaptureCount();
+        assertEquals(6, callEvaluatePieceValue(pawn, pawnPromotionRuleMock)); // 1 base + 5 bonus
+
+        // Two captures
+        pawn.incrementCaptureCount();
+        assertEquals(11, callEvaluatePieceValue(pawn, pawnPromotionRuleMock)); // 1 base + 10 bonus
+    }
+
 
     /**
      * Tests the calculation of the best move under pressure.
