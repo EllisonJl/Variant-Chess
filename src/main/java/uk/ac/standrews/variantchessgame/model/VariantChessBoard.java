@@ -226,24 +226,4 @@ public class VariantChessBoard {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 
-    public List<VariantChessMove> getAllPossibleMoves(Color color) {
-        List<VariantChessMove> possibleMoves = new ArrayList<>();
-
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                VariantChessPiece piece = getPieceAt(i, j);
-                if (piece != null && piece.getColor() == color) {
-                    for (int x = 0; x < 8; x++) {
-                        for (int y = 0; y < 8; y++) {
-                            VariantChessMove move = new VariantChessMove(i, j, x, y);
-                            if (piece.isValidMove(move, this)) {
-                                possibleMoves.add(move);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return possibleMoves;
-    }
 }
