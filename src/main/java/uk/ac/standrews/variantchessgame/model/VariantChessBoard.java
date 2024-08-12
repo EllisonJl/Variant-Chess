@@ -70,7 +70,6 @@ public class VariantChessBoard {
         }
     }
 
-
     /**
      * Saves the current state of the board as the initial state.
      */

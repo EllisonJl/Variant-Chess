@@ -17,7 +17,6 @@ public class ChessAI {
      */
     private int evaluatePieceValue(VariantChessPiece piece, GameRule currentRule) {
         if (piece == null) return 0; // If the piece is null, its value is 0
-        if (piece instanceof Pawn) return 1; // Pawn is valued at 1
         if (piece instanceof Knight || piece instanceof Bishop) return 3; // Knight and Bishop are valued at 3
         if (piece instanceof Rook) return 5; // Rook is valued at 5
         if (piece instanceof Queen) return 50; // Queen is valued at 50
@@ -25,12 +24,55 @@ public class ChessAI {
 
         if (piece instanceof Cannon) {
             Cannon cannon = (Cannon) piece;
-            int baseValue = 5; // Base value for a Cannon
+            int baseValue = 5;
             int bonusValue = 0;
 
-            // Increase value if the Cannon can explode due to the special rule
-            if (currentRule instanceof CannonSpecialRule && cannon.getCaptureCount() >= 3) {
-                bonusValue = 10; // Additional value if it can explode
+            if (currentRule instanceof CannonSpecialRule) {
+                int captureCount = cannon.getCaptureCount();
+                if (captureCount == 1) {
+                    bonusValue = 6; // Bonus value if capture count is 1
+                } else if (captureCount == 2) {
+                    bonusValue = 8; // Bonus value if capture count is 2
+                } else if (captureCount == 3) {
+                    bonusValue = 10; // Bonus value if capture count is 3
+                }
+            }
+
+            return baseValue + bonusValue; // Return the total evaluated value for the Cannon
+        }
+
+        if (piece instanceof Pawn) {
+            Pawn pawn = (Pawn) piece;
+            int baseValue = 1;
+            int bonusValue = 0;
+
+            if (currentRule instanceof PawnPromotionRule) {
+                int captureCount = pawn.getCaptureCount();
+                if (captureCount == 0) {
+                    bonusValue = 3; // Bonus value if capture count is 0
+                } else if (captureCount == 1) {
+                    bonusValue = 5; // Bonus value if capture count is 1
+                } else if (captureCount ==2 ) {
+                    bonusValue = 10; // Bonus value if capture count is 2
+                }
+            }
+
+            return baseValue + bonusValue; // Return the total evaluated value for the Cannon
+        }
+        if (piece instanceof Queen) {
+            Queen queen = (Queen) piece;
+            int baseValue = 10;
+            int bonusValue = 0;
+
+            if (currentRule instanceof KingQueenSpecialRule) {
+                int captureCount = queen.getCaptureCount();
+                if (captureCount == 0) {
+                    bonusValue = 3; // Bonus value if capture count is 0
+                } else if (captureCount == 1) {
+                    bonusValue = 5; // Bonus value if capture count is 1
+                } else if (captureCount ==2 ) {
+                    bonusValue = 10; // Bonus value if capture count is 2
+                }
             }
 
             return baseValue + bonusValue; // Return the total evaluated value for the Cannon

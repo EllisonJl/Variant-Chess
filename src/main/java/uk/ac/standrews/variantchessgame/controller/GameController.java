@@ -32,9 +32,9 @@ public class GameController {
         this.board = board;
         this.gameState = new GameState(board);
         this.chessAI = new ChessAI();
-        this.moveHistory = new MoveHistory(); // Initialize MoveHistory
-
+        this.moveHistory = new MoveHistory();
     }
+
     /**
      * Endpoint to set a specific game rule and restart the game.
      *
@@ -42,24 +42,24 @@ public class GameController {
      */
     @PostMapping("/setRule/{rule}")
     public void setGameRule(@PathVariable String rule) {
-        System.out.println("Received rule to set: " + rule); // Debugging line
+        int ruleIndex;
         switch (rule) {
             case "CannonSpecialRule":
-                gameState.selectRuleByIndex(0);
+                ruleIndex = 0;
                 break;
             case "KingQueenSpecialRule":
-                gameState.selectRuleByIndex(1);
+                ruleIndex = 1;
                 break;
             case "PawnPromotionRule":
-                gameState.selectRuleByIndex(2);
+                ruleIndex = 2;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid rule: " + rule);
         }
         board.initializeBoard(); // Restart the game with the new rule
+        gameState.selectRuleByIndex(ruleIndex);
         System.out.println("Game rule set and board reinitialized."); // Debugging line
     }
-
 
     @PostMapping("/undo")
     public String undoLastMove() {
@@ -84,6 +84,7 @@ public class GameController {
         }
         return "UNDO_FAIL";
     }
+
     @PostMapping("/redo")
     public String redoLastMove() {
         List<VariantChessMove> nextFullMove = moveHistory.redo();
@@ -250,6 +251,7 @@ public class GameController {
                     if ("VALID_MOVE".equals(aiMoveResult)) {
                         System.out.println("AI move complete, switching back to white.");
                         fullMove.add(aiMove); // Add AI move to the full move list
+                        moveResult = aiMoveResult; // Update move result to AI's move result
                     }
                 } else {
                     System.out.println("AI has no valid moves.");
@@ -261,7 +263,6 @@ public class GameController {
 
         return moveResult + ";CURRENT_TURN=" + gameState.getCurrentTurn().toString();
     }
-
 
     @GetMapping("/currentTurn")
     public String getCurrentTurn() {

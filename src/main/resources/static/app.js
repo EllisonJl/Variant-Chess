@@ -35,7 +35,17 @@ document.addEventListener("DOMContentLoaded", function() {
             fetchInitialBoard();
             fetchCurrentRule();
             isWhiteTurn = true;
+            resetGameStatus(); // Reset status on game restart
         }).catch(error => console.error("Error setting game rule:", error));
+    }
+
+    function resetGameStatus() {
+        const progressBar = document.getElementById('advantageBar');
+        progressBar.style.width = "50%"; // Reset to middle
+
+        const advantageText = document.getElementById('advantageColor');
+        advantageText.textContent = "Neither side has the advantage";
+        document.getElementById('status').textContent = "Draw";
     }
 
     // Function to handle undo button click
@@ -82,6 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.log("Fetched initial board:", JSON.stringify(board));
                 clearBoard();
                 renderBoard(board);
+                updateGameStatus(board);
             })
             .catch(error => console.error("Error fetching initial board:", error));
     }
@@ -305,6 +316,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (moveResult === "VALID_MOVE") {
                     updateBoardWithMove(move); // Update the board with the move
+                    if (currentTurnInfo.endsWith("BLACK")) {
+                        // 如果当前轮到黑棋，调用 AI 移动
+                        setTimeout(aiMove, 500); // 添加 0.5 秒延迟
+                    }
                 }
 
                 if (currentTurnInfo.startsWith("CURRENT_TURN=")) {
@@ -324,29 +339,14 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => console.error("Error processing move:", error));
     }
 
-
-
-    function fetchCurrentTurn() {
-        fetch("/api/game/currentTurn")
-            .then(response => response.text())
-            .then(turn => {
-                isWhiteTurn = (turn === "WHITE");
-                console.log("Current turn:", turn);
-            })
-            .catch(error => console.error("Error fetching current turn:", error));
-    }
-
     function updateBoardWithMove(move) {
         const startSquare = document.querySelector(`.square[data-row="${move.startX}"][data-col="${move.startY}"]`);
         const targetSquare = document.querySelector(`.square[data-row="${move.endX}"][data-col="${move.endY}"]`);
 
-        // Ensure both startSquare and targetSquare are valid
         if (!startSquare || !targetSquare) {
             console.error("Invalid start or target square");
             return;
         }
-
-        console.log(`Move from (${move.startX}, ${move.startY}) to (${move.endX}, ${move.endY})`);
 
         const piece = document.querySelector(`.piece[data-row="${move.startX}"][data-col="${move.startY}"]`);
         if (!piece) {
@@ -354,38 +354,22 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        console.log(`Piece: ${piece.dataset.piece}, Color: ${piece.dataset.color}`);
+        console.log(`Move from (${move.startX}, ${move.startY}) to (${move.endX}, ${move.endY})`);
 
         const isCapture = targetSquare.firstChild !== null;
 
-        // Define animation durations
-        const aiMoveDelay = 1;
-        const blackMoveDuration = 10;
+        // 计算棋子移动的偏移量
+        const startRect = startSquare.getBoundingClientRect();
+        const targetRect = targetSquare.getBoundingClientRect();
+        const moveX = targetRect.left - startRect.left;
+        const moveY = targetRect.top - startRect.top;
 
-        // Function to handle piece animation and movement
-        function animateMove() {
-            const startRect = startSquare.getBoundingClientRect();
-            const targetRect = targetSquare.getBoundingClientRect();
-            const moveX = targetRect.left - startRect.left;
-            const moveY = targetRect.top - startRect.top;
+        // 应用动画
+        piece.style.transition = "transform 0.3s ease"; // 确保为所有棋子设置过渡时间
+        piece.style.transform = `translate(${moveX}px, ${moveY}px)`;
 
-            // Apply transition only to black pieces
-            if (piece.dataset.color === 'black') {
-                setTimeout(() => {
-                    piece.style.transition = `transform ${blackMoveDuration}ms ease`;
-                    piece.style.transform = `translate(${moveX}px, ${moveY}px)`;
-
-                    piece.addEventListener("transitionend", finalizeMove, { once: true });
-                }, aiMoveDelay);
-            } else {
-                piece.style.transition = "";
-                piece.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                finalizeMove();
-            }
-        }
-
-        // Function to finalize move after animation
-        function finalizeMove() {
+        // 在动画结束后更新棋盘状态
+        piece.addEventListener("transitionend", () => {
             piece.style.transition = "";
             piece.style.transform = "";
 
@@ -437,10 +421,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 targetSquare.appendChild(piece);
             }
 
-            // Clear the start square
+            // 清空起始格子
             startSquare.innerHTML = "";
 
-            // Handle Cannon explosion logic
+            // 处理大炮爆炸逻辑
             if (piece.dataset.piece === 'Cannon' && parseInt(piece.dataset.captureCount) >= 3) {
                 console.log("Cannon is exploding!");
                 const directions = [
@@ -463,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 targetSquare.removeChild(piece);
             }
 
-            // Handle Pawn promotion logic
+            // 处理士兵升级逻辑
             if ((piece.dataset.piece === 'Pawn' || piece.dataset.promotedFromPawn === "true") && isCapture) {
                 const captureCount = parseInt(piece.dataset.captureCount);
                 let promotedType = null;
@@ -484,26 +468,50 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
 
-            // Fetch updated board state after changes
-            fetchUpdatedBoard();
-        }
-
-        animateMove();
+            fetchUpdatedBoard(); // Fetch updated board state after changes
+        }, { once: true });
     }
 
 
     function fetchUpdatedBoard() {
         fetch("/api/game/board")
             .then(response => response.json())
-            .then(newBoard => {
-                console.log("Fetched updated board:", JSON.stringify(newBoard));
+            .then(board => {
+                console.log("Fetched updated board:", JSON.stringify(board));
                 clearBoard();
-                renderBoard(newBoard);
-
-                // Fetch current turn and update isWhiteTurn variable
-                fetchCurrentTurn();
+                renderBoard(board);
+                updateGameStatus(board); // Update game status based on the current board
             })
             .catch(error => console.error("Error fetching updated board:", error));
+    }
+
+    function updateGameStatus(board) {
+        let whiteCount = 0, blackCount = 0;
+        board.forEach(row => {
+            row.forEach(piece => {
+                if (piece) {
+                    if (piece.color === "WHITE") whiteCount++;
+                    if (piece.color === "BLACK") blackCount++;
+                }
+            });
+        });
+
+        const totalPieces = whiteCount + blackCount;
+        const whiteAdvantage = ((whiteCount - blackCount) / totalPieces) * 100;
+        const progressBar = document.getElementById('advantageBar');
+        progressBar.style.width = `${50 + whiteAdvantage / 2}%`; // Center at 50%, move according to advantage
+
+        const advantageText = document.getElementById('advantageColor');
+        if (whiteCount > blackCount) {
+            advantageText.textContent = "White has the advantage";
+            document.getElementById('status').textContent = "Ahead";
+        } else if (blackCount > whiteCount) {
+            advantageText.textContent = "Black has the advantage";
+            document.getElementById('status').textContent = "Behind";
+        } else {
+            advantageText.textContent = "Neither side";
+            document.getElementById('status').textContent = "Draw";
+        }
     }
 
     function clearBoard() {
@@ -570,16 +578,19 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     function aiMove() {
         setTimeout(() => {
-            // Fetch AI move and then animate it
-            fetch("/api/game/aiMove") // Ensure this endpoint returns the AI move
+            fetch("/api/game/aiMove")
                 .then(response => response.json())
                 .then(aiMove => {
                     console.log("AI move received:", aiMove);
-                    updateBoardWithMove(aiMove); // Animate AI's move
+                    const piece = document.querySelector(`.piece[data-row="${aiMove.startX}"][data-col="${aiMove.startY}"]`);
+                    const startSquare = document.querySelector(`.square[data-row="${aiMove.startX}"][data-col="${aiMove.startY}"]`);
+                    const targetSquare = document.querySelector(`.square[data-row="${aiMove.endX}"][data-col="${aiMove.endY}"]`);
+                    updateBoardWithMove(aiMove); // 确保调用时所有棋子都应用动画
                 })
                 .catch(error => console.error("Error fetching AI move:", error));
-        }, 1000); // Delay AI move by 1000ms (1 second) for better visibility
+        }, 500);
     }
+
     fetchInitialBoard();
     fetchCurrentRule();
 });

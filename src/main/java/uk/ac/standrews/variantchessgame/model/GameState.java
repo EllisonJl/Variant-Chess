@@ -52,17 +52,13 @@ public class GameState {
         return currentTurn;
     }
 
-    public void setSelectedRule(GameRule selectedRule) {
-        this.selectedRule = selectedRule;
-    }
-
     /**
      * Switches the turn to the other player.
      * Changes the current turn from WHITE to BLACK or vice versa.
      */
     public void switchTurn() {
         currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
-        System.out.println("回合切换到：" + currentTurn);
+        System.out.println("Turn Switch to：" + currentTurn);
     }
 
     /**
@@ -130,8 +126,8 @@ public class GameState {
      * @return True if the game is a draw, otherwise false.
      */
     public boolean isDraw() {
-        // Draw condition: 60 or more moves without capture.
-        if (movesWithoutCapture >= 60) {
+        // Draw condition: 20 or more moves without capture.
+        if (movesWithoutCapture >= 20) {
             return true;
         }
 
@@ -220,4 +216,5 @@ public class GameState {
                 throw new IllegalArgumentException("Invalid rule index: " + ruleIndex);
         }
     }
+
 }
