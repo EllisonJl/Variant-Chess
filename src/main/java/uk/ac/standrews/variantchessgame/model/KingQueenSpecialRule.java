@@ -12,33 +12,42 @@ public class KingQueenSpecialRule implements GameRule {
         if (!hasUsedSpecialCapture && (piece instanceof King || piece instanceof Queen)) {
             VariantChessPiece targetPiece = board.getPieceAt(move.getEndX(), move.getEndY());
             if (targetPiece != null && targetPiece.getColor() != piece.getColor()) {
-                System.out.println("Entering special capture logic");
                 System.out.println("Target piece: " + targetPiece.getClass().getSimpleName() + ", Color: " + targetPiece.getColor());
 
                 // Change the target piece's color to the current player's color
                 targetPiece.setColor(piece.getColor());
-                System.out.println("Target piece color changed to: " + targetPiece.getColor());
 
                 // Update direction if the captured piece is a pawn
                 if (targetPiece instanceof Pawn) {
-                    System.out.println("Captured pawn: updating direction");
                     ((Pawn) targetPiece).updateDirection(piece.getColor());
                 }
+
+                // Allow the captured piece to move
+                targetPiece.setImmobile(false);
 
                 // Calculate the new position for the King or Queen
                 int deltaX = move.getEndX() - move.getStartX();
                 int deltaY = move.getEndY() - move.getStartY();
-                int newX = move.getEndX() - Integer.signum(deltaX);
-                int newY = move.getEndY() - Integer.signum(deltaY);
+                int newX, newY;
 
-                System.out.println("Calculated new position for piece: " + newX + ", " + newY);
+                if (piece instanceof King) {
+                    // King stays in the same position
+                    newX = move.getStartX();
+                    newY = move.getStartY();
+                } else { // For Queen
+                    // Queen moves to one step back in the direction of the move
+                    newX = move.getEndX() - Integer.signum(deltaX);
+                    newY = move.getEndY() - Integer.signum(deltaY);
+                }
 
                 // Update the board positions
                 board.setPieceAt(newX, newY, piece); // Move the King or Queen to the new position
                 board.setPieceAt(move.getEndX(), move.getEndY(), targetPiece); // Place the captured piece in its new position
 
-                // Clear the original position for Queen and King
-                board.setPieceAt(move.getStartX(), move.getStartY(), null);
+                if (piece instanceof Queen) {
+                    // Clear the original position for Queen
+                    board.setPieceAt(move.getStartX(), move.getStartY(), null);
+                }
 
                 System.out.println("Updated board positions: " + piece.getClass().getSimpleName() + " to " + newX + ", " + newY);
                 System.out.println("Captured piece: " + targetPiece.getClass().getSimpleName() + " at " + move.getEndX() + ", " + move.getEndY());
