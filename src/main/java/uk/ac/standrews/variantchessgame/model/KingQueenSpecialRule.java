@@ -1,7 +1,8 @@
 package uk.ac.standrews.variantchessgame.model;
 
 public class KingQueenSpecialRule implements GameRule {
-    private boolean hasUsedSpecialCapture = false;
+    private boolean hasKingUsedSpecialCapture = false;
+    private boolean hasQueenUsedSpecialCapture = false;
 
     @Override
     public void applyRule(VariantChessMove move, VariantChessPiece piece, VariantChessBoard board) {
@@ -9,10 +10,19 @@ public class KingQueenSpecialRule implements GameRule {
         System.out.println("Initial move: " + move.getStartX() + ", " + move.getStartY() + " to " + move.getEndX() + ", " + move.getEndY());
         System.out.println("Piece: " + piece.getClass().getSimpleName() + ", Color: " + piece.getColor());
 
-        if (!hasUsedSpecialCapture && (piece instanceof King || piece instanceof Queen)) {
+        // Determine if the piece is eligible for a special capture
+        boolean canUseSpecialCapture = (piece instanceof King && !hasKingUsedSpecialCapture) ||
+                (piece instanceof Queen && !hasQueenUsedSpecialCapture);
+
+        if (canUseSpecialCapture) {
             VariantChessPiece targetPiece = board.getPieceAt(move.getEndX(), move.getEndY());
+            System.out.println("111111");
+            System.out.println("Target piece before capture: " + targetPiece + ", Color: " + (targetPiece != null ? targetPiece.getColor() : "null"));
+            System.out.println("Current piece: " + piece.getClass().getSimpleName() + ", Color: " + piece.getColor());
+
+            // Check if the target piece is valid for capture (exists and is of opposite color)
             if (targetPiece != null && targetPiece.getColor() != piece.getColor()) {
-                System.out.println("Target piece: " + targetPiece.getClass().getSimpleName() + ", Color: " + targetPiece.getColor());
+                System.out.println("Target piece valid for capture: " + targetPiece.getClass().getSimpleName() + ", Color: " + targetPiece.getColor());
 
                 // Change the target piece's color to the current player's color
                 targetPiece.setColor(piece.getColor());
@@ -21,9 +31,6 @@ public class KingQueenSpecialRule implements GameRule {
                 if (targetPiece instanceof Pawn) {
                     ((Pawn) targetPiece).updateDirection(piece.getColor());
                 }
-
-                // Allow the captured piece to move
-                targetPiece.setImmobile(false);
 
                 // Calculate the new position for the King or Queen
                 int deltaX = move.getEndX() - move.getStartX();
@@ -35,7 +42,7 @@ public class KingQueenSpecialRule implements GameRule {
                     newX = move.getStartX();
                     newY = move.getStartY();
                 } else { // For Queen
-                    // Queen moves to one step back in the direction of the move
+                    // Queen moves one step back in the direction of the move
                     newX = move.getEndX() - Integer.signum(deltaX);
                     newY = move.getEndY() - Integer.signum(deltaY);
                 }
@@ -50,13 +57,19 @@ public class KingQueenSpecialRule implements GameRule {
                 }
 
                 System.out.println("Updated board positions: " + piece.getClass().getSimpleName() + " to " + newX + ", " + newY);
-                System.out.println("Captured piece: " + targetPiece.getClass().getSimpleName() + " at " + move.getEndX() + ", " + move.getEndY());
+                System.out.println("Captured piece after update: " + targetPiece.getClass().getSimpleName() + " at " + move.getEndX() + ", " + move.getEndY());
 
                 // Print the board state for debugging
                 printBoardState(board);
 
-                // Set the special capture flag
-                hasUsedSpecialCapture = true;
+                // Set the appropriate special capture flag
+                if (piece instanceof King) {
+                    hasKingUsedSpecialCapture = true;
+                } else if (piece instanceof Queen) {
+                    hasQueenUsedSpecialCapture = true;
+                }
+            } else {
+                System.out.println("Invalid capture attempt: Target piece is null or the same color as the capturing piece.");
             }
         }
     }
@@ -76,7 +89,11 @@ public class KingQueenSpecialRule implements GameRule {
         }
     }
 
-    public boolean hasUsedSpecialCapture() {
-        return hasUsedSpecialCapture;
+    public boolean hasKingUsedSpecialCapture() {
+        return hasKingUsedSpecialCapture;
+    }
+
+    public boolean hasQueenUsedSpecialCapture() {
+        return hasQueenUsedSpecialCapture;
     }
 }

@@ -36,6 +36,7 @@ class KingQueenSpecialRuleTest {
         blackPawn = new Pawn(Color.BLACK);
         whitePawn = new Pawn(Color.WHITE);
     }
+
     /**
      * Tests that a White King correctly performs a special capture on a Black Pawn.
      * Validates that the capture rule has been applied, the pawn's first move state is retained,
@@ -51,9 +52,8 @@ class KingQueenSpecialRuleTest {
 
         assertEquals(Color.WHITE, board.getPieceAt(5, 5).getColor(), "Captured piece should be white");
         assertEquals(whiteKing, board.getPieceAt(4, 4), "King should stay in the original position");
-        assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+        assertTrue(rule.hasKingUsedSpecialCapture(), "Special capture for King should be marked as used");
         assertTrue(((Pawn) board.getPieceAt(5, 5)).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-        assertEquals(Color.WHITE, ((Pawn) board.getPieceAt(5, 5)).getColor(), "Captured pawn should have white color");
 
         // Try to move the King again
         VariantChessMove kingMove = new VariantChessMove(4, 4, 4, 3);
@@ -80,9 +80,8 @@ class KingQueenSpecialRuleTest {
 
         assertEquals(Color.BLACK, board.getPieceAt(5, 5).getColor(), "Captured piece should be black");
         assertEquals(blackKing, board.getPieceAt(4, 4), "King should stay in the original position");
-        assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+        assertTrue(rule.hasKingUsedSpecialCapture(), "Special capture for King should be marked as used");
         assertTrue(((Pawn) board.getPieceAt(5, 5)).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-        assertEquals(Color.BLACK, ((Pawn) board.getPieceAt(5, 5)).getColor(), "Captured pawn should have black color");
 
         // Try to move the King again
         VariantChessMove kingMove = new VariantChessMove(4, 4, 4, 3);
@@ -114,9 +113,8 @@ class KingQueenSpecialRuleTest {
 
             assertEquals(Color.WHITE, board.getPieceAt(dir[0], dir[1]).getColor(), "Captured piece should be white");
             assertEquals(whiteKing, board.getPieceAt(4, 4), "King should stay in the original position");
-            assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+            assertTrue(rule.hasKingUsedSpecialCapture(), "Special capture for King should be marked as used");
             assertTrue(((Pawn) board.getPieceAt(dir[0], dir[1])).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-            assertEquals(Color.WHITE, ((Pawn) board.getPieceAt(dir[0], dir[1])).getColor(), "Captured pawn should have white color");
         }
     }
 
@@ -134,21 +132,8 @@ class KingQueenSpecialRuleTest {
 
         assertEquals(Color.WHITE, board.getPieceAt(3, 3).getColor(), "Captured piece should be white");
         assertEquals(whiteKing, board.getPieceAt(2, 2), "King should stay in the original position");
-        assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+        assertTrue(rule.hasKingUsedSpecialCapture(), "Special capture for King should be marked as used");
         assertTrue(((Pawn) board.getPieceAt(3, 3)).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-        assertEquals(Color.WHITE, ((Pawn) board.getPieceAt(3, 3)).getColor(), "Captured pawn should have white color");
-    }
-    @Test
-    void testKingMovesToPositionBeforeCapturedPiece() {
-        board.setPieceAt(3, 3, whiteKing);
-        board.setPieceAt(4, 4, blackPawn);
-
-        VariantChessMove move = new VariantChessMove(3, 3, 4, 4);
-        rule.applyRule(move, whiteKing, board);
-
-        // King should stay in the same position
-        assertEquals(whiteKing, board.getPieceAt(3, 3), "King should stay in the original position");
-        assertEquals(Color.WHITE, board.getPieceAt(4, 4).getColor(), "Captured piece should be white");
     }
 
     /**
@@ -165,9 +150,8 @@ class KingQueenSpecialRuleTest {
 
         assertEquals(Color.WHITE, board.getPieceAt(0, 7).getColor(), "Captured piece should be white");
         assertEquals(whiteQueen, board.getPieceAt(1, 6), "Queen should move to the previous position");
-        assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+        assertTrue(rule.hasQueenUsedSpecialCapture(), "Special capture for Queen should be marked as used");
         assertTrue(((Pawn) board.getPieceAt(0, 7)).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-        assertEquals(Color.WHITE, ((Pawn) board.getPieceAt(0, 7)).getColor(), "Captured pawn should have white color");
     }
 
     /**
@@ -191,9 +175,8 @@ class KingQueenSpecialRuleTest {
             int expectedX = dir[0] == 4 ? 4 : (dir[0] < 4 ? dir[0] + 1 : dir[0] - 1);
             int expectedY = dir[1] == 4 ? 4 : (dir[1] < 4 ? dir[1] + 1 : dir[1] - 1);
             assertEquals(whiteQueen, board.getPieceAt(expectedX, expectedY), "Queen should move to the previous position");
-            assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+            assertTrue(rule.hasQueenUsedSpecialCapture(), "Special capture for Queen should be marked as used");
             assertTrue(((Pawn) board.getPieceAt(dir[0], dir[1])).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-            assertEquals(Color.WHITE, ((Pawn) board.getPieceAt(dir[0], dir[1])).getColor(), "Captured pawn should have white color");
         }
 
         int[][] diagonalDirections = {
@@ -211,11 +194,11 @@ class KingQueenSpecialRuleTest {
             int expectedX = (dir[0] < 4) ? dir[0] + 1 : dir[0] - 1;
             int expectedY = (dir[1] < 4) ? dir[1] + 1 : dir[1] - 1;
             assertEquals(whiteQueen, board.getPieceAt(expectedX, expectedY), "Queen should move to the previous position");
-            assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+            assertTrue(rule.hasQueenUsedSpecialCapture(), "Special capture for Queen should be marked as used");
             assertTrue(((Pawn) board.getPieceAt(dir[0], dir[1])).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-            assertEquals(Color.WHITE, ((Pawn) board.getPieceAt(dir[0], dir[1])).getColor(), "Captured pawn should have white color");
         }
     }
+
     /**
      * Tests that a White Queen correctly performs a special capture on a Black Pawn.
      * Validates that the capture rule has been applied, the pawn's first move state is retained,
@@ -231,9 +214,8 @@ class KingQueenSpecialRuleTest {
 
         assertEquals(Color.WHITE, board.getPieceAt(5, 5).getColor(), "Captured piece should be white");
         assertEquals(whiteQueen, board.getPieceAt(4, 4), "Queen should move to the previous position");
-        assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+        assertTrue(rule.hasQueenUsedSpecialCapture(), "Special capture for Queen should be marked as used");
         assertTrue(((Pawn) board.getPieceAt(5, 5)).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-        assertEquals(Color.WHITE, ((Pawn) board.getPieceAt(5, 5)).getColor(), "Captured pawn should have white color");
 
         // Try to move the Queen again
         VariantChessMove queenMove = new VariantChessMove(4, 4, 3, 4);
@@ -260,9 +242,8 @@ class KingQueenSpecialRuleTest {
 
         assertEquals(Color.BLACK, board.getPieceAt(5, 5).getColor(), "Captured piece should be black");
         assertEquals(blackQueen, board.getPieceAt(4, 4), "Queen should move to the previous position");
-        assertTrue(rule.hasUsedSpecialCapture(), "Special capture should be marked as used");
+        assertTrue(rule.hasQueenUsedSpecialCapture(), "Special capture for Queen should be marked as used");
         assertTrue(((Pawn) board.getPieceAt(5, 5)).isFirstMove(), "Captured pawn should retain its isFirstMove state");
-        assertEquals(Color.BLACK, ((Pawn) board.getPieceAt(5, 5)).getColor(), "Captured pawn should have black color");
 
         // Try to move the Queen again
         VariantChessMove queenMove = new VariantChessMove(4, 4, 3, 4);
@@ -273,6 +254,10 @@ class KingQueenSpecialRuleTest {
         VariantChessPiece capturedPiece = board.getPieceAt(5, 5);
         assertTrue(capturedPiece.isValidMove(capturedPieceMove, board), "Captured pawn should be able to move");
     }
+
+    /**
+     * Tests that the Queen correctly moves to the position before the captured piece after a capture.
+     */
     @Test
     void testQueenMovesToPositionBeforeCapturedPiece() {
         board.setPieceAt(2, 2, whiteQueen);
@@ -288,13 +273,16 @@ class KingQueenSpecialRuleTest {
         assertEquals(whiteQueen, board.getPieceAt(expectedX, expectedY), "Queen should move to the position before captured piece");
         assertEquals(Color.WHITE, board.getPieceAt(5, 5).getColor(), "Captured piece should be white");
     }
+
+    /**
+     * Tests that the Queen correctly captures and moves back to the correct position after the capture.
+     */
     @Test
     void testQueenCapturesAndMovesBackCorrectly() {
         board.setPieceAt(4, 4, whiteQueen);
         board.setPieceAt(6, 6, blackPawn);
 
         VariantChessMove move = new VariantChessMove(4, 4, 6, 6);
-
         rule.applyRule(move, whiteQueen, board);
 
         // Calculate expected position
@@ -304,4 +292,28 @@ class KingQueenSpecialRuleTest {
         assertEquals(whiteQueen, board.getPieceAt(expectedX, expectedY), "Queen should move to the previous position");
         assertEquals(Color.WHITE, board.getPieceAt(6, 6).getColor(), "Captured piece should be white");
     }
+
+    /**
+     * Tests that the King and Queen correctly change the color of captured pieces
+     * to their own color after performing a special capture.
+     */
+    @Test
+    void testKingAndQueenCaptureChangesColorCorrectly() {
+        // Set up a scenario where the White King captures a Black Pawn
+        board.setPieceAt(4, 4, whiteKing);
+        board.setPieceAt(5, 5, blackPawn);
+        VariantChessMove kingMove = new VariantChessMove(4, 4, 5, 5);
+        rule.applyRule(kingMove, whiteKing, board);
+
+        assertEquals(Color.WHITE, board.getPieceAt(5, 5).getColor(), "Captured piece should change to White after King captures it");
+
+        // Set up a scenario where the Black Queen captures a White Pawn
+        board.setPieceAt(2, 2, blackQueen);
+        board.setPieceAt(1, 1, whitePawn);
+        VariantChessMove queenMove = new VariantChessMove(2, 2, 1, 1);
+        rule.applyRule(queenMove, blackQueen, board);
+
+        assertEquals(Color.BLACK, board.getPieceAt(1, 1).getColor(), "Captured piece should change to Black after Queen captures it");
+    }
+
 }

@@ -204,10 +204,7 @@ public class VariantChessBoard {
 
         setPieceAt(move.getEndX(), move.getEndY(), piece);
         setPieceAt(move.getStartX(), move.getStartY(), null);
-
-        if (piece instanceof Pawn) {
-            ((Pawn) piece).setFirstMove(false); // 移动成功后更新 isFirstMove 状态
-        }
+        System.out.println(piece);
 
         System.out.println("Piece moved successfully.");
         System.out.println("Current Board State:");

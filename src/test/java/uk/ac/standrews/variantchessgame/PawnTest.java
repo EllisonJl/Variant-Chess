@@ -365,4 +365,70 @@ class PawnTest {
         VariantChessMove captureLeft = new VariantChessMove(1, 3, 1, 2);
         assertFalse(blackPawn.isValidMove(captureLeft, board), "Black pawn should not be able to capture directly to the left on its first move.");
     }
+    /**
+     * Tests that after White's first move, the Black pawn can move forward two squares on its first move.
+     * This test ensures that Black can still perform the initial two-square move after White has made a move.
+     */
+    @Test
+    void testBlackPawnCanMoveTwoSquaresAfterWhiteMove() {
+        // White pawn moves one square forward
+        VariantChessMove whiteMove = new VariantChessMove(6, 0, 5, 0);
+        assertTrue(whitePawn.isValidMove(whiteMove, board), "White pawn should be able to move forward one square.");
+        board.movePiece(whiteMove);
+        whitePawn.setFirstMove(false);  // Mark White's first move as completed
+
+        // Black pawn attempts to move two squares forward
+        VariantChessMove blackMove = new VariantChessMove(1, 0, 3, 0);
+        assertTrue(blackPawn.isValidMove(blackMove, board), "Black pawn should be able to move forward two squares on its first move after White's move.");
+        board.movePiece(blackMove);
+        blackPawn.setFirstMove(false);  // Mark Black's first move as completed
+
+        // Verify that the black pawn is in the correct position
+        assertEquals(blackPawn, board.getPieceAt(3, 0), "Black pawn should be at (3, 0) after moving two squares.");
+        assertNull(board.getPieceAt(1, 0), "The original position (1, 0) should be empty after Black pawn moves.");
+    }
+    /**
+     * Tests that a black pawn cannot move sideways after the white pawn has made its first move.
+     * This test checks if the black pawn's first move is restricted to forward movement,
+     * even after the white pawn has moved. The black pawn should not be able to move
+     * left or right on its first move.
+     */
+    @Test
+    void testBlackPawnCannotMoveSidewaysAfterWhiteMove() {
+        // Clear the board before setting up the test scenario
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                board.getBoard()[row][col] = null;
+            }
+        }
+        // Place the white pawn at its starting position (6, 0)
+        board.getBoard()[6][0] = whitePawn;
+
+        // Place the black pawn at its starting position (1, 0)
+        board.getBoard()[1][0] = blackPawn;
+
+        // Perform the first move for the white pawn (moving it one square forward)
+        VariantChessMove whiteMove = new VariantChessMove(6, 0, 5, 0);
+        assertTrue(whitePawn.isValidMove(whiteMove, board), "White pawn should be able to move forward one square.");
+        board.movePiece(whiteMove);
+        whitePawn.setFirstMove(false);  // Mark the white pawn's first move as completed
+
+        // Attempt to move the black pawn one square to the right (this should fail)
+        VariantChessMove blackMoveRight = new VariantChessMove(1, 0, 1, 1);
+        assertFalse(blackPawn.isValidMove(blackMoveRight, board), "Black pawn should not be able to move sideways to the right on its first move after White's move.");
+
+        // Attempt to move the black pawn one square to the left (this should fail)
+        VariantChessMove blackMoveLeft = new VariantChessMove(1, 0, 1, -1);
+        assertFalse(blackPawn.isValidMove(blackMoveLeft, board), "Black pawn should not be able to move sideways to the left on its first move after White's move.");
+
+        // Verify that the black pawn has not moved from its original position (1, 0)
+        assertEquals(blackPawn, board.getPieceAt(1, 0), "Black pawn should remain at its original position (1, 0).");
+
+        // Verify that the positions (1, 1) and (1, -1) are empty (i.e., the pawn did not move sideways)
+        assertNull(board.getPieceAt(1, 1), "The position (1, 1) should be empty as the pawn should not have moved to the right.");
+        assertNull(board.getPieceAt(1, -1), "The position (1, -1) should be empty as the pawn should not have moved to the left.");
+    }
+
+
 }
+
