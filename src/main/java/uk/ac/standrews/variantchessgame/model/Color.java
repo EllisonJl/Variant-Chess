@@ -17,4 +17,12 @@ public enum Color {
      */
     BLACK;
 
+    /**
+     * Returns the opposite color.
+     *
+     * @return The opposite color (WHITE -> BLACK, BLACK -> WHITE).
+     */
+    public Color opposite() {
+        return this == WHITE ? BLACK : WHITE;
+    }
 }

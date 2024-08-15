@@ -1,9 +1,26 @@
 package uk.ac.standrews.variantchessgame.model;
 
+/**
+ * This class implements a special game rule for a variant chess game,
+ * specifically handling special capture rules for the King and Queen pieces.
+ */
 public class KingQueenSpecialRule implements GameRule {
+    // Indicates whether the King has used its special capture ability
     private boolean hasKingUsedSpecialCapture = false;
+
+    // Indicates whether the Queen has used its special capture ability
     private boolean hasQueenUsedSpecialCapture = false;
 
+    /**
+     * Applies the special capture rule during a move.
+     * If the King or Queen has not yet used their special capture, and they are
+     * in a valid position to do so, they will capture the target piece and
+     * take a specific action depending on the piece type.
+     *
+     * @param move   The move being made.
+     * @param piece  The piece making the move (either King or Queen).
+     * @param board  The current state of the chessboard.
+     */
     @Override
     public void applyRule(VariantChessMove move, VariantChessPiece piece, VariantChessBoard board) {
         System.out.println("Applying special capture rule...");
@@ -24,10 +41,12 @@ public class KingQueenSpecialRule implements GameRule {
             if (targetPiece != null && targetPiece.getColor() != piece.getColor()) {
                 System.out.println("Target piece valid for capture: " + targetPiece.getClass().getSimpleName() + ", Color: " + targetPiece.getColor());
 
-                // Change the target piece's color to the current player's color
+                // Change the color of the captured piece to match the capturing piece
+                System.out.println("Changing target piece color from " + targetPiece.getColor() + " to " + piece.getColor());
                 targetPiece.setColor(piece.getColor());
+                System.out.println("Target piece color after change: " + targetPiece.getColor());
 
-                // Update direction if the captured piece is a pawn
+                // If the captured piece is a Pawn, update its movement direction
                 if (targetPiece instanceof Pawn) {
                     ((Pawn) targetPiece).updateDirection(piece.getColor());
                 }
@@ -74,6 +93,11 @@ public class KingQueenSpecialRule implements GameRule {
         }
     }
 
+    /**
+     * Prints the current state of the chessboard for debugging purposes.
+     *
+     * @param board The current state of the chessboard.
+     */
     private void printBoardState(VariantChessBoard board) {
         System.out.println("Current board state:");
         for (int i = 0; i < 8; i++) {
@@ -89,10 +113,20 @@ public class KingQueenSpecialRule implements GameRule {
         }
     }
 
+    /**
+     * Returns whether the King has used its special capture ability.
+     *
+     * @return true if the King has used its special capture, false otherwise.
+     */
     public boolean hasKingUsedSpecialCapture() {
         return hasKingUsedSpecialCapture;
     }
 
+    /**
+     * Returns whether the Queen has used its special capture ability.
+     *
+     * @return true if the Queen has used its special capture, false otherwise.
+     */
     public boolean hasQueenUsedSpecialCapture() {
         return hasQueenUsedSpecialCapture;
     }

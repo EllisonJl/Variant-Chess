@@ -57,6 +57,7 @@ public abstract class VariantChessPiece {
      * @param color The new color of the piece.
      */
     public void setColor(Color color) {
+        System.out.println("Setting color from " + this.color + " to " + color);
         this.color = color;
     }
 

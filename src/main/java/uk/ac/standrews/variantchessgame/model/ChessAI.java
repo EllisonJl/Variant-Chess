@@ -52,13 +52,14 @@ public class ChessAI {
                     bonusValue = 3; // Bonus value if capture count is 0
                 } else if (captureCount == 1) {
                     bonusValue = 5; // Bonus value if capture count is 1
-                } else if (captureCount ==2 ) {
+                } else if (captureCount == 2) {
                     bonusValue = 10; // Bonus value if capture count is 2
                 }
             }
 
-            return baseValue + bonusValue; // Return the total evaluated value for the Cannon
+            return baseValue + bonusValue; // Return the total evaluated value for the Pawn
         }
+
         if (piece instanceof Queen) {
             Queen queen = (Queen) piece;
             int baseValue = 10;
@@ -70,13 +71,14 @@ public class ChessAI {
                     bonusValue = 3; // Bonus value if capture count is 0
                 } else if (captureCount == 1) {
                     bonusValue = 5; // Bonus value if capture count is 1
-                } else if (captureCount ==2 ) {
+                } else if (captureCount == 2) {
                     bonusValue = 10; // Bonus value if capture count is 2
                 }
             }
 
-            return baseValue + bonusValue; // Return the total evaluated value for the Cannon
+            return baseValue + bonusValue; // Return the total evaluated value for the Queen
         }
+
         return 0; // Default case if the piece is not recognized
     }
 
@@ -105,6 +107,63 @@ public class ChessAI {
     }
 
     /**
+     * Recursively implements the Minimax algorithm to find the best move.
+     *
+     * @param board      The current state of the chessboard.
+     * @param depth      The current depth in the Minimax tree.
+     * @param maximizingPlayer True if AI is the maximizing player, false if minimizing.
+     * @param aiColor    The color of the AI player.
+     * @param currentRule The current rule of the game.
+     * @return The evaluated score for the board at this node in the tree.
+     */
+    private int minimax(VariantChessBoard board, int depth, boolean maximizingPlayer, Color aiColor, GameRule currentRule, int alpha, int beta) {
+        if (depth == 0) {
+            return evaluateBoard(board, aiColor, currentRule); // Evaluate the board if at max depth
+        }
+
+        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        for (int startX = 0; startX < 8; startX++) {
+            for (int startY = 0; startY < 8; startY++) {
+                VariantChessPiece piece = board.getPieceAt(startX, startY); // Get the piece at the starting position
+                if (piece != null && piece.getColor() == (maximizingPlayer ? aiColor : aiColor.opposite())) {
+                    for (int endX = 0; endX < 8; endX++) {
+                        for (int endY = 0; endY < 8; endY++) {
+                            VariantChessMove move = new VariantChessMove(startX, startY, endX, endY); // Create a move object
+                            if (piece.isValidMove(move, board)) { // Check if the move is valid
+                                VariantChessPiece originalEndPiece = board.getPieceAt(endX, endY); // Save the original piece at the end position
+                                board.movePiece(move); // Execute the move
+
+                                // Recursively call minimax with alpha-beta pruning
+                                int score = minimax(board, depth - 1, !maximizingPlayer, aiColor, currentRule, alpha, beta);
+
+                                board.movePiece(new VariantChessMove(endX, endY, startX, startY)); // Undo the move
+                                board.setPieceAt(endX, endY, originalEndPiece); // Restore the original piece at the end position
+
+                                if (maximizingPlayer) {
+                                    bestScore = Math.max(bestScore, score);
+                                    alpha = Math.max(alpha, score);
+                                } else {
+                                    bestScore = Math.min(bestScore, score);
+                                    beta = Math.min(beta, score);
+                                }
+
+                                // Alpha-beta pruning
+                                if (beta <= alpha) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return bestScore;
+    }
+
+
+    /**
      * Finds the best move for the AI player given the current board state and game rule.
      *
      * @param board      The current state of the chessboard.
@@ -113,9 +172,9 @@ public class ChessAI {
      * @return The best move found by the AI.
      */
     public VariantChessMove calculateBestMove(VariantChessBoard board, Color color, GameRule currentRule) {
-        List<VariantChessMove> allPossibleMoves = new ArrayList<>(); // List to store all possible moves
         List<VariantChessMove> bestMoves = new ArrayList<>(); // List to store the best moves with the highest score
         int bestScore = Integer.MIN_VALUE; // Initialize the best score to the lowest possible value
+        int depth = 2; // Set the desired search depth for the Minimax algorithm
 
         // Iterate through all possible moves on the board
         for (int startX = 0; startX < 8; startX++) {
@@ -126,12 +185,12 @@ public class ChessAI {
                         for (int endY = 0; endY < 8; endY++) {
                             VariantChessMove move = new VariantChessMove(startX, startY, endX, endY); // Create a move object
                             if (piece.isValidMove(move, board)) { // Check if the move is valid
-                                allPossibleMoves.add(move); // Add the move to the list of possible moves
-
-                                // Execute the move and evaluate the score
                                 VariantChessPiece originalEndPiece = board.getPieceAt(endX, endY); // Save the original piece at the end position
                                 board.movePiece(move); // Execute the move
-                                int score = evaluateBoard(board, color, currentRule); // Evaluate the new board state
+
+                                // Use minimax with alpha-beta pruning to evaluate the move
+                                int score = minimax(board, depth - 1, false, color, currentRule, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
                                 board.movePiece(new VariantChessMove(endX, endY, startX, startY)); // Undo the move
                                 board.setPieceAt(endX, endY, originalEndPiece); // Restore the original piece at the end position
 
@@ -151,11 +210,12 @@ public class ChessAI {
         }
 
         // If no valid moves are found
-        if (allPossibleMoves.isEmpty()) {
+        if (bestMoves.isEmpty()) {
             return null; // Return null if there are no possible moves
         }
 
         // Randomly choose one of the highest-scoring moves
         return bestMoves.get(random.nextInt(bestMoves.size())); // Select a random move from the best moves
     }
+
 }

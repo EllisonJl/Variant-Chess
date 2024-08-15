@@ -204,7 +204,6 @@ public class VariantChessBoard {
 
         setPieceAt(move.getEndX(), move.getEndY(), piece);
         setPieceAt(move.getStartX(), move.getStartY(), null);
-        System.out.println(piece);
 
         System.out.println("Piece moved successfully.");
         System.out.println("Current Board State:");
