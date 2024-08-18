@@ -5,11 +5,17 @@ package uk.ac.standrews.variantchessgame.model;
  * specifically handling special capture rules for the King and Queen pieces.
  */
 public class KingQueenSpecialRule implements GameRule {
-    // Indicates whether the King has used its special capture ability
-    private boolean hasKingUsedSpecialCapture = false;
+    // Indicates whether the White King has used its special capture ability
+    private boolean hasWhiteKingUsedSpecialCapture = false;
 
-    // Indicates whether the Queen has used its special capture ability
-    private boolean hasQueenUsedSpecialCapture = false;
+    // Indicates whether the White Queen has used its special capture ability
+    private boolean hasWhiteQueenUsedSpecialCapture = false;
+
+    // Indicates whether the Black King has used its special capture ability
+    private boolean hasBlackKingUsedSpecialCapture = false;
+
+    // Indicates whether the Black Queen has used its special capture ability
+    private boolean hasBlackQueenUsedSpecialCapture = false;
 
     /**
      * Applies the special capture rule during a move.
@@ -28,12 +34,24 @@ public class KingQueenSpecialRule implements GameRule {
         System.out.println("Piece: " + piece.getClass().getSimpleName() + ", Color: " + piece.getColor());
 
         // Determine if the piece is eligible for a special capture
-        boolean canUseSpecialCapture = (piece instanceof King && !hasKingUsedSpecialCapture) ||
-                (piece instanceof Queen && !hasQueenUsedSpecialCapture);
+        boolean canUseSpecialCapture = false;
+
+        if (piece instanceof King) {
+            if (piece.getColor() == Color.WHITE && !hasWhiteKingUsedSpecialCapture) {
+                canUseSpecialCapture = true;
+            } else if (piece.getColor() == Color.BLACK && !hasBlackKingUsedSpecialCapture) {
+                canUseSpecialCapture = true;
+            }
+        } else if (piece instanceof Queen) {
+            if (piece.getColor() == Color.WHITE && !hasWhiteQueenUsedSpecialCapture) {
+                canUseSpecialCapture = true;
+            } else if (piece.getColor() == Color.BLACK && !hasBlackQueenUsedSpecialCapture) {
+                canUseSpecialCapture = true;
+            }
+        }
 
         if (canUseSpecialCapture) {
             VariantChessPiece targetPiece = board.getPieceAt(move.getEndX(), move.getEndY());
-            System.out.println("111111");
             System.out.println("Target piece before capture: " + targetPiece + ", Color: " + (targetPiece != null ? targetPiece.getColor() : "null"));
             System.out.println("Current piece: " + piece.getClass().getSimpleName() + ", Color: " + piece.getColor());
 
@@ -83,9 +101,17 @@ public class KingQueenSpecialRule implements GameRule {
 
                 // Set the appropriate special capture flag
                 if (piece instanceof King) {
-                    hasKingUsedSpecialCapture = true;
+                    if (piece.getColor() == Color.WHITE) {
+                        hasWhiteKingUsedSpecialCapture = true;
+                    } else {
+                        hasBlackKingUsedSpecialCapture = true;
+                    }
                 } else if (piece instanceof Queen) {
-                    hasQueenUsedSpecialCapture = true;
+                    if (piece.getColor() == Color.WHITE) {
+                        hasWhiteQueenUsedSpecialCapture = true;
+                    } else {
+                        hasBlackQueenUsedSpecialCapture = true;
+                    }
                 }
             } else {
                 System.out.println("Invalid capture attempt: Target piece is null or the same color as the capturing piece.");
@@ -114,20 +140,38 @@ public class KingQueenSpecialRule implements GameRule {
     }
 
     /**
-     * Returns whether the King has used its special capture ability.
+     * Returns whether the White King has used its special capture ability.
      *
-     * @return true if the King has used its special capture, false otherwise.
+     * @return true if the White King has used its special capture, false otherwise.
      */
-    public boolean hasKingUsedSpecialCapture() {
-        return hasKingUsedSpecialCapture;
+    public boolean hasWhiteKingUsedSpecialCapture() {
+        return hasWhiteKingUsedSpecialCapture;
     }
 
     /**
-     * Returns whether the Queen has used its special capture ability.
+     * Returns whether the White Queen has used its special capture ability.
      *
-     * @return true if the Queen has used its special capture, false otherwise.
+     * @return true if the White Queen has used its special capture, false otherwise.
      */
-    public boolean hasQueenUsedSpecialCapture() {
-        return hasQueenUsedSpecialCapture;
+    public boolean hasWhiteQueenUsedSpecialCapture() {
+        return hasWhiteQueenUsedSpecialCapture;
+    }
+
+    /**
+     * Returns whether the Black King has used its special capture ability.
+     *
+     * @return true if the Black King has used its special capture, false otherwise.
+     */
+    public boolean hasBlackKingUsedSpecialCapture() {
+        return hasBlackKingUsedSpecialCapture;
+    }
+
+    /**
+     * Returns whether the Black Queen has used its special capture ability.
+     *
+     * @return true if the Black Queen has used its special capture, false otherwise.
+     */
+    public boolean hasBlackQueenUsedSpecialCapture() {
+        return hasBlackQueenUsedSpecialCapture;
     }
 }

@@ -26,7 +26,6 @@ public class GameState {
         return blackMoveCount;
     }
 
-
     /**
      * Constructs a new GameState object with the specified chess board.
      * Initializes the game state with the current turn set to WHITE and
@@ -127,7 +126,7 @@ public class GameState {
      */
     public boolean isDraw() {
         // Draw condition: 20 or more moves without capture.
-        if (movesWithoutCapture >= 20) {
+        if (movesWithoutCapture >= 40) {
             return true;
         }
 

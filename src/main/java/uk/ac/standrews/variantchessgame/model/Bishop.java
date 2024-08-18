@@ -42,7 +42,7 @@ public class Bishop extends VariantChessPiece {
             return false;
         }
 
-        // Special case for 田字形 (3x3 grid move).
+        // Move two squares diagonally
         if (Math.abs(endX - startX) == 2 && Math.abs(endY - startY) == 2) {
             VariantChessPiece targetPiece = board.getPieceAt(endX, endY);
             // The move is valid if the target position is empty or occupied by an opponent's piece.

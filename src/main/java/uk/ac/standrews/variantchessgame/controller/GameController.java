@@ -61,44 +61,62 @@ public class GameController {
         System.out.println("Game rule set and board reinitialized."); // Debugging line
     }
 
+    /**
+     * Handles the undo operation for the last move in the game.
+     * This method is mapped to the "/undo" POST request and will attempt to undo the last move(s) made.
+     * If the undo operation is successful, it returns "UNDO_SUCCESS". Otherwise, it returns "UNDO_FAIL".
+     *
+     * @return A string indicating the success or failure of the undo operation.
+     */
     @PostMapping("/undo")
     public String undoLastMove() {
         List<VariantChessMove> lastFullMove = moveHistory.undo();
         if (lastFullMove != null) {
-            for (int i = lastFullMove.size() - 1; i >= 0; i--) { // Undo in reverse order
+            // Undo moves in reverse order to properly restore the game state
+            for (int i = lastFullMove.size() - 1; i >= 0; i--) {
                 VariantChessMove move = lastFullMove.get(i);
-                board.movePiece(new VariantChessMove(move.getEndX(), move.getEndY(), move.getStartX(), move.getStartY())); // Undo the move
+                // Undo the move by moving the piece back to its original position
+                board.movePiece(new VariantChessMove(move.getEndX(), move.getEndY(), move.getStartX(), move.getStartY()));
                 if (move.isCapture() && move.getCapturedPiece() != null) {
-                    board.setPieceAt(move.getEndX(), move.getEndY(), move.getCapturedPiece()); // Restore the captured piece
+                    // Restore the captured piece to its original position
+                    board.setPieceAt(move.getEndX(), move.getEndY(), move.getCapturedPiece());
                 }
 
-                // Restore first move status for pawns
+                // Restore the first move status for pawns
                 VariantChessPiece piece = board.getPieceAt(move.getStartX(), move.getStartY());
                 if (piece instanceof Pawn) {
                     ((Pawn) piece).setFirstMove(move.wasFirstMove());
                 }
 
-                gameState.switchTurn(); // Switch back the turn
+                gameState.switchTurn(); // Switch back the turn to the previous player
             }
-            return "UNDO_SUCCESS";
+            return "UNDO_SUCCESS"; // Return success message
         }
-        return "UNDO_FAIL";
+        return "UNDO_FAIL"; // Return failure message if undo is not possible
     }
 
+    /**
+     * Handles the redo operation for the last undone move in the game.
+     * This method is mapped to the "/redo" POST request and will attempt to redo the last move(s) that were undone.
+     * If the redo operation is successful, it returns "REDO_SUCCESS". Otherwise, it returns "REDO_FAIL".
+     *
+     * @return A string indicating the success or failure of the redo operation.
+     */
     @PostMapping("/redo")
     public String redoLastMove() {
         List<VariantChessMove> nextFullMove = moveHistory.redo();
         if (nextFullMove != null) {
             for (VariantChessMove move : nextFullMove) {
-                board.movePiece(move); // Redo the move
+                board.movePiece(move); // Redo the move by moving the piece to its previous position
                 if (move.isCapture() && move.getCapturedPiece() != null) {
-                    board.setPieceAt(move.getEndX(), move.getEndY(), null); // Re-capture the piece
+                    // Re-capture the piece by removing it from the board
+                    board.setPieceAt(move.getEndX(), move.getEndY(), null);
                 }
-                gameState.switchTurn(); // Switch the turn
+                gameState.switchTurn(); // Switch the turn to the next player
             }
-            return "REDO_SUCCESS";
+            return "REDO_SUCCESS"; // Return success message
         }
-        return "REDO_FAIL";
+        return "REDO_FAIL"; // Return failure message if redo is not possible
     }
 
     /**

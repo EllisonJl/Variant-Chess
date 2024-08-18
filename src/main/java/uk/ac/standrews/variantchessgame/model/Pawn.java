@@ -143,19 +143,4 @@ public class Pawn extends VariantChessPiece {
         setColor(newColor);
         this.direction = (newColor == Color.WHITE) ? -1 : 1; // Updates the direction based on the new color
     }
-
-    /**
-     * Executes the move for the pawn and updates its state accordingly.
-     *
-     * @param move The move to be executed.
-     * @param board The board on which the move is executed.
-     */
-    public void executeMove(VariantChessMove move, VariantChessBoard board) {
-        // Call the board's method to move the piece
-        board.setPieceAt(move.getEndX(), move.getEndY(), this);
-        board.setPieceAt(move.getStartX(), move.getStartY(), null);
-
-        // Update the isFirstMove flag after the move is completed
-        setFirstMove(false);
-    }
 }
