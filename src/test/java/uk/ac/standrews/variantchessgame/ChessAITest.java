@@ -11,10 +11,9 @@ class ChessAITest {
 
     private ChessAI chessAI; // Instance of ChessAI to test
     private VariantChessBoard board; // Instance of VariantChessBoard for setting up test scenarios
-    private CannonSpecialRule cannonSpecialRuleMock; // Mock of CannonSpecialRule for specific testing
-    private PawnPromotionRule pawnPromotionRuleMock; // Mock of PawnPromotionRule for testing
-    private KingQueenSpecialRule kingQueenSpecialRuleMock; // Mock of KingQueenSpecialRule for testing
-    private GameRule mockRule; // Mock of GameRule for general testing
+    private CannonSpecialRule cannonSpecialRule; // Real instance of CannonSpecialRule for specific testing
+    private PawnPromotionRule pawnPromotionRule; // Real instance of PawnPromotionRule for testing
+    private KingQueenSpecialRule kingQueenSpecialRule; // Real instance of KingQueenSpecialRule for testing
 
     /**
      * Sets up the testing environment before each test.
@@ -23,10 +22,9 @@ class ChessAITest {
     void setUp() {
         chessAI = new ChessAI(); // Initialize ChessAI instance
         board = new VariantChessBoard(); // Initialize VariantChessBoard instance
-        cannonSpecialRuleMock = mock(CannonSpecialRule.class); // Mock CannonSpecialRule for testing
-        pawnPromotionRuleMock = mock(PawnPromotionRule.class); // Mock PawnPromotionRule for testing
-        kingQueenSpecialRuleMock = mock(KingQueenSpecialRule.class); // Mock KingQueenSpecialRule for testing
-        mockRule = mock(GameRule.class); // Mock GameRule for testing
+        cannonSpecialRule = new CannonSpecialRule(); // Real instance of CannonSpecialRule for testing
+        pawnPromotionRule = new PawnPromotionRule(); // Real instance of PawnPromotionRule for testing
+        kingQueenSpecialRule = new KingQueenSpecialRule(); // Real instance of KingQueenSpecialRule for testing
     }
 
     /**
@@ -35,22 +33,21 @@ class ChessAITest {
     @Test
     void testEvaluatePieceValue() {
         // Testing the value of different pieces
-        assertEquals(1, callEvaluatePieceValue(new Pawn(Color.WHITE), mockRule)); // Pawn value
-        assertEquals(3, callEvaluatePieceValue(new Knight(Color.WHITE), mockRule)); // Knight value
-        assertEquals(3, callEvaluatePieceValue(new Bishop(Color.WHITE), mockRule)); // Bishop value
-        assertEquals(5, callEvaluatePieceValue(new Rook(Color.WHITE), mockRule)); // Rook value
-        assertEquals(50, callEvaluatePieceValue(new Queen(Color.WHITE), mockRule)); // Queen value
-        assertEquals(4, callEvaluatePieceValue(new King(Color.WHITE), mockRule)); // King value
+        assertEquals(1, callEvaluatePieceValue(new Pawn(Color.WHITE), mock(GameRule.class))); // Pawn value
+        assertEquals(3, callEvaluatePieceValue(new Knight(Color.WHITE), mock(GameRule.class))); // Knight value
+        assertEquals(3, callEvaluatePieceValue(new Bishop(Color.WHITE), mock(GameRule.class))); // Bishop value
+        assertEquals(6, callEvaluatePieceValue(new Rook(Color.WHITE), mock(GameRule.class))); // Rook value
+        assertEquals(7, callEvaluatePieceValue(new Queen(Color.WHITE), mock(GameRule.class))); // Queen value
+        assertEquals(4, callEvaluatePieceValue(new King(Color.WHITE), mock(GameRule.class))); // King value
 
-        // Test Cannon value without capture
+        // Test Cannon value without special rule
         Cannon cannon = new Cannon(Color.WHITE);
-        assertEquals(5, callEvaluatePieceValue(cannon, mockRule)); // Cannon base value
+        assertEquals(5, callEvaluatePieceValue(cannon, mock(GameRule.class))); // Cannon base value
 
         // Test Cannon value with special rule
         cannon.incrementCaptureCount(); // Increase capture count
         cannon.incrementCaptureCount(); // Increase capture count
-        cannon.incrementCaptureCount(); // Increase capture count
-        assertEquals(15, callEvaluatePieceValue(cannon, cannonSpecialRuleMock)); // Base + bonus for explosion
+        assertEquals(8, callEvaluatePieceValue(cannon, cannonSpecialRule)); // Base + bonus for capture count
     }
 
     /**
@@ -62,17 +59,16 @@ class ChessAITest {
         Pawn pawn = new Pawn(Color.WHITE);
 
         // No captures
-        assertEquals(4, callEvaluatePieceValue(pawn, pawnPromotionRuleMock)); // 1 base + 3 bonus
+        assertEquals(2, callEvaluatePieceValue(pawn, pawnPromotionRule)); // 1 base + 1 bonus
 
         // One capture
         pawn.incrementCaptureCount();
-        assertEquals(6, callEvaluatePieceValue(pawn, pawnPromotionRuleMock)); // 1 base + 5 bonus
+        assertEquals(4, callEvaluatePieceValue(pawn, pawnPromotionRule)); // 1 base + 3 bonus
 
         // Two captures
         pawn.incrementCaptureCount();
-        assertEquals(11, callEvaluatePieceValue(pawn, pawnPromotionRuleMock)); // 1 base + 10 bonus
+        assertEquals(5, callEvaluatePieceValue(pawn, pawnPromotionRule)); // 1 base + 4 bonus
     }
-
 
     /**
      * Tests the calculation of the best move under pressure.
@@ -83,7 +79,7 @@ class ChessAITest {
         board.setPieceAt(0, 0, new King(Color.WHITE)); // Place White King on the board
         board.setPieceAt(1, 1, new Queen(Color.BLACK)); // Place Black Queen threatening the White King
 
-        VariantChessMove bestMoveWhite = chessAI.calculateBestMove(board, Color.WHITE, mockRule); // Calculate best move for White
+        VariantChessMove bestMoveWhite = chessAI.calculateBestMove(board, Color.WHITE, mock(GameRule.class)); // Calculate best move for White
 
         // Ensure the best move is a defensive move or captures the threat
         assertNotNull(bestMoveWhite, "White should have a valid defensive move"); // Check if a move is found

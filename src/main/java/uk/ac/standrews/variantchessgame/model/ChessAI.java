@@ -18,7 +18,7 @@ public class ChessAI {
     private int evaluatePieceValue(VariantChessPiece piece, GameRule currentRule) {
         if (piece == null) return 0; // If the piece is null, its value is 0
         if (piece instanceof Knight || piece instanceof Bishop) return 3; // Knight and Bishop are valued at 3
-        if (piece instanceof Rook) return 5; // Rook is valued at 5
+        if (piece instanceof Rook) return 6; // Rook is valued at 6
 
         if (piece instanceof Cannon) {
             Cannon cannon = (Cannon) piece;
@@ -31,8 +31,8 @@ public class ChessAI {
                     bonusValue = 1; // Bonus value if capture count is 1
                 } else if (captureCount == 1) {
                     bonusValue = 2; // Bonus value if capture count is 2
-                } else if (captureCount == 2) {
-                    bonusValue = 3; // Bonus value if capture count is 3
+                } else if (captureCount >= 2) {
+                    bonusValue = 3; // Bonus value if capture count is 3 or more
                 }
             }
 
@@ -50,8 +50,8 @@ public class ChessAI {
                     bonusValue = 1; // Bonus value if capture count is 0
                 } else if (captureCount == 1) {
                     bonusValue = 3; // Bonus value if capture count is 1
-                } else if (captureCount == 2) {
-                    bonusValue = 1; // Bonus value if capture count is 2
+                } else if (captureCount >= 2) {
+                    bonusValue = 4; // Bonus value if capture count is 2 or more
                 }
             }
 
@@ -74,6 +74,7 @@ public class ChessAI {
 
         return 0; // Default case if the piece is not recognized
     }
+
 
     /**
      * Evaluates the board state for the AI's perspective.
